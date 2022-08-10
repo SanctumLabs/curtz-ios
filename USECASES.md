@@ -10,6 +10,9 @@ Data:-
  - email: Email
  - password: String
 
+Response:
+- StatusCode: 200
+
 ```
 Given the user has an active internet connection
     When the user tries to register an account
@@ -33,19 +36,20 @@ As a user with an active internet connection
 I want to be able to login to my account
 </summary>
 
+
 Data:- 
 - email: Email
 - password: String
 
 Response:- 
-    StatusCode: - 200
+- StatusCode: - 200
 
-    Data:- 
-     created_at: Date
-     updated_at: Date
-     email: Email
-     id: xid
-     access_token: valid JWT
+Data: 
+- created_at: Date
+- updated_at: Date
+- email: Email
+- id: xid
+- access_token: valid JWT
 
 
 ```
@@ -63,33 +67,33 @@ Given the user has an active internet connection
 As a user with an active internet connection
 I want to be able to create a shortened url
 </summary>
-Request
-    Data: -
-    - original_url : URL
-    - custom_alias: String?
-    - expires_on: Date (in the future, from now onwards)
-    - keywords: [String]? - used for searching
-    - description: String?
+
+Data:- 
+- original_url : URL
+- custom_alias: String?
+- expires_on: Date (in the future, from now onwards)
+- keywords: [String]? - used for searching
+- description: String?
 
 Response:
  - StatusCode: 201
+ - Data
+    - id: String
+    - user_id: xid
+    - original_url: URL
+    - custom_alias: String
+    - shortcode: String
+    - expires_on: Date
+    - created_at: Date
+    - updated_at: Date
+    - keywords: [String]
+    - hits: Int 
 
-  Data
-  - id: String
-  - user_id: xid
-  - original_url: URL
-  - custom_alias: String
-  - shortcode: String
-  - expires_on: Date
-  - created_at: Date
-  - updated_at: Date
-  - keywords: [String]
-  - hits: Int 
+Response
+- StatusCode: 400
+- Data
+    - error: String
 
- - StatusCode: 400
-
-  Data
-  - error: String
 
 ```
 Given a user has an active internet connection and has a valid token
@@ -102,26 +106,25 @@ Given a user has an active internet connection and has a valid token
 </details>
 
 <details>
-<summanry>
+<summary>
 As a user with an active internet connection
 I want to be able to fetch all of my shortened urls
 </summary>
-Response
-    Statuscode: 200
 
-    Data: - 
-    [
-        - id: String
-        - user_id: String
-        - original_url: URL
-        - custom_alias: String
-        - shortcode: String
-        - expires_on: Date
-        - created_at: Date
-        - updated_at: Date
-        - keywords: [String]
-        - hits: Int 
-    ]
+Response
+- Statuscode: 200
+
+Data: Array
+- id: String
+- user_id: String
+- original_url: URL
+- custom_alias: String
+- shortcode: String
+- expires_on: Date
+- created_at: Date
+- updated_at: Date
+- keywords: [String]
+- hits: Int 
 
 ```
 Given a user has an active internet connection and has a valid token
@@ -141,9 +144,8 @@ Data:
  - urlPath : /:id
 
 Response: 
-    StatusCode: 200
-
-    Data
+- StatusCode: 200
+- Data
     - id: String
     - user_id: String
     - original_url: URL
@@ -155,6 +157,12 @@ Response:
     - keywords: [String]
     - hits: Int 
 
+```
+Given a user has an active internet connection and has a valid token
+    when the user tries to verify their shortened url
+    - The user should get a verifed shortened url
+```
+
 </details>
 
 <details>
@@ -164,10 +172,16 @@ I want to be able delete my shortened url
 </summary>
 
 Data: 
- Method: DELETE
- - urlPath : /:id
-
+- Method: DELETE
+- urlPath : /:id
+ 
 Response: 
-    StatusCode: 202
+- StatusCode: 202
+
+```
+Given a user has an active internet connection and has a valid token
+    when the user tries to delete their shortened url
+    - The user should get a confirmation on the status of the deletion
+```
 
 </details>
