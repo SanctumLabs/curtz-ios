@@ -1,0 +1,24 @@
+name: curtz-ios
+options:
+  bundleIdPrefix: com.sanctumlabs
+targets:
+  Curtz:
+    type: framework
+    platform: macOS
+    sources: [Sources/Curtz]
+  CurtziOS:
+    type: framework
+    platform: iOS
+    deploymentTarget:
+      iOS: 15.5
+    info:
+      path: Sources/CurtziOS/Info.plist
+    sources: [Sources/CurtziOS]
+  CurtziOSApp:
+    type: application
+    platform: iOS
+    deploymentTarget:
+      iOS: 15.5
+    info:
+      path: Sources/CurtziOSApp/Info.plist
+    source: [Sources/CurtziOSApp] 
