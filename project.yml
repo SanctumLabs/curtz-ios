@@ -4,15 +4,29 @@ options:
 targets:
   Curtz:
     type: framework
-    platform: macOS
+    platform: [iOS, macOS]
+    info:
+      path: Sources/Curtz/Info.plist
     sources: 
       - path: Sources/Curtz
         createIntermediateGroups: true
+  CurtzUnitTests:
+    type: bundle.unit-test
+    platform: macOS
+    info:
+      path: Tests/Curtz/Info.plist
+    sources:
+      - path: Tests/Curtz
+        excludes: Tests/Curtz/Info.plist
+        createIntermediateGroups: true
+    dependencies:
+      - target: Curtz_macOS
+        link: true
   CurtziOSApp:
     type: application
     platform: iOS
     deploymentTarget:
-      iOS: 15.5
+      iOS: 15.0
     info:
       path: Sources/CurtziOSApp/Info.plist
     sources: 
@@ -20,4 +34,10 @@ targets:
         excludes: Sources/CurtziOSApp/Info.plist
         createIntermediateGroups: true
     dependencies:
-      - target: Curtz
+      - target: Curtz_iOS
+
+
+#TODO
+# Remove curtz framework [iOS, macOS] so that it can be as generic as possible since it'll not contain any platform specific code
+#  Then -> Update Curtz_iOS to Curtz
+#  Then -> Update Curtz_macOS to Curtz
