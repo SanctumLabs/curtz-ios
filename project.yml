@@ -5,14 +5,30 @@ targets:
   Curtz:
     type: framework
     platform: macOS
+    deploymentTarget:
+      macOS: 12.2
+    info:
+      path: Sources/Curtz/Info.plist
     sources: 
       - path: Sources/Curtz
         createIntermediateGroups: true
+  CurtzUnitTests:
+    type: bundle.unit-test
+    platform: macOS
+    info:
+      path: Tests/Curtz/Info.plist
+    sources:
+      - path: Tests/Curtz
+        excludes: Tests/Curtz/Info.plist
+        createIntermediateGroups: true
+    dependencies:
+      - target: Curtz
+        link: true
   CurtziOSApp:
     type: application
     platform: iOS
     deploymentTarget:
-      iOS: 15.5
+      iOS: 15.0
     info:
       path: Sources/CurtziOSApp/Info.plist
     sources: 
