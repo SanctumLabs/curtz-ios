@@ -4,9 +4,7 @@ options:
 targets:
   Curtz:
     type: framework
-    platform: macOS
-    deploymentTarget:
-      macOS: 12.2
+    platform: [iOS, macOS]
     info:
       path: Sources/Curtz/Info.plist
     sources: 
@@ -22,7 +20,7 @@ targets:
         excludes: Tests/Curtz/Info.plist
         createIntermediateGroups: true
     dependencies:
-      - target: Curtz
+      - target: Curtz_macOS
         link: true
   CurtziOSApp:
     type: application
@@ -36,4 +34,10 @@ targets:
         excludes: Sources/CurtziOSApp/Info.plist
         createIntermediateGroups: true
     dependencies:
-      - target: Curtz
+      - target: Curtz_iOS
+
+
+#TODO
+# Remove curtz framework [iOS, macOS] so that it can be as generic as possible since it'll not contain any platform specific code
+#  Then -> Update Curtz_iOS to Curtz
+#  Then -> Update Curtz_macOS to Curtz
