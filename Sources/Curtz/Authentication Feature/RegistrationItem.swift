@@ -7,12 +7,12 @@
 
 import Foundation
 
-public struct RegistrationRequestItem {
+public struct RegistrationRequest {
     public let email: String
     public let password: String
 }
 
-public struct RegistrationResponseItem {
+public struct RegistrationResponse {
     public let id: String
     public let email: String
     public let createdAt: String

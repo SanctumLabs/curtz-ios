@@ -7,12 +7,12 @@
 
 import Foundation
 
-public struct LoginRequestItem {
+public struct LoginRequest {
     public let email: String
     public let password: String
 }
 
-public struct LoginResponseItem {
+public struct LoginResponse {
     public let id: String
     public let email: String
     public let createdAt: String

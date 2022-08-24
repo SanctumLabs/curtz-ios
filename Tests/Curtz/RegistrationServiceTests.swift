@@ -12,17 +12,36 @@ class RegistrationService {
     let urlRequest: URLRequest
     let client: HTTPClient
     
+    typealias Result = RegistrationResponse
+    
     init(urlRequest: URLRequest, client: HTTPClient) {
         self.urlRequest = urlRequest
         self.client = client
     }
+    
+    func register(completion: @escaping(Result) -> Void) {
+        client.perform(request: urlRequest) { _ in
+
+        }
+    }
 }
 
 class RegistrationServiceTests: XCTestCase {
-    func test_init_doesNotRequestDataFromURLRequest() {
+    func test_init_doesNotPerformAURLRequest() {
         let(_, client) = makeSUT()
         
-        XCTAssertTrue(client.requestedURLrequests.isEmpty)
+        XCTAssertTrue(client.requestsMade.isEmpty)
+    }
+    
+    func test_register_performsAURLRequest() {
+        let url = URL(string: "http://any-request.com")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        
+        let (sut, client) = makeSUT(urlRequest: urlRequest)
+        sut.register {_ in }
+        
+        XCTAssertEqual(client.requestsMade, [urlRequest])
     }
     
     // MARK: - Helpers
@@ -48,13 +67,13 @@ class RegistrationServiceTests: XCTestCase {
             (urlRequest: URLRequest, completion: (HTTPClientResult) -> Void)
         ]()
         
-        var requestedURLrequests: [URLRequest] {
+        var requestsMade: [URLRequest] {
             return messages.map {$0.urlRequest}
         }
         
         
         func perform(request: URLRequest, completion: @escaping (HTTPClientResult) -> Void) {
-            
+            messages.append((request, completion))
         }
     }
 }
