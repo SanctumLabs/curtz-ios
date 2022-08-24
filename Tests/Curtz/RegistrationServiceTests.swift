@@ -44,6 +44,18 @@ class RegistrationServiceTests: XCTestCase {
         XCTAssertEqual(client.requestsMade, [urlRequest])
     }
     
+    func test_registerTwice_performsURLRequestTwice() {
+        let url = URL(string: "http://any-request.com")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        
+        let (sut, client) = makeSUT(urlRequest: urlRequest)
+        sut.register {_ in }
+        sut.register {_ in }
+        
+        XCTAssertEqual(client.requestsMade, [urlRequest, urlRequest])
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(urlRequest: URLRequest = URLRequest(url: URL(string: "http://any-url.com")!), file: StaticString = #filePath, line: UInt = #line) -> (sut: RegistrationService, client: HTTPClientSpy){
