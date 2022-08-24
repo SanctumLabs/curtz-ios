@@ -12,7 +12,12 @@ class RegistrationService {
     let urlRequest: URLRequest
     let client: HTTPClient
     
-    typealias Result = RegistrationResponse
+    public enum Error: Swift.Error {
+        case connectivity
+        case invalidData
+    }
+    
+    typealias Result = RegistrationResult
     
     init(urlRequest: URLRequest, client: HTTPClient) {
         self.urlRequest = urlRequest
@@ -20,8 +25,8 @@ class RegistrationService {
     }
     
     func register(completion: @escaping(Result) -> Void) {
-        client.perform(request: urlRequest) { _ in
-
+        client.perform(request: urlRequest) { result in
+            completion(.failure(Error.connectivity))
         }
     }
 }
@@ -56,6 +61,15 @@ class RegistrationServiceTests: XCTestCase {
         XCTAssertEqual(client.requestsMade, [urlRequest, urlRequest])
     }
     
+    func test_register_deliversErrorOnClientError() {
+        let (sut, client) = makeSUT()
+        
+        expect(sut, toCompleteWith: failure(.connectivity)) {
+            let clientError = NSError(domain: "RegistrationError", code: 0)
+            client.complete(with: clientError)
+        }
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(urlRequest: URLRequest = URLRequest(url: URL(string: "http://any-url.com")!), file: StaticString = #filePath, line: UInt = #line) -> (sut: RegistrationService, client: HTTPClientSpy){
@@ -68,10 +82,34 @@ class RegistrationServiceTests: XCTestCase {
         return (sut, client)
     }
     
+    private func failure(_ error: RegistrationService.Error) -> RegistrationService.Result {
+        .failure(error)
+    }
+    
     private func trackForMemoryLeaks(_ instance: AnyObject, file: StaticString = #filePath, line: UInt = #line) {
         addTeardownBlock { [weak instance] in
             XCTAssertNil(instance, "Instance should have been deallocated. Potential memory leak", file: file, line: line)
         }
+    }
+    
+    private func expect(_ sut: RegistrationService, toCompleteWith expectedResult: RegistrationService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+        let exp = expectation(description: "wait for registration completion")
+        
+        sut.register { receivedResult in
+            switch(receivedResult, expectedResult) {
+            case let (.success(receivedResponse), .success(expectedResponse)):
+                XCTAssertEqual(receivedResponse, expectedResponse, file: file, line: line)
+            case let (.failure(receivedError as RegistrationService.Error), .failure(expectedError as RegistrationService.Error)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            default:
+                XCTFail("Expected result \(expectedResult), got \(receivedResult)", file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1.0)
     }
     
     private class HTTPClientSpy: HTTPClient {
@@ -86,6 +124,10 @@ class RegistrationServiceTests: XCTestCase {
         
         func perform(request: URLRequest, completion: @escaping (HTTPClientResult) -> Void) {
             messages.append((request, completion))
+        }
+        
+        func complete(with error: Error, at index: Int = 0) {
+            messages[index].completion(.failure(error))
         }
     }
 }

@@ -18,3 +18,9 @@ public struct LoginResponse {
     public let createdAt: String
     public let updatedAt: String
 }
+
+public enum LoginResult {
+    case success (LoginResponse)
+    case failure (Error)
+}
+

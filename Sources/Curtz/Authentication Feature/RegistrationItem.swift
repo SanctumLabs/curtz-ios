@@ -12,9 +12,14 @@ public struct RegistrationRequest {
     public let password: String
 }
 
-public struct RegistrationResponse {
+public struct RegistrationResponse: Equatable {
     public let id: String
     public let email: String
     public let createdAt: String
     public let updatedAt: String
+}
+
+public enum RegistrationResult {
+    case success (RegistrationResponse)
+    case failure (Error)
 }
