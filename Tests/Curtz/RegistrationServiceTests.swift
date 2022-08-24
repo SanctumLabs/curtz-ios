@@ -24,9 +24,21 @@ class RegistrationService {
         self.client = client
     }
     
+    private var OK_200: Int {
+        return 200
+    }
+    
     func register(completion: @escaping(Result) -> Void) {
         client.perform(request: urlRequest) { result in
-            completion(.failure(Error.connectivity))
+            switch result {
+            case let .success(_, response):
+                guard response.statusCode == 200 else {
+                    return completion(.failure(Error.invalidData))
+                }
+                completion(.failure(Error.connectivity))
+            default:
+                completion(.failure(Error.connectivity))
+            }
         }
     }
 }
@@ -70,6 +82,18 @@ class RegistrationServiceTests: XCTestCase {
         }
     }
     
+    func test_register_deliversErrorOnNon200StatusCode() {
+        let (sut, client) = makeSUT()
+        let statusCodes = [199, 201, 300, 400, 500]
+        
+        statusCodes.enumerated().forEach { index, code in
+            expect(sut, toCompleteWith: failure(.invalidData)) {
+                let data = makeErrorJSON()
+                client.complete(withStatusCode: code, data: data, at: index)
+            }
+        }
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(urlRequest: URLRequest = URLRequest(url: URL(string: "http://any-url.com")!), file: StaticString = #filePath, line: UInt = #line) -> (sut: RegistrationService, client: HTTPClientSpy){
@@ -90,6 +114,12 @@ class RegistrationServiceTests: XCTestCase {
         addTeardownBlock { [weak instance] in
             XCTAssertNil(instance, "Instance should have been deallocated. Potential memory leak", file: file, line: line)
         }
+    }
+    
+    private func makeErrorJSON(_ message: String = "") -> Data {
+        let json = ["message": message]
+        return try! JSONSerialization.data(withJSONObject: json)
+        
     }
     
     private func expect(_ sut: RegistrationService, toCompleteWith expectedResult: RegistrationService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
@@ -128,6 +158,11 @@ class RegistrationServiceTests: XCTestCase {
         
         func complete(with error: Error, at index: Int = 0) {
             messages[index].completion(.failure(error))
+        }
+        
+        func complete(withStatusCode code: Int, data: Data, at index: Int = 0) {
+            let response = HTTPURLResponse(url: messages[index].urlRequest.url!, statusCode: code, httpVersion: nil, headerFields: nil)!
+            messages[index].completion(.success(data, response))
         }
     }
 }
