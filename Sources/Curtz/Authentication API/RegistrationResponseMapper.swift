@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Class that understand the HTTPResponse received when registering a user
 final class RegistrationMapper {
     
     private struct Item: Decodable {

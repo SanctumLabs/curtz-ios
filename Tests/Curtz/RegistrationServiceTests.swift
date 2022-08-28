@@ -78,7 +78,7 @@ class RegistrationServiceTests: XCTestCase {
         let client = HTTPClientSpy()
         var capturedResult = [RegistrationService.Result]()
         
-        var sut: RegistrationService? = RegistrationService(client: client)
+        var sut: RegistrationService? = RegistrationService(registrationURL: testRegistrationURL(), client: client)
         sut?.register(user: testUser()){capturedResult.append($0)}
         
         sut = nil
@@ -92,7 +92,7 @@ class RegistrationServiceTests: XCTestCase {
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: RegistrationService, client: HTTPClientSpy){
         let client = HTTPClientSpy()
-        let sut = RegistrationService(client: client)
+        let sut = RegistrationService(registrationURL: testRegistrationURL(), client: client)
         
         trackForMemoryLeaks(client)
         trackForMemoryLeaks(sut)

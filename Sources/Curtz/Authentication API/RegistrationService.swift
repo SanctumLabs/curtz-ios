@@ -9,6 +9,7 @@ import Foundation
 
 public class RegistrationService {
     let client: HTTPClient
+    let registrationURL: URL
     
     public enum Error: Swift.Error {
         case connectivity
@@ -17,17 +18,17 @@ public class RegistrationService {
     
     public typealias Result = RegistrationResult
     
-    public init(client: HTTPClient) {
+    public init(registrationURL: URL, client: HTTPClient) {
         self.client = client
+        self.registrationURL = registrationURL
     }
     
     private var OK_200: Int {
         return 200
     }
     
-    static func prepareRequest(for user: RegistrationRequest) -> URLRequest {
-        let url = URL(string: "http://any-request.com")!
-        var request = URLRequest(url: url)
+    private func prepareRequest(for user: RegistrationRequest) -> URLRequest {
+        var request = URLRequest(url: self.registrationURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         let requestBody: [String: String] = [
@@ -42,7 +43,7 @@ public class RegistrationService {
     
     public func register(user :RegistrationRequest, completion: @escaping(Result) -> Void) {
         
-        let request = RegistrationService.prepareRequest(for: user)
+        let request = prepareRequest(for: user)
         
         client.perform(request: request) {[weak self] result in
             guard self != nil else { return }
