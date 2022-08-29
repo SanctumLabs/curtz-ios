@@ -37,13 +37,13 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
     
     func test_performPOSTURLRequest() {
-        let url =  URL(string: "http://test-any.com")!
-        var urlRequest = URLRequest(url: url)
+    
+        var urlRequest = anyURLRequest()
         urlRequest.httpMethod = "POST"
         let exp = expectation(description: "wait for expectation")
         
         URLProtocolStub.observeRequests { request in
-            XCTAssertEqual(request.url, url)
+            XCTAssertEqual(request.url, self.anyUrl())
             XCTAssertEqual(request.httpMethod, "POST")
             exp.fulfill()
         }
@@ -55,8 +55,8 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
     
     func test_request_failsOnRequestError() {
-        let url =  URL(string: "http://test-any.com")!
-        let urlRequest = URLRequest(url: url)
+       
+        let urlRequest = anyURLRequest()
         let error = NSError(domain: "any error", code: 1)
         
         URLProtocolStub.stub(data: nil, response: nil, error: error)
@@ -81,6 +81,14 @@ class URLSessionHTTPClientTests: XCTestCase {
         let sut = URLSessionHTTPClient()
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+    
+    private func anyUrl() -> URL {
+        URL(string: "http://test-any.com")!
+    }
+    
+    private func anyURLRequest() -> URLRequest {
+        URLRequest(url: anyUrl())
     }
     
     private class URLProtocolStub: URLProtocol {

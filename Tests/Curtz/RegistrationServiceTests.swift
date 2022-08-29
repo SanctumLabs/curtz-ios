@@ -67,10 +67,10 @@ class RegistrationServiceTests: XCTestCase {
         let thisUser = RegistrationRequest(email: "email@strong-server.com", password: "serious-password")
         let registrationResponse = makeRegistrationResponse(id: "cc38i5mg26u17lm37upg", email: thisUser.email, createdAt: (Date(timeIntervalSince1970: 1598627222),"2020-08-28T15:07:02+00:00"), updatedAt: (Date(timeIntervalSince1970: 1598627222), "2020-08-28T15:07:02+00:00"))
         
-                expect(sut, registering: thisUser, toCompleteWith: .success(registrationResponse.model)) {
-                    let json = makeJSON(registrationResponse.json)
-                    client.complete(withStatusCode: 200, data: json)
-                }
+        expect(sut, registering: thisUser, toCompleteWith: .success(registrationResponse.model)) {
+            let json = makeJSON(registrationResponse.json)
+            client.complete(withStatusCode: 200, data: json)
+        }
         
     }
     
