@@ -26,7 +26,27 @@ class URLSessionHTTPClient {
 
 class URLSessionHTTPClientTests: XCTestCase {
     
-    func test_getFromURL_failsOnRequestError() {
+    func test_performPOSTURLRequest() {
+        URLProtocolStub.startInterceptingRequests()
+        let url =  URL(string: "http://test-any.com")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        let exp = expectation(description: "wait for expectation")
+        
+        URLProtocolStub.observeRequests { request in
+            XCTAssertEqual(request.url, url)
+            XCTAssertEqual(request.httpMethod, "POST")
+            exp.fulfill()
+        }
+        
+        let sut = URLSessionHTTPClient()
+        sut.perform(request: urlRequest) { _ in }
+        wait(for: [exp], timeout: 1.0)
+        URLProtocolStub.stopInterceptingRequests()
+       
+    }
+    
+    func test_request_failsOnRequestError() {
         URLProtocolStub.startInterceptingRequests()
         let url =  URL(string: "http://test-any.com")!
         let urlRequest = URLRequest(url: url)
@@ -54,6 +74,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     
     private class URLProtocolStub: URLProtocol {
         private static var stub: Stub?
+        private static var requestObserver: ((URLRequest) -> Void)?
         
         private struct Stub {
             let data: Data?
@@ -72,6 +93,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         static func stopInterceptingRequests() {
             URLProtocolStub.unregisterClass(URLProtocolStub.self)
             stub = nil
+            requestObserver = nil
         }
         
         override class func canonicalRequest(for request: URLRequest) -> URLRequest {
@@ -79,7 +101,12 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
         
         override class func canInit(with request: URLRequest) -> Bool {
+            requestObserver?(request)
             return true
+        }
+        
+        static func observeRequests(observer: @escaping (URLRequest) -> Void) {
+            requestObserver = observer
         }
         
         override func startLoading() {
