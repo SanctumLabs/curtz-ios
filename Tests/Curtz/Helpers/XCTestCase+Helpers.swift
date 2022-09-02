@@ -15,6 +15,10 @@ public func anyURLRequest() -> URLRequest {
     URLRequest(url: anyUrl())
 }
 
+public func anyNSError() -> NSError {
+    NSError(domain: "any error", code: 1)
+}
+
 public func anyData() -> Data {
     Data("any data".utf8)
 }

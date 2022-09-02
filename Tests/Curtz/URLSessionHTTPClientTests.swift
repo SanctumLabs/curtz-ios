@@ -39,7 +39,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
     
     func test_request_failsOnRequestError() {
-        let requestError = NSError(domain: "any error", code: 1)
+        let requestError = anyNSError()
         let receivedError = resultErrorFor(data: nil, response: nil, error: requestError) as NSError?
         
         XCTAssertEqual(receivedError?.domain, requestError.domain)
@@ -52,7 +52,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     
     func test_performURLRequest_failsOnAllInvalidRepresentationCases() {
         let anyData = Data("any data".utf8)
-        let anyError = NSError(domain: "any error", code: 1)
+        let anyError = anyNSError()
         let nonHTTPURLResponse = URLResponse(url: anyUrl(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
         let anyHTTPURLResponse = HTTPURLResponse(url: anyUrl(), statusCode: 200, httpVersion: nil, headerFields: nil)
         
@@ -106,7 +106,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         let result = resultFor(data: data, response: response, error: error)
         
         switch result {
-        case let .success(data, response):
+        case let .success((data, response)):
             return (data, response)
         default:
             XCTFail("Expected success, got \(result) instead", file: file, line: line)
@@ -126,14 +126,14 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
     }
     
-    private func resultFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> HTTPClientResult {
+    private func resultFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> HTTPClient.Result {
         
         URLProtocolStub.stub(data: data, response: response, error: error)
         let sut = makeSUT(file: file, line: line)
         
         let exp = expectation(description: "wait for execution")
         
-        var receivedResult: HTTPClientResult!
+        var receivedResult: HTTPClient.Result!
         
         sut.perform(request: anyURLRequest()) { result in
             receivedResult = result

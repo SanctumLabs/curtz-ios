@@ -44,7 +44,7 @@ class RegistrationServiceTests: XCTestCase {
         let (sut, client) = makeSUT()
         
         expect(sut, registering: testUser(), toCompleteWith: failure(.connectivity)) {
-            let clientError = NSError(domain: "RegistrationError", code: 0)
+            let clientError = anyNSError()
             client.complete(with: clientError)
         }
     }

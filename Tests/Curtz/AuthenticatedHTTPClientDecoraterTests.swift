@@ -14,11 +14,9 @@ struct TokenResponse {
     let tokenType: String
 }
 
-public typealias GetTokenResult = Result<String, Error>
-public typealias GetTokenCompletion = (GetTokenResult) -> Void
-
 protocol TokenService {
-    func getToken(completion: @escaping GetTokenCompletion)
+    typealias Result = Swift.Result<String, Error>
+    func getToken(completion: @escaping (Result) -> Void)
 }
 
 class AuthenticatedHTTPClientDecorater: HTTPClient {
@@ -31,17 +29,16 @@ class AuthenticatedHTTPClientDecorater: HTTPClient {
         self.service = service
     }
     
-    func perform(request: URLRequest, completion: @escaping (HTTPClientResult) -> Void) {
+    func perform(request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void) {
         service.getToken {[decoratee] tokenResult in
             switch tokenResult {
             case let .success(token):
                 var signedRequest = request
                 signedRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 decoratee.perform(request: signedRequest) { _ in }
-            default:
-                break
+            case let .failure(error):
+                completion(.failure(error))
             }
-            
         }
     }
 }
@@ -60,21 +57,36 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         XCTAssertEqual(client.requestsMade, [signedRequest])
     }
     
-    // MARK: - Helpers
-    private class GetTokenServiceStub: TokenService {
-       
-        private let token: String
+    func test_performRequest_withFailedTokenRequest_fails() {
+        let client = HTTPClientSpy()
         
-        init(stubbedToken token: String) {
-            self.token = token
-        }
+        let tokenService = GetTokenServiceStub(stubbedError: anyNSError())
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: tokenService)
         
-        func getToken(completion: @escaping GetTokenCompletion) {
-            completion(.success(token))
-        }
+        var receivedResult: HTTPClient.Result?
+        sut.perform(request: anyURLRequest()) { receivedResult = $0 }
+        
+        XCTAssertEqual(client.requestsMade, [])
+        XCTAssertThrowsError(try receivedResult?.get())
     }
     
-   
+    
+    // MARK: - Helpers
+    private class GetTokenServiceStub: TokenService {
+      
+        private let result: TokenService.Result
+        
+        init(stubbedToken token: String) {
+            self.result = .success(token)
+        }
+        
+        init(stubbedError: Error) {
+            self.result = .failure(stubbedError)
+        }
+        func getToken(completion: @escaping (TokenService.Result) -> Void) {
+            completion(result)
+        }
+    }
 }
 
 
