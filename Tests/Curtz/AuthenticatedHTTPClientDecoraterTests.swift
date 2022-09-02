@@ -33,9 +33,7 @@ class AuthenticatedHTTPClientDecorater: HTTPClient {
         service.getToken {[decoratee] tokenResult in
             switch tokenResult {
             case let .success(token):
-                var signedRequest = request
-                signedRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-                decoratee.perform(request: signedRequest) { _ in }
+                decoratee.perform(request: request.signed(with: token), completion: completion)
             case let .failure(error):
                 completion(.failure(error))
             }
@@ -55,6 +53,21 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         sut.perform(request: unsignedRequest) { _ in }
         
         XCTAssertEqual(client.requestsMade, [signedRequest])
+    }
+    
+    func test_performRequest_withSuccessfulTokenRequest_completesWithDecorateeResult() throws {
+        let values = (Data("some data".utf8), httpURLResponse(200))
+        let client = HTTPClientSpy()
+        let tokenService = GetTokenServiceStub(stubbedToken: anyToken())
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: tokenService)
+        
+        var receivedResult: HTTPClient.Result?
+        sut.perform(request: anyURLRequest()) { receivedResult = $0 }
+        client.complete(with: values)
+        
+        let receivedValues = try XCTUnwrap(receivedResult).get()
+        XCTAssertEqual(receivedValues.0, values.0)
+        XCTAssertEqual(receivedValues.1, values.1)
     }
     
     func test_performRequest_withFailedTokenRequest_fails() {
@@ -86,14 +99,5 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         func getToken(completion: @escaping (TokenService.Result) -> Void) {
             completion(result)
         }
-    }
-}
-
-
-private extension URLRequest {
-    func signed(with token: String) -> URLRequest {
-        var request = self
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        return request
     }
 }
