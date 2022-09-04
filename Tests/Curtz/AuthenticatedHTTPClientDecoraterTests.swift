@@ -8,48 +8,6 @@
 import XCTest
 import Curtz
 
-struct TokenResponse {
-    let accessToken: String
-    let refreshToken: String
-    let tokenType: String
-}
-
-protocol TokenService {
-    typealias Result = Swift.Result<String, Error>
-    typealias GetTokenCompletion = (Result) -> Void
-    func getToken(completion: @escaping GetTokenCompletion )
-}
-
-class AuthenticatedHTTPClientDecorater: HTTPClient {
-    
-    private let decoratee: HTTPClient
-    private let service: TokenService
-    private var pendingTokenRequests = [TokenService.GetTokenCompletion]()
-    
-    init(decoratee: HTTPClient, service: TokenService) {
-        self.decoratee = decoratee
-        self.service = service
-    }
-    
-    func perform(request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void) {
-        pendingTokenRequests.append { [decoratee] tokenResult in
-            switch tokenResult {
-            case let .success(token):
-                decoratee.perform(request: request.signed(with: token), completion: completion)
-            case let .failure(error):
-                completion(.failure(error))
-            }
-        }
-        
-        guard pendingTokenRequests.count == 1 else { return }
-        
-        service.getToken { [weak self] tokenResult in
-            self?.pendingTokenRequests.forEach { $0(tokenResult) }
-            self?.pendingTokenRequests = []
-        }
-    }
-}
-
 class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
     func test_performRequest_withSuccessfulTokenRequest_signsRequestWithToken() {
         let client = HTTPClientSpy()
@@ -57,7 +15,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         
         let signedRequest = URLRequest(url: anyUrl()).signed(with: anyToken())
         let tokenService = GetTokenServiceStub(stubbedToken: anyToken())
-        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: tokenService)
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, tokenService: tokenService)
         
         sut.perform(request: unsignedRequest) { _ in }
         
@@ -68,7 +26,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         let values = (Data("some data".utf8), httpURLResponse(200))
         let client = HTTPClientSpy()
         let tokenService = GetTokenServiceStub(stubbedToken: anyToken())
-        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: tokenService)
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, tokenService: tokenService)
         
         var receivedResult: HTTPClient.Result?
         sut.perform(request: anyURLRequest()) { receivedResult = $0 }
@@ -83,7 +41,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         let client = HTTPClientSpy()
         
         let tokenService = GetTokenServiceStub(stubbedError: anyNSError())
-        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: tokenService)
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, tokenService: tokenService)
         
         var receivedResult: HTTPClient.Result?
         sut.perform(request: anyURLRequest()) { receivedResult = $0 }
@@ -95,7 +53,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
     func test_performRequest_multipleTimes_reusesRunningTokenRequest() {
         let client = HTTPClientSpy()
         let service = GetTokenServiceSpy()
-        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: service)
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, tokenService: service)
         
         XCTAssertEqual(service.getTokenCount, 0)
         
@@ -114,7 +72,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
     func test_performRequest_multipleTimes_completesWithRespectiveClientDecorateeResult() throws {
         let client = HTTPClientSpy()
         let tokenService = GetTokenServiceSpy()
-        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: tokenService)
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, tokenService: tokenService)
         
         var result1: HTTPClient.Result?
         sut.perform(request: anyURLRequest()) { result1 = $0 }
