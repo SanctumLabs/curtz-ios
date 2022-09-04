@@ -16,13 +16,15 @@ struct TokenResponse {
 
 protocol TokenService {
     typealias Result = Swift.Result<String, Error>
-    func getToken(completion: @escaping (Result) -> Void)
+    typealias GetTokenCompletion = (Result) -> Void
+    func getToken(completion: @escaping GetTokenCompletion )
 }
 
 class AuthenticatedHTTPClientDecorater: HTTPClient {
     
     private let decoratee: HTTPClient
     private let service: TokenService
+    private var pendingTokenRequests = [TokenService.GetTokenCompletion]()
     
     init(decoratee: HTTPClient, service: TokenService) {
         self.decoratee = decoratee
@@ -30,13 +32,20 @@ class AuthenticatedHTTPClientDecorater: HTTPClient {
     }
     
     func perform(request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void) {
-        service.getToken {[decoratee] tokenResult in
+        pendingTokenRequests.append { [decoratee] tokenResult in
             switch tokenResult {
             case let .success(token):
                 decoratee.perform(request: request.signed(with: token), completion: completion)
             case let .failure(error):
                 completion(.failure(error))
             }
+        }
+        
+        guard pendingTokenRequests.count == 1 else { return }
+        
+        service.getToken { [weak self] tokenResult in
+            self?.pendingTokenRequests.forEach { $0(tokenResult) }
+            self?.pendingTokenRequests = []
         }
     }
 }
@@ -83,9 +92,55 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         XCTAssertThrowsError(try receivedResult?.get())
     }
     
+    func test_performRequest_multipleTimes_reusesRunningTokenRequest() {
+        let client = HTTPClientSpy()
+        let service = GetTokenServiceSpy()
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: service)
+        
+        XCTAssertEqual(service.getTokenCount, 0)
+        
+        sut.perform(request: anyURLRequest()) { _ in }
+        sut.perform(request: anyURLRequest()) { _ in }
+        
+        XCTAssertEqual(service.getTokenCount, 1)
+        
+        service.complete(with: anyNSError())
+        
+        sut.perform(request: anyURLRequest()) { _ in }
+        
+        XCTAssertEqual(service.getTokenCount, 2)
+    }
+    
+    func test_performRequest_multipleTimes_completesWithRespectiveClientDecorateeResult() throws {
+        let client = HTTPClientSpy()
+        let tokenService = GetTokenServiceSpy()
+        let sut = AuthenticatedHTTPClientDecorater(decoratee: client, service: tokenService)
+        
+        var result1: HTTPClient.Result?
+        sut.perform(request: anyURLRequest()) { result1 = $0 }
+        
+        var result2: HTTPClient.Result?
+        sut.perform(request: anyURLRequest()) { result2 = $0 }
+        
+        tokenService.completeSuccessfully(with: anyToken())
+        
+        let values = (Data("some data".utf8), httpURLResponse(200))
+        client.complete(with: values, at: 0)
+        
+        let receivedValues = try XCTUnwrap(result1).get()
+        XCTAssertEqual(receivedValues.0, values.0)
+        XCTAssertEqual(receivedValues.1, values.1)
+        
+        client.complete(with: anyNSError(), at: 1)
+        XCTAssertThrowsError(try result2?.get())
+        
+        
+    }
+    
+    
     
     // MARK: - Helpers
-    private class GetTokenServiceStub: TokenService {
+    private final class GetTokenServiceStub: TokenService {
       
         private let result: TokenService.Result
         
@@ -100,4 +155,27 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
             completion(result)
         }
     }
+    
+    private final class GetTokenServiceSpy: TokenService {
+        
+        var getTokenCompletions = [(TokenService.Result) -> Void]()
+        
+        var getTokenCount: Int {
+            getTokenCompletions.count
+        }
+        
+        func getToken(completion: @escaping (TokenService.Result) -> Void) {
+            getTokenCompletions.append(completion)
+        }
+        
+        func complete(with error: Error, at index: Int = 0) {
+            getTokenCompletions[index](.failure(error))
+        }
+        
+        func completeSuccessfully(with token: String, at index: Int = 0) {
+            getTokenCompletions[index](.success(token))
+        }
+    }
+    
+    
 }
