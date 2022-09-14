@@ -44,7 +44,7 @@ class RegistrationServiceTests: XCTestCase {
         let (sut, client) = makeSUT()
         
         expect(sut, registering: testUser(), toCompleteWith: failure(.connectivity)) {
-            let clientError = NSError(domain: "RegistrationError", code: 0)
+            let clientError = anyNSError()
             client.complete(with: clientError)
         }
     }
@@ -67,10 +67,10 @@ class RegistrationServiceTests: XCTestCase {
         let thisUser = RegistrationRequest(email: "email@strong-server.com", password: "serious-password")
         let registrationResponse = makeRegistrationResponse(id: "cc38i5mg26u17lm37upg", email: thisUser.email, createdAt: (Date(timeIntervalSince1970: 1598627222),"2020-08-28T15:07:02+00:00"), updatedAt: (Date(timeIntervalSince1970: 1598627222), "2020-08-28T15:07:02+00:00"))
         
-                expect(sut, registering: thisUser, toCompleteWith: .success(registrationResponse.model)) {
-                    let json = makeJSON(registrationResponse.json)
-                    client.complete(withStatusCode: 200, data: json)
-                }
+        expect(sut, registering: thisUser, toCompleteWith: .success(registrationResponse.model)) {
+            let json = makeJSON(registrationResponse.json)
+            client.complete(withStatusCode: 200, data: json)
+        }
         
     }
     
@@ -159,12 +159,6 @@ class RegistrationServiceTests: XCTestCase {
         ]
     }
     
-    private func trackForMemoryLeaks(_ instance: AnyObject, file: StaticString = #filePath, line: UInt = #line) {
-        addTeardownBlock { [weak instance] in
-            XCTAssertNil(instance, "Instance should have been deallocated. Potential memory leak", file: file, line: line)
-        }
-    }
-    
     private func makeErrorJSON(_ message: String = "") -> Data {
         let json = ["message": message]
         return try! JSONSerialization.data(withJSONObject: json)
@@ -189,28 +183,5 @@ class RegistrationServiceTests: XCTestCase {
         action()
         
         wait(for: [exp], timeout: 1.0)
-    }
-    
-    private class HTTPClientSpy: HTTPClient {
-        private var messages = [
-            (urlRequest: URLRequest, completion: (HTTPClientResult) -> Void)
-        ]()
-        
-        var requestsMade: [URLRequest] {
-            return messages.map {$0.urlRequest}
-        }
-        
-        func perform(request: URLRequest, completion: @escaping (HTTPClientResult) -> Void) {
-            messages.append((request, completion))
-        }
-        
-        func complete(with error: Error, at index: Int = 0) {
-            messages[index].completion(.failure(error))
-        }
-        
-        func complete(withStatusCode code: Int, data: Data, at index: Int = 0) {
-            let response = HTTPURLResponse(url: messages[index].urlRequest.url!, statusCode: code, httpVersion: nil, headerFields: nil)!
-            messages[index].completion(.success(data, response))
-        }
     }
 }
