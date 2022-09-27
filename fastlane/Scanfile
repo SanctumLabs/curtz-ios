@@ -6,7 +6,7 @@
 
 # Remove the # in front of the line to enable the option
 
-scheme("Curtz_macOS")
+scheme("CurtzAllTests")
 # devices(["Any Mac"])
 
 # open_report(true)
