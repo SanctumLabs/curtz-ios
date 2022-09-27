@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import Curtz
-
 
 public class AuthenticatedHTTPClientDecorater: HTTPClient {
     
