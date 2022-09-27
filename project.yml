@@ -10,6 +10,12 @@ targets:
     sources: 
       - path: Sources/Curtz
         createIntermediateGroups: true
+    scheme:
+      testTargets:
+        - CurtzUnitTests
+      gatherCoverageData: true
+      coverageTargets:
+        - Curtz_macOS
   CurtzUnitTests:
     type: bundle.unit-test
     platform: macOS
