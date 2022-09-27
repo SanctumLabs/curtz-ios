@@ -13,23 +13,29 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 # Available Actions
 
-## iOS
-
-### ios custom_lane
+### custom_lane
 
 ```sh
-[bundle exec] fastlane ios custom_lane
+[bundle exec] fastlane custom_lane
 ```
 
 Description of what the lane does
 
-### ios setup
+### setup
 
 ```sh
-[bundle exec] fastlane ios setup
+[bundle exec] fastlane setup
 ```
 
 Project setup
+
+### test_and_report
+
+```sh
+[bundle exec] fastlane test_and_report
+```
+
+Test and Gather coverage data
 
 ----
 
