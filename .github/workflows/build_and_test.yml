@@ -29,7 +29,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
       - name: Pod install
-        run: bundle exec pod install
+        run: pod install
       - name: Generate the project file
         run: bundle exec fastlane setup
       - name: Run tests
