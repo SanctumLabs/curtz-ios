@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Curtz
 
 
 public class HTTPClientSpy: HTTPClient {
