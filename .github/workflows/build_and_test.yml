@@ -1,0 +1,40 @@
+name: Build and Test Curtz
+on:
+  push:
+    branches: [master, develop]
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches: [master, develop]
+    paths-ignore:
+      - "**.md"
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-and-tests:
+    runs-on: macos-12
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Install Gems 
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+      - name: Check Cocoapods cache
+        uses: actions/cache@v1
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+      - name: Pod install
+        run: bundle exec pod install
+      - name: Generate the project file
+        run: bundle exec fastlane setup
+      - name: Run tests
+        run: |
+          xcodebuild clean build test -project curtz-ios.xcodeproj -scheme "Curtz_macOS" CODE_SIGN_IDENTITY="" CODE_SIGN_REQUIRED=NO -sdk macosx -destination "platform=macOS" ONLY_ACTIVE_ARCH=YES
+  
+  
