@@ -13,14 +13,6 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 # Available Actions
 
-### custom_lane
-
-```sh
-[bundle exec] fastlane custom_lane
-```
-
-Description of what the lane does
-
 ### setup
 
 ```sh
@@ -29,13 +21,13 @@ Description of what the lane does
 
 Project setup
 
-### test_and_report
+### test
 
 ```sh
-[bundle exec] fastlane test_and_report
+[bundle exec] fastlane test
 ```
 
-Test and Gather coverage data
+Test and generate coverage data
 
 ----
 
