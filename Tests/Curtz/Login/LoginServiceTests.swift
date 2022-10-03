@@ -14,6 +14,10 @@ public class LoginService {
     public init(client: HTTPClient) {
         self.client = client
     }
+    
+    public func login() {
+        
+    }
 }
 
 final class LoginServiceTests: XCTestCase {
@@ -21,6 +25,13 @@ final class LoginServiceTests: XCTestCase {
     func test_init_doesNOTperformAnyRequest() {
         let (_, client) = makeSUT()
         XCTAssertTrue(client.requestsMade.isEmpty)
+    }
+    
+    func test_login_performsRequest_withSomeHTTPBody() {
+        let (sut, client) = makeSUT()
+        
+        sut.login()
+        
     }
     
     // MARK: - Helpers
@@ -32,5 +43,11 @@ final class LoginServiceTests: XCTestCase {
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return (sut, client)
+    }
+    
+    private func testUser() -> LoginRequest {
+        
+//        let loginRequest = LoginRequest(
+        return RegistrationRequest(email: "test@email.com", password: "test-password-long-one")
     }
 }
