@@ -8,6 +8,22 @@
 import XCTest
 import Curtz
 
+public struct LoginMapper {
+    static func map(_ data: Data, from response: HTTPURLResponse) -> LoginService.Result {
+        guard isOK(response) else {
+            return .failure(LoginService.Error.invalidData)
+        }
+        
+        return .failure(LoginService.Error.connectivity)
+        
+    }
+    
+    private static func isOK(_ response: HTTPURLResponse) -> Bool {
+        (200...299).contains(response.statusCode)
+    }
+    
+}
+
 public class LoginService {
     private let client: HTTPClient
     private let loginURL: URL
@@ -28,27 +44,28 @@ public class LoginService {
         
         client.perform(request: request) { result in
             switch result {
+            case let .success((data, response)):
+                completion(LoginMapper.map(data, from: response))
             case .failure:
                 completion(.failure(Error.connectivity))
-            default:
-                break
             }
         }
-    }
-    
-    private func prepareRequest(for user: LoginRequest) -> URLRequest {
-        var request = URLRequest(url: self.loginURL)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let requestBody: [String: String] = [
-            "email": user.email,
-            "password": user.password
-        ]
-        let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
-        request.httpBody = jsonData
         
-        return request
+        func prepareRequest(for user: LoginRequest) -> URLRequest {
+            var request = URLRequest(url: self.loginURL)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let requestBody: [String: String] = [
+                "email": user.email,
+                "password": user.password
+            ]
+            let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = jsonData
+            
+            return request
+        }
     }
 }
 
@@ -86,6 +103,17 @@ final class LoginServiceTests: XCTestCase {
             let clientError = anyNSError()
             client.complete(with: clientError)
         })
+    }
+    
+    func test_login_deliversErrorOnNON2xxStatusCode() {
+        let (sut, client) = makeSUT()
+        let statusCodes = [199, 300, 301, 400, 500, 503]
+        statusCodes.enumerated().forEach { index, code in
+            expect(sut, user: testUser(), toCompleteWith: failure(.invalidData), when: {
+                let data = errorJSON()
+                client.complete(withStatusCode: code, data: data, at: index)
+            })
+        }
     }
     
     // MARK: - Helpers
@@ -126,6 +154,11 @@ final class LoginServiceTests: XCTestCase {
         URL(string: "https://secure-login.com")!
     }
     
+    private func errorJSON(_ message: String = "") -> Data {
+        let json = ["message": message]
+        return try! JSONSerialization.data(withJSONObject: json)
+    }
+    
     private func failure(_ error: LoginService.Error) -> LoginService.Result {
         .failure(error)
     }
@@ -135,3 +168,4 @@ final class LoginServiceTests: XCTestCase {
         let password: String
     }
 }
+
