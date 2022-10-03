@@ -23,10 +23,6 @@ public class RegistrationService {
         self.registrationURL = registrationURL
     }
     
-    private var OK_200: Int {
-        return 200
-    }
-    
     private func prepareRequest(for user: RegistrationRequest) -> URLRequest {
         var request = URLRequest(url: self.registrationURL)
         request.httpMethod = "POST"

@@ -21,10 +21,6 @@ final class RegistrationMapper {
         }
     }
     
-    private static var OK_200: Int {
-        return 200
-    }
-    
     static func map(_ data: Data, from response: HTTPURLResponse) -> RegistrationService.Result{
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
