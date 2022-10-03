@@ -101,8 +101,8 @@ class RegistrationServiceTests: XCTestCase {
     }
     
     private struct TestRequest: Codable {
-        public let email: String
-        public let password: String
+        let email: String
+        let password: String
     }
     
     private func failure(_ error: RegistrationService.Error) -> RegistrationService.Result {

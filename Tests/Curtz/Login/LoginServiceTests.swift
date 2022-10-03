@@ -9,8 +9,8 @@ import XCTest
 import Curtz
 
 public class LoginService {
-    let client: HTTPClient
-    let loginURL: URL
+    private let client: HTTPClient
+    private let loginURL: URL
     
     public init(loginURL: URL, client: HTTPClient) {
         self.client = client
@@ -21,12 +21,21 @@ public class LoginService {
         let request = prepareRequest(for: user)
         
         client.perform(request: request) { _ in
-            
+           
         }
     }
     
     private func prepareRequest(for user: LoginRequest) -> URLRequest {
-        let request = URLRequest(url: self.loginURL)
+        var request = URLRequest(url: self.loginURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let requestBody: [String: String] = [
+            "email": user.email,
+            "password": user.password
+        ]
+        let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
         
         return request
     }
@@ -44,7 +53,20 @@ final class LoginServiceTests: XCTestCase {
         
         sut.login(user: testUser())
         XCTAssertFalse(client.requestsMade.isEmpty, "Should make a call atleast")
+    }
+    
+    func test_login_performsRequestWithCorrectInformation() {
+        let jsonDecoder = JSONDecoder()
+        let (sut, client) = makeSUT()
+        let userRequest = LoginRequest(email: "first@email.com", password: "aSeriousLystronsOne")
+        sut.login(user: userRequest)
         
+        client.requestsMade.forEach { request in
+            let receivedLoginRequest = try! jsonDecoder.decode(TestUser.self, from: request.httpBody!)
+            XCTAssertEqual(request.httpMethod!, "POST")
+            XCTAssertEqual(receivedLoginRequest.email, userRequest.email)
+            XCTAssertEqual(receivedLoginRequest.password, userRequest.password)
+        }
     }
     
     // MARK: - Helpers
@@ -64,5 +86,10 @@ final class LoginServiceTests: XCTestCase {
     
     private func testLoginURL() -> URL {
         URL(string: "https://secure-login.com")!
+    }
+    
+    private struct TestUser: Codable {
+        let email: String
+        let password: String
     }
 }
