@@ -1,5 +1,5 @@
 //
-//  SampleTests.swift
+//  RegistrationServiceTests.swift
 //  Curtz
 //
 //  Created by George Nyakundi on 17/08/2022.
@@ -94,15 +94,15 @@ class RegistrationServiceTests: XCTestCase {
         let client = HTTPClientSpy()
         let sut = RegistrationService(registrationURL: testRegistrationURL(), client: client)
         
-        trackForMemoryLeaks(client)
-        trackForMemoryLeaks(sut)
+        trackForMemoryLeaks(client, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
         
         return (sut, client)
     }
     
     private struct TestRequest: Codable {
-        public let email: String
-        public let password: String
+        let email: String
+        let password: String
     }
     
     private func failure(_ error: RegistrationService.Error) -> RegistrationService.Result {
