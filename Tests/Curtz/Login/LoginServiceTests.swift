@@ -10,13 +10,25 @@ import Curtz
 
 public class LoginService {
     let client: HTTPClient
+    let loginURL: URL
     
-    public init(client: HTTPClient) {
+    public init(loginURL: URL, client: HTTPClient) {
         self.client = client
+        self.loginURL = loginURL
     }
     
-    public func login() {
+    public func login(user: LoginRequest) {
+        let request = prepareRequest(for: user)
         
+        client.perform(request: request) { _ in
+            
+        }
+    }
+    
+    private func prepareRequest(for user: LoginRequest) -> URLRequest {
+        let request = URLRequest(url: self.loginURL)
+        
+        return request
     }
 }
 
@@ -27,17 +39,18 @@ final class LoginServiceTests: XCTestCase {
         XCTAssertTrue(client.requestsMade.isEmpty)
     }
     
-    func test_login_performsRequest_withSomeHTTPBody() {
+    func test_login_performsARequest() {
         let (sut, client) = makeSUT()
         
-        sut.login()
+        sut.login(user: testUser())
+        XCTAssertFalse(client.requestsMade.isEmpty, "Should make a call atleast")
         
     }
     
     // MARK: - Helpers
     private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: LoginService, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
-        let sut = LoginService(client: client)
+        let sut = LoginService(loginURL: testLoginURL(), client: client)
         
         trackForMemoryLeaks(client, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -46,8 +59,10 @@ final class LoginServiceTests: XCTestCase {
     }
     
     private func testUser() -> LoginRequest {
-        
-//        let loginRequest = LoginRequest(
-        return RegistrationRequest(email: "test@email.com", password: "test-password-long-one")
+        LoginRequest(email: "test@email.com", password: "test-password-long-one")
+    }
+    
+    private func testLoginURL() -> URL {
+        URL(string: "https://secure-login.com")!
     }
 }
