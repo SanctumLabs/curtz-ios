@@ -12,16 +12,27 @@ public class LoginService {
     private let client: HTTPClient
     private let loginURL: URL
     
+    public typealias Result = RegistrationResult
+    public enum Error: Swift.Error {
+        case connectivity
+        case invalidData
+    }
+    
     public init(loginURL: URL, client: HTTPClient) {
         self.client = client
         self.loginURL = loginURL
     }
     
-    public func login(user: LoginRequest) {
+    public func login(user: LoginRequest, completion: @escaping (Result) -> Void) {
         let request = prepareRequest(for: user)
         
-        client.perform(request: request) { _ in
-           
+        client.perform(request: request) { result in
+            switch result {
+            case .failure:
+                completion(.failure(Error.connectivity))
+            default:
+                break
+            }
         }
     }
     
@@ -51,7 +62,7 @@ final class LoginServiceTests: XCTestCase {
     func test_login_performsARequest() {
         let (sut, client) = makeSUT()
         
-        sut.login(user: testUser())
+        sut.login(user: testUser()){ _ in }
         XCTAssertFalse(client.requestsMade.isEmpty, "Should make a call atleast")
     }
     
@@ -59,7 +70,7 @@ final class LoginServiceTests: XCTestCase {
         let jsonDecoder = JSONDecoder()
         let (sut, client) = makeSUT()
         let userRequest = LoginRequest(email: "first@email.com", password: "aSeriousLystronsOne")
-        sut.login(user: userRequest)
+        sut.login(user: userRequest) { _ in }
         
         client.requestsMade.forEach { request in
             let receivedLoginRequest = try! jsonDecoder.decode(TestUser.self, from: request.httpBody!)
@@ -67,6 +78,14 @@ final class LoginServiceTests: XCTestCase {
             XCTAssertEqual(receivedLoginRequest.email, userRequest.email)
             XCTAssertEqual(receivedLoginRequest.password, userRequest.password)
         }
+    }
+    
+    func test_login_deliversErrorOnClientError() {
+        let (sut, client) = makeSUT()
+        expect(sut, user: testUser(), toCompleteWith: failure(.connectivity), when: {
+            let clientError = anyNSError()
+            client.complete(with: clientError)
+        })
     }
     
     // MARK: - Helpers
@@ -80,12 +99,35 @@ final class LoginServiceTests: XCTestCase {
         return (sut, client)
     }
     
+    private func expect(_ sut: LoginService, user: LoginRequest, toCompleteWith expectedResult: LoginService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+        let exp = expectation(description: "wait for registration completion")
+        sut.login(user: user) { receivedResult in
+            switch(receivedResult, expectedResult) {
+            case let (.success(receivedResponse), .success(expectedResponse)):
+                XCTAssertEqual(receivedResponse, expectedResponse, file: file, line: line)
+            case let (.failure(receivedError as LoginService.Error), .failure(expectedError as LoginService.Error)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            default:
+                XCTFail("Expected \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+    
     private func testUser() -> LoginRequest {
         LoginRequest(email: "test@email.com", password: "test-password-long-one")
     }
     
     private func testLoginURL() -> URL {
         URL(string: "https://secure-login.com")!
+    }
+    
+    private func failure(_ error: LoginService.Error) -> LoginService.Result {
+        .failure(error)
     }
     
     private struct TestUser: Codable {
