@@ -94,8 +94,8 @@ class RegistrationServiceTests: XCTestCase {
         let client = HTTPClientSpy()
         let sut = RegistrationService(registrationURL: testRegistrationURL(), client: client)
         
-        trackForMemoryLeaks(client)
-        trackForMemoryLeaks(sut)
+        trackForMemoryLeaks(client, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
         
         return (sut, client)
     }

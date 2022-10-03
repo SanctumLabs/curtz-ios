@@ -24,9 +24,12 @@ final class LoginServiceTests: XCTestCase {
     }
     
     // MARK: - Helpers
-    private func makeSUT() -> (sut: LoginService, client: HTTPClientSpy) {
+    private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: LoginService, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
         let sut = LoginService(client: client)
+        
+        trackForMemoryLeaks(client, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
         
         return (sut, client)
     }
