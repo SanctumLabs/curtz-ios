@@ -58,7 +58,8 @@ public class LoginService {
     public func login(user: LoginRequest, completion: @escaping (Result) -> Void) {
         let request = prepareRequest(for: user)
         
-        client.perform(request: request) { result in
+        client.perform(request: request) {[weak self] result in
+            guard self != nil else { return }
             switch result {
             case let .success((data, response)):
                 completion(LoginMapper.map(data, from: response))
@@ -142,6 +143,17 @@ final class LoginServiceTests: XCTestCase {
             let json = makeJSON(loginResponse.json)
             client.complete(withStatusCode: 200, data: json)
         })
+    }
+    
+    func test_login_doesNOTDeliverResultsAfterSUTInstanceHasBeenDeallocated() {
+        let client = HTTPClientSpy()
+        var capturedResult = [LoginService.Result]()
+        
+        var sut: LoginService? = LoginService(loginURL: testLoginURL(), client: client)
+        sut?.login(user: testUser(), completion: { capturedResult.append($0)})
+        sut = nil
+        client.complete(withStatusCode: 200, data: makeJSON(jsonFor()))
+        XCTAssertTrue(capturedResult.isEmpty)
     }
     
     // MARK: - Helpers
