@@ -22,8 +22,7 @@ targets:
   CurtzUnitTests:
     type: bundle.unit-test
     platform: macOS
-    deploymentTarget: 
-      macOS: 12.6
+    deploymentTarget: 12.6
     info:
       path: Tests/Curtz/Info.plist
     sources:
@@ -36,8 +35,7 @@ targets:
   CurtzAllTests:
     type: framework
     platform: macOS
-    deploymentTarget: 
-      macOS: 12.6
+    deploymentTarget: 12.6
     info:
       path: Tests/CurtzAllTests/info.plist
     codesign: false
@@ -54,8 +52,7 @@ targets:
   CurtziOSApp:
     type: application
     platform: iOS
-    deploymentTarget:
-      iOS: 15.0
+    deploymentTarget: 15.0
     info:
       path: Sources/CurtziOSApp/Info.plist
     sources: 
