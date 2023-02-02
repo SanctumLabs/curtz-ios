@@ -19,6 +19,7 @@ targets:
   CurtzUnitTests:
     type: bundle.unit-test
     platform: macOS
+    deploymentTarget: "12.6"
     info:
       path: Tests/Curtz/Info.plist
     sources:
