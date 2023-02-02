@@ -1,4 +1,8 @@
-## Curtz iOS App
+# Curtz iOS App
+
+[![Curtz](https://github.com/SanctumLabs/curtz-ios/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/SanctumLabs/curtz-ios/actions/workflows/build_and_test.yml)
+[![codecov](https://codecov.io/github/SanctumLabs/curtz-ios/branch/master/graph/badge.svg?token=Oey4LIlL6f)](https://codecov.io/github/SanctumLabs/curtz-ios)
+[![License](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
 
 Simple URL Shortner service iOS application
 

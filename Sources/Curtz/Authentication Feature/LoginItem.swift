@@ -10,13 +10,29 @@ import Foundation
 public struct LoginRequest {
     public let email: String
     public let password: String
+    
+    public init(email: String, password: String) {
+        self.email = email
+        self.password = password
+    }
 }
 
-public struct LoginResponse {
+public struct LoginResponse: Equatable {
     public let id: String
     public let email: String
-    public let createdAt: String
-    public let updatedAt: String
+    public let createdAt: Date
+    public let updatedAt: Date
+    public let accessToken: String
+    public let refreshToken: String
+    
+    public init(id: String, email: String, createdAt: Date, updatedAt: Date, accessToken: String, refreshToken: String) {
+        self.id = id
+        self.email = email
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.accessToken = accessToken
+        self.refreshToken = refreshToken
+    }
 }
 
 public enum LoginResult {
