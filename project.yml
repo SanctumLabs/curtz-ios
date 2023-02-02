@@ -5,6 +5,9 @@ targets:
   Curtz:
     type: framework
     platform: [iOS, macOS]
+    deploymentTarget:
+      iOS: 15.0
+      macOS: 12.6
     info:
       path: Sources/Curtz/Info.plist
     sources: 
@@ -32,6 +35,7 @@ targets:
   CurtzAllTests:
     type: framework
     platform: macOS
+    deploymentTarget: "12.6"
     info:
       path: Tests/CurtzAllTests/info.plist
     codesign: false
