@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -24,7 +25,7 @@
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" name="SecondaryFadeOrange"/>
                         <constraints>
                             <constraint firstItem="tac-bm-u18" firstAttribute="centerY" secondItem="Bcu-3y-fUS" secondAttribute="centerY" id="D64-1q-tUa"/>
                             <constraint firstItem="tac-bm-u18" firstAttribute="centerX" secondItem="Bcu-3y-fUS" secondAttribute="centerX" id="syb-7d-2w9"/>
@@ -38,5 +39,8 @@
     </scenes>
     <resources>
         <image name="AppImage" width="200" height="200"/>
+        <namedColor name="SecondaryFadeOrange">
+            <color red="0.98431372549019602" green="0.88235294117647056" blue="0.83137254901960789" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>
