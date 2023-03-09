@@ -6,7 +6,7 @@ targets:
     type: framework
     platform: [iOS, macOS]
     deploymentTarget:
-      iOS: 15.0
+      iOS: 16.0
       macOS: 12.6
     info:
       path: Sources/Curtz/Info.plist
@@ -52,9 +52,24 @@ targets:
   CurtziOSApp:
     type: application
     platform: iOS
-    deploymentTarget: 15.0
+    deploymentTarget: 16.0
+    lifecycle: SwiftUI App
+    interface: SwiftUI
     info:
       path: Sources/CurtziOSApp/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleName: CurtziOSApp
+        UIRequiredDeviceCapabilities: [armv7]
+        UILaunchStoryboardName: LaunchScreen
+    settings:
+      INFOPLIST_FILE: Sources/CurtziOSApp/Info.plist
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.backbase.SecureStorageTestApp
+        SUPPORTS_MACCATALYST: NO
+        MARKETING_VERSION: 0.0.1
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_ENTITLEMENTS: ${codeSignEntitlements}
     sources: 
       - path: Sources/CurtziOSApp
         excludes: Sources/CurtziOSApp/Info.plist
