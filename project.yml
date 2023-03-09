@@ -59,7 +59,7 @@ targets:
       path: Sources/CurtziOSApp/Info.plist
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
-        CFBundleName: CurtziOSApp
+        CFBundleName: Curtz
         UIRequiredDeviceCapabilities: [armv7]
         UILaunchStoryboardName: LaunchScreen
     settings:
