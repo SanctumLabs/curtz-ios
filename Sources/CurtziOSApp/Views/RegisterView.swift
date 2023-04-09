@@ -8,8 +8,38 @@
 import SwiftUI
 
 struct RegisterView: View {
+    @State var email: String = ""
+    @State var password: String = ""
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack(alignment: .leading, spacing: 15) {
+            Text("Register")
+                .font(.largeTitle)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.center)
+            TextField("Email address", text: $email)
+                .padding()
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(.blue, lineWidth: 1)
+                }
+            TextField("Password", text: $password)
+                .padding()
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(.blue, lineWidth: 1)
+                }
+            Button("Continue") {
+                
+            }
+            .frame(height: 50)
+            .frame(maxWidth: .infinity)
+            .background(.blue)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+            Spacer()
+        }
+        .padding()
+        
     }
 }
 
