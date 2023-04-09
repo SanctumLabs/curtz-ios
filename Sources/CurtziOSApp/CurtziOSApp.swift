@@ -11,7 +11,9 @@ import SwiftUI
 struct CurtziOSApp: App {
     var body: some Scene {
         WindowGroup {
-            RegisterView()
+            NavigationView {
+                RegisterView()
+            }
         }
     }
 }
