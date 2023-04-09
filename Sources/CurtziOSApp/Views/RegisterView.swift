@@ -28,6 +28,10 @@ struct RegisterView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(.blue, lineWidth: 1)
                 }
+            Text("By creating an account, you agree to Curtz's Conditions of Use and Private Notice.")
+                .font(.caption)
+                .fontWeight(.thin)
+                .padding(.horizontal)
             Button("Continue") {
                 
             }
@@ -39,7 +43,6 @@ struct RegisterView: View {
             Spacer()
         }
         .padding()
-        
     }
 }
 
