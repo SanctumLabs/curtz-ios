@@ -53,8 +53,21 @@ targets:
     type: application
     platform: iOS
     deploymentTarget: 15.0
+    lifecycle: SwiftUI App
+    interface: SwiftUI
     info:
       path: Sources/CurtziOSApp/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleName: Curtz
+        UIRequiredDeviceCapabilities: [armv7]
+        UILaunchStoryboardName: LaunchScreen
+    settings:
+      INFOPLIST_FILE: Sources/CurtziOSApp/Info.plist
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sanctumlabs.curtz
+        SUPPORTS_MACCATALYST: NO
+        MARKETING_VERSION: 0.0.1
     sources: 
       - path: Sources/CurtziOSApp
         excludes: Sources/CurtziOSApp/Info.plist
