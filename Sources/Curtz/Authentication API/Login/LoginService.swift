@@ -38,8 +38,8 @@ public class LoginService {
         
         func prepareRequest(for user: LoginRequest) -> URLRequest {
             var request = URLRequest(url: self.loginURL)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpMethod = .POST
+            request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
             
             let requestBody: [String: String] = [
                 "email": user.email,

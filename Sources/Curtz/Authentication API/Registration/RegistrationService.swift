@@ -25,8 +25,8 @@ public class RegistrationService {
     
     private func prepareRequest(for user: RegistrationRequest) -> URLRequest {
         var request = URLRequest(url: self.registrationURL)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = .POST
+        request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
         let requestBody: [String: String] = [
             "email": user.email,
             "password": user.password
