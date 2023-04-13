@@ -14,3 +14,15 @@ public extension URLRequest {
         return request
     }
 }
+
+extension String {
+    /// HTTP POST method
+    static var POST = "POST"
+    /// HTTP GET method
+    static var GET = "GET"
+    /// Content-Type
+    static var CONTENT_TYPE = "Content-Type"
+    /// application/json
+    static var APPLICATION_JSON = "application/json"
+    
+}
