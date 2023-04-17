@@ -34,21 +34,20 @@ public class LoginService {
                 completion(.failure(Error.connectivity))
             }
         }
+    }
+    
+    private func prepareRequest(for user: LoginRequest) -> URLRequest {
+        var request = URLRequest(url: self.loginURL)
+        request.httpMethod = .POST
+        request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
         
+        let requestBody: [String: String] = [
+            "email": user.email,
+            "password": user.password
+        ]
+        let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
         
-        func prepareRequest(for user: LoginRequest) -> URLRequest {
-            var request = URLRequest(url: self.loginURL)
-            request.httpMethod = .POST
-            request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
-            
-            let requestBody: [String: String] = [
-                "email": user.email,
-                "password": user.password
-            ]
-            let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
-            request.httpBody = jsonData
-            
-            return request
-        }
+        return request
     }
 }
