@@ -23,9 +23,8 @@ public class LoginService {
     }
     
     public func login(user: LoginRequest, completion: @escaping (Result) -> Void) {
-        let request = prepareRequest(for: user)
         
-        client.perform(request: request) {[weak self] result in
+        client.perform(request: .prepared(for: .login(username: user.email, password: user.password), with: self.loginURL)) {[weak self] result in
             guard self != nil else { return }
             switch result {
             case let .success((data, response)):
@@ -34,20 +33,5 @@ public class LoginService {
                 completion(.failure(Error.connectivity))
             }
         }
-    }
-    
-    private func prepareRequest(for user: LoginRequest) -> URLRequest {
-        var request = URLRequest(url: self.loginURL)
-        request.httpMethod = .POST
-        request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
-        
-        let requestBody: [String: String] = [
-            "email": user.email,
-            "password": user.password
-        ]
-        let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
-        request.httpBody = jsonData
-        
-        return request
     }
 }
