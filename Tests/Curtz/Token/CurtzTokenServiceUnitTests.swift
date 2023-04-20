@@ -24,7 +24,10 @@ class CurtzTokenService: TokenService {
     }
     
     func getToken(completion: @escaping GetTokenCompletion) {
-        store.retrieve { result in
+        store.retrieve { [weak self] result in
+            
+            guard let _ = self else { return }
+            
             switch result {
             case let .success(token):
                 completion(.success(token))
@@ -52,8 +55,30 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
         let (sut, store) = makeSUT()
         let token = accessToken()
         expect(sut, toCompleteWith: .success(token)) {
-            store.completionRetrieveSuccessfully(with: token)
+            store.completeRetrievalSuccessfully(with: token)
         }
+    }
+    
+    func test_getToken_respondsWithErrorWhenStoreRespondsWithError() {
+        let (sut, store) = makeSUT()
+        let error: TokenStoreError = .notFound
+        
+        expect(sut, toCompleteWith: .failure(error)) {
+            store.completeRetrieval(with: error)
+        }
+    }
+    
+    func test_getToken_doesNOTRespondAfterSUThasBeenDeallocated() {
+        let store = CurtzTokenStoreSpy()
+        var sut: CurtzTokenService? = CurtzTokenService(store: store)
+        
+        var receivedResult = [TokenService.Result]()
+        
+        sut?.getToken { receivedResult.append($0)}
+        sut = nil
+        
+        store.completeRetrieval(with: .notFound)
+        XCTAssert(receivedResult.isEmpty)
     }
 
     // MARK: - Helpers
@@ -73,19 +98,22 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
     
     private class CurtzTokenStoreSpy: TokenStore {
         private (set) public var messages: [ReceivedMessages] = []
-        private (set) public var retrieveCompletions = [RetrievalCompletion]()
+        private (set) public var retrievalCompletions = [RetrievalCompletion]()
         
         func save(_ tokenRequest: SaveTokenRequest, completion: @escaping SaveCompletion) {
-                    
         }
         
         func retrieve(completion: @escaping RetrievalCompletion) {
             messages.append(.retrieveToken)
-            retrieveCompletions.append(completion)
+            retrievalCompletions.append(completion)
         }
         
-        func completionRetrieveSuccessfully(with token: String, at index:Int = 0) {
-            retrieveCompletions[index](.success(token))
+        func completeRetrievalSuccessfully(with token: String, at index:Int = 0) {
+            retrievalCompletions[index](.success(token))
+        }
+        
+        func completeRetrieval(with error: TokenStoreError, at index: Int = 0){
+            retrievalCompletions[index](.failure(error))
         }
     }
     
