@@ -160,12 +160,6 @@ final class LoginServiceTests: XCTestCase {
         return "email@workspace.com"
     }
     
-    private func accessToken() -> String {
-        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM2NTg5MDYsImlhdCI6MTY2MzY1ODAwNiwiaXNzIjoiY3VydHoiLCJzdWIiOiJjYnVqZDhlZzI2dWRyYWUycmVuZyIsImlkIjoiY2J1amQ4ZWcyNnVkcmFlMnJlbmcifQ.isgfQh4cFcJbb5oWzYbwAiVdYoxmPwSYyDfGBY9ek8A"
-    }
     
-    private func refreshToken() -> String {
-        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM2NjE2MDYsImlhdCI6MTY2MzY1ODAwNiwiaXNzIjoiY3VydHoiLCJzdWIiOiJjYnVqZDhlZzI2dWRyYWUycmVuZyIsImlkIjoiY2J1amQ4ZWcyNnVkcmFlMnJlbmcifQ.ZYVCa2e7HbmjtSNjiBG3Fjg2NOPkWrU1xhYFdyyfwbE"
-    }
 }
 
