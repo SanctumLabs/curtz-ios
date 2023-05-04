@@ -27,7 +27,7 @@ enum TokenStoreError: Error {
     case failedToSave
 }
 
-protocol TokenStore {
+protocol Store {
     
     typealias RetrievalResult = Result<String, TokenStoreError>
     typealias RetrievalCompletion = (RetrievalResult) -> Void
@@ -39,7 +39,7 @@ protocol TokenStore {
     func retrieve(completion: @escaping RetrievalCompletion)
 }
 
-final class CurtzTokenStore: TokenStore {
+final class CurtzTokenStore: Store {
     func save(_ tokenRequest: SaveTokenRequest, completion: @escaping SaveCompletion) {}
     
     func retrieve(completion: @escaping RetrievalCompletion) {}

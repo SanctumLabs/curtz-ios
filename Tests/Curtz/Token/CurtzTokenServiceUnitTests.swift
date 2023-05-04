@@ -17,9 +17,9 @@ import Curtz
  */
 
 class CurtzTokenService: TokenService {
-    private let store: TokenStore
+    private let store: Store
     
-    init(store: TokenStore) {
+    init(store: Store) {
         self.store = store
     }
     
@@ -80,7 +80,7 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
         store.completeRetrieval(with: .notFound)
         XCTAssert(receivedResult.isEmpty)
     }
-
+    
     // MARK: - Helpers
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: TokenService, store: CurtzTokenStoreSpy){
         let store = CurtzTokenStoreSpy()
@@ -96,7 +96,7 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
         case retrieveToken
     }
     
-    private class CurtzTokenStoreSpy: TokenStore {
+    private class CurtzTokenStoreSpy: Store {
         private (set) public var messages: [ReceivedMessages] = []
         private (set) public var retrievalCompletions = [RetrievalCompletion]()
         
