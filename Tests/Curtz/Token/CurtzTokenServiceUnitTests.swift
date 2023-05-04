@@ -61,7 +61,7 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
     
     func test_getToken_respondsWithErrorWhenStoreRespondsWithError() {
         let (sut, store) = makeSUT()
-        let error: TokenStoreError = .notFound
+        let error: StoreError = .notFound
         
         expect(sut, toCompleteWith: .failure(error)) {
             store.completeRetrieval(with: error)
@@ -112,7 +112,7 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
             retrievalCompletions[index](.success(token))
         }
         
-        func completeRetrieval(with error: TokenStoreError, at index: Int = 0){
+        func completeRetrieval(with error: StoreError, at index: Int = 0){
             retrievalCompletions[index](.failure(error))
         }
     }

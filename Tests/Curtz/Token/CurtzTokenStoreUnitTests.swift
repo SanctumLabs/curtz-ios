@@ -22,17 +22,17 @@ struct RetrieveTokenResponse {
     let access_token: String
 }
 
-enum TokenStoreError: Error {
+enum StoreError: Error {
     case notFound
     case failedToSave
 }
 
 protocol Store {
     
-    typealias RetrievalResult = Result<String, TokenStoreError>
+    typealias RetrievalResult = Result<String, StoreError>
     typealias RetrievalCompletion = (RetrievalResult) -> Void
     
-    typealias SaveResult = Result<Void, TokenStoreError>
+    typealias SaveResult = Result<Void, StoreError>
     typealias SaveCompletion = (SaveResult) -> Void
     
     func save(_ tokenRequest: SaveTokenRequest, completion: @escaping SaveCompletion)
@@ -45,3 +45,9 @@ final class CurtzTokenStore: Store {
     func retrieve(completion: @escaping RetrievalCompletion) {}
 }
 
+/*
+ Upon successful login,
+ Save token to the store
+  - delete existing token
+  - save next token pair (access_token, refresh_token)
+ */
