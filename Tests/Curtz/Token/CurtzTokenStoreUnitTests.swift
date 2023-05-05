@@ -13,13 +13,15 @@ import XCTest
  3. Retrieve access_token and refresh_token
  */
 
-enum StoreError: Error {
+enum StoreError: Error, Equatable {
     case notFound
     case failedToSave
 }
 
 protocol Store {
-    func add(_ val: String, key: String)
+    typealias AddResult = Swift.Result<Void, StoreError>
+    
+    func add(_ val: String, key: String, completion: @escaping(AddResult) -> Void)
     func search(forKey key: String)
     func update(_ val: String, forKey key: String)
     func deleteValue(key: String)
@@ -29,14 +31,23 @@ protocol StoreQueryable {
     var query: [String: AnyObject] { get }
 }
 
+enum StoreManagerError: Error, Equatable {
+    case notFound
+    case failedToSave
+}
+
 protocol StoreManager {
-    func save(_ val: String, forKey key: String)
+    
+    typealias SaveResult = Swift.Result<Void, StoreManagerError>
+    
+    func save(_ val: String, forKey key: String, completion: @escaping(SaveResult) -> Void)
     func retrieveValue(forKey key: String)
     func update(_ val: String, forKey key: String)
     func removeValue(forKey key: String)
 }
 
 final class CurtzStoreManager: StoreManager {
+   
   
     private let store: Store
     
@@ -44,8 +55,20 @@ final class CurtzStoreManager: StoreManager {
         self.store = store
     }
     
-    func save(_ val: String, forKey key: String) {
-        store.add(val, key: key)
+    func save(_ val: String, forKey key: String, completion: @escaping (SaveResult) -> Void) {
+        store.add(val, key: key) { result  in
+            switch result  {
+            case let .failure(error):
+                switch error {
+                case .failedToSave:
+                    completion(.failure(.failedToSave))
+                case .notFound:
+                    completion(.failure(.notFound))
+                }
+            default:
+                break
+            }
+        }
     }
     
     func retrieveValue(forKey key: String) {
@@ -70,13 +93,23 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
     }
     
     func test_save_messagesTheStorewith_a_save_action_and_rightData() {
-        let (store, sut) = makeSUT()
+        let (sut, store) = makeSUT()
         
         let key = "some-key"
         let value = "some-value"
         
-        store.save(value, forKey: key)
-        XCTAssertEqual(sut.messages, [.add(value, key)])
+        sut.save(value, forKey: key) { _ in }
+        XCTAssertEqual(store.messages, [.add(value, key)])
+    }
+    
+    func test_save_completesWith_error_when_theStoreCompletesWithAnError() {
+        let (sut, store) = makeSUT()
+        let key = "some-key"
+        let value = "some-value"
+        
+        expect(sut, toCompleteWith: .failure(.failedToSave), forVal: value, andKey: key) {
+            store.completeAdd(withError: .failedToSave)
+        }
     }
     
     func test_retrieveValue_messagesTheStorewith_a_search_action_and_rightData() {
@@ -106,8 +139,8 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
     
     
     // MARK: - Private
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: StoreManager, store: MockStore) {
-        let store = MockStore()
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: StoreManager, store: StoreSpy) {
+        let store = StoreSpy()
         let sut = CurtzStoreManager(with: store)
         
         trackForMemoryLeaks(store, file: file, line: line)
@@ -115,12 +148,33 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         return (sut, store)
     }
     
-    private final class MockStore: Store {
+    private func expect(_ sut: StoreManager, toCompleteWith expectedResult: StoreManager.SaveResult, forVal val: String, andKey key: String, when action: () -> Void, file: StaticString = #file, line: UInt = #line){
+         let expectation = expectation(description: "wait for add")
+        
+        sut.save(val, forKey: key) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.failure(receivedError), .failure(expectedError)):
+                XCTAssertEqual(receivedError as NSError, expectedError as NSError, file: file, line: line)
+            default:
+                XCTFail("Expected result \(expectedResult), received \(receivedResult) instead", file: file, line: line)
+            }
+            
+            expectation.fulfill()
+            
+        }
+        action()
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    private final class StoreSpy: Store {
         
         private(set) var messages: [StoreAction] = []
+        private(set) var addCompletions: [(Store.AddResult) -> Void] = []
         
-        func add(_ val: String, key: String) {
+        func add(_ val: String, key: String, completion: @escaping (AddResult) -> Void) {
             messages.append(.add(val, key))
+            addCompletions.append(completion)
         }
         
         func search(forKey key: String){
@@ -133,6 +187,10 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         func deleteValue(key: String) {
             messages.append(.delete(key))
+        }
+        
+        func completeAdd(withError error: StoreError, at index: Int = 0) {
+            addCompletions[index](.failure(error))
         }
     }
 }
