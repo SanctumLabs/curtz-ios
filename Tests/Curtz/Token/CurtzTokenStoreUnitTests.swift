@@ -102,7 +102,7 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         XCTAssertEqual(store.messages, [.add(value, key)])
     }
     
-    func test_save_completesWith_error_when_theStoreCompletesWithAnError() {
+    func test_save_completesWith_a_failedToSaveError_when_theStoreCompletesWithA_failedToSaveError() {
         let (sut, store) = makeSUT()
         let key = "some-key"
         let value = "some-value"
