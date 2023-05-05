@@ -19,7 +19,7 @@ enum StoreError: Error {
 }
 
 protocol Store {
-    func add()
+    func add(_ val: String, key: String)
     func search()
     func update()
     func delete()
@@ -27,16 +27,21 @@ protocol Store {
 
 /// <#Description#>
 protocol StoreManager {
-    
+    func save(_ val: String, forKey key: String)
 }
 
 final class CurtzStoreManager: StoreManager {
-    
+  
     private let store: Store
     
     init(with store: Store){
         self.store = store
     }
+    
+    func save(_ val: String, forKey key: String) {
+        store.add(val, key: key)
+    }
+    
 }
 
 final class CurtzStoreManagerUnitTests: XCTestCase {
@@ -46,6 +51,18 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         XCTAssertEqual(store.messages, [])
     }
+    
+    func test_save_messagesTheStore_save_action() {
+        let (store, sut) = makeSUT()
+        
+        let key = "some-key"
+        let value = "some-value"
+        
+        store.save(value, forKey: key)
+        XCTAssertEqual(sut.messages, [.add(value, key)])
+        
+    }
+    
     
     // MARK: - Private
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: StoreManager, store: MockStore) {
@@ -61,18 +78,26 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         private(set) var messages: [StoreAction] = []
         
-        func add() {}
+        func add(_ val: String, key: String) {
+            messages.append(.add(val, key))
+        }
         
-        func search() {}
+        func search() {
+            messages.append(.search)
+        }
         
-        func update() {}
+        func update() {
+            messages.append(.update)
+        }
         
-        func delete() {}
+        func delete() {
+            messages.append(.delete)
+        }
     }
 }
 
-enum StoreAction {
-    case add
+enum StoreAction: Equatable {
+    case add(String, String)
     case search
     case update
     case delete
