@@ -20,14 +20,20 @@ enum StoreError: Error {
 
 protocol Store {
     func add(_ val: String, key: String)
-    func search()
-    func update()
-    func delete()
+    func search(forKey key: String)
+    func update(_ val: String, forKey key: String)
+    func deleteValue(key: String)
 }
 
-/// <#Description#>
+protocol StoreQueryable {
+    var query: [String: AnyObject] { get }
+}
+
 protocol StoreManager {
     func save(_ val: String, forKey key: String)
+    func retrieveValue(forKey key: String)
+    func update(_ val: String, forKey key: String)
+    func removeValue(forKey key: String)
 }
 
 final class CurtzStoreManager: StoreManager {
@@ -42,6 +48,17 @@ final class CurtzStoreManager: StoreManager {
         store.add(val, key: key)
     }
     
+    func retrieveValue(forKey key: String) {
+        store.search(forKey: key)
+    }
+    
+    func update(_ val: String, forKey key: String) {
+        store.update(val, forKey: key)
+    }
+    
+    func removeValue(forKey key: String){
+        store.deleteValue(key: key)
+    }
 }
 
 final class CurtzStoreManagerUnitTests: XCTestCase {
@@ -52,7 +69,7 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         XCTAssertEqual(store.messages, [])
     }
     
-    func test_save_messagesTheStore_save_action() {
+    func test_save_messagesTheStorewith_a_save_action_and_rightData() {
         let (store, sut) = makeSUT()
         
         let key = "some-key"
@@ -60,7 +77,31 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         store.save(value, forKey: key)
         XCTAssertEqual(sut.messages, [.add(value, key)])
+    }
+    
+    func test_retrieveValue_messagesTheStorewith_a_search_action_and_rightData() {
+        let (sut, store) = makeSUT()
+        let key = "some-key"
         
+        sut.retrieveValue(forKey: key)
+        XCTAssertEqual(store.messages, [.search(key)])
+    }
+    
+    func test_update_messagesTheStorewith_a_update_action_and_rightData() {
+        let (sut, store) = makeSUT()
+        let key = "some-key"
+        let val = "some-value"
+        
+        sut.update(val, forKey: key)
+        XCTAssertEqual(store.messages, [.update(val, key)])
+    }
+    
+    func test_delete_messagesTheStorewith_a_delete_action_and_withRightData() {
+        let (sut, store) = makeSUT()
+        let key = "another-key"
+        
+        sut.removeValue(forKey: key)
+        XCTAssertEqual(store.messages, [.delete(key)])
     }
     
     
@@ -82,23 +123,23 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
             messages.append(.add(val, key))
         }
         
-        func search() {
-            messages.append(.search)
+        func search(forKey key: String){
+            messages.append(.search(key))
         }
         
-        func update() {
-            messages.append(.update)
+        func update(_ val: String, forKey key: String) {
+            messages.append(.update(val, key))
         }
         
-        func delete() {
-            messages.append(.delete)
+        func deleteValue(key: String) {
+            messages.append(.delete(key))
         }
     }
 }
 
 enum StoreAction: Equatable {
     case add(String, String)
-    case search
-    case update
-    case delete
+    case search(String)
+    case update(String, String)
+    case delete(String)
 }
