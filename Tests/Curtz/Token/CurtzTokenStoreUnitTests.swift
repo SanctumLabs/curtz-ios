@@ -16,15 +16,17 @@ import XCTest
 enum StoreError: Error, Equatable {
     case notFound
     case failedToSave
+    case failedToUpdate
 }
 
 protocol Store {
     typealias AddResult = Swift.Result<Void, StoreError>
     typealias SearchResult = Swift.Result<String, StoreError>
+    typealias UpdateResult = Swift.Result<Void, StoreError>
     
     func add(_ val: String, key: String, completion: @escaping(AddResult) -> Void)
     func search(forKey key: String, completion: @escaping(SearchResult) -> Void)
-    func update(_ val: String, forKey key: String)
+    func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void)
     func deleteValue(key: String)
 }
 
@@ -36,6 +38,7 @@ enum StoreManagerError: Error, Equatable {
   
     case notFound
     case failedToSave
+    case failedToUpdate
     case general(Error?)
     
     static func == (lhs: StoreManagerError, rhs: StoreManagerError) -> Bool {
@@ -56,10 +59,11 @@ protocol StoreManager {
     
     typealias SaveResult = Swift.Result<Void, StoreManagerError>
     typealias RetrieveResult = Swift.Result<String, StoreManagerError>
+    typealias UpdateResult = Swift.Result<Void, StoreManagerError>
     
     func save(_ val: String, forKey key: String, completion: @escaping(SaveResult) -> Void)
     func retrieveValue(forKey key: String, completion: @escaping(RetrieveResult) -> Void)
-    func update(_ val: String, forKey key: String)
+    func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void)
     func removeValue(forKey key: String)
 }
 
@@ -104,9 +108,22 @@ final class CurtzStoreManager: StoreManager {
         }
     }
     
-    func update(_ val: String, forKey key: String) {
-        store.update(val, forKey: key)
+    func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void) {
+        store.update(val, forKey: key) { result in
+            switch result {
+            case let .failure(error):
+                switch error {
+                case .failedToUpdate:
+                    completion(.failure(.failedToUpdate))
+                default:
+                    completion(.failure(.general(error)))
+                }
+            default:
+                break
+            }
+        }
     }
+    
     
     func removeValue(forKey key: String){
         store.deleteValue(key: key)
@@ -180,15 +197,24 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         }
     }
     
-    
-    
     func test_update_messagesTheStorewith_a_update_action_and_rightData() {
         let (sut, store) = makeSUT()
         let key = "some-key"
         let val = "some-value"
         
-        sut.update(val, forKey: key)
+        sut.update(val, forKey: key) { _ in }
         XCTAssertEqual(store.messages, [.update(val, key)])
+    }
+    
+    func test_update_completesWith_anError_when_theStoreCompletesWithAnError() {
+        let (sut, store) = makeSUT()
+        let key = "another-key"
+        let value = "another-value"
+        
+        expect(sut, toCompleteWith: .failure(.failedToUpdate), forValue: value, andKey: key) {
+            store.completeUpdate(withError: .failedToUpdate)
+        }
+        
     }
     
     func test_delete_messagesTheStorewith_a_delete_action_and_withRightData() {
@@ -250,6 +276,26 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
     
+    private func expect(_ sut: StoreManager, toCompleteWith expectedResult: StoreManager.UpdateResult, forValue val: String, andKey key: String, when action: () -> Void, file: StaticString = #file, line: UInt = #line){
+         let expectation = expectation(description: "wait for add")
+        
+        sut.update(val, forKey: key) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.failure(receivedError), .failure(expectedError)):
+                XCTAssertEqual(receivedError as NSError, expectedError as NSError, file: file, line: line)
+            case (.success(), .success()):
+                break
+            default:
+                XCTFail("Expected result \(expectedResult), received \(receivedResult) instead", file: file, line: line)
+            }
+            
+            expectation.fulfill()
+        }
+        action()
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
     
     
     private final class StoreSpy: Store {
@@ -257,6 +303,7 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         private(set) var messages: [StoreAction] = []
         private(set) var addCompletions: [(Store.AddResult) -> Void] = []
         private(set) var searchCompletions: [(Store.SearchResult) -> Void] = []
+        private(set) var updateCompletions: [(Store.UpdateResult) -> Void] = []
         
         func add(_ val: String, key: String, completion: @escaping (AddResult) -> Void) {
             messages.append(.add(val, key))
@@ -268,8 +315,9 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
             searchCompletions.append(completion)
         }
         
-        func update(_ val: String, forKey key: String) {
+        func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void) {
             messages.append(.update(val, key))
+            updateCompletions.append(completion)
         }
         
         func deleteValue(key: String) {
@@ -290,6 +338,14 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         func completeSearchSuccessfuly(withValue value: String, at index: Int = 0) {
             searchCompletions[index](.success(value))
+        }
+        
+        func completeUpdate(withError error: StoreError, at index: Int = 0) {
+            updateCompletions[index](.failure(error))
+        }
+        
+        func completeUpdateSuccessfully(at index: Int = 0) {
+            updateCompletions[index](.success(()))
         }
     }
 }
