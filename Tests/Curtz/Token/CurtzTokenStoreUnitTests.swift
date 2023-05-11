@@ -118,8 +118,8 @@ final class CurtzStoreManager: StoreManager {
                 default:
                     completion(.failure(.general(error)))
                 }
-            default:
-                break
+            case .success:
+                completion(.success(()))
             }
         }
     }
@@ -214,7 +214,16 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         expect(sut, toCompleteWith: .failure(.failedToUpdate), forValue: value, andKey: key) {
             store.completeUpdate(withError: .failedToUpdate)
         }
+    }
+    
+    func test_update_completesSuccessfully_when_theStoreCompletesSuccessfully() {
+        let (sut, store) = makeSUT()
+        let key = "another-key"
+        let value = "another-value"
         
+        expect(sut, toCompleteWith: .success(()), forValue: value, andKey: key) {
+            store.completeUpdateSuccessfully()
+        }
     }
     
     func test_delete_messagesTheStorewith_a_delete_action_and_withRightData() {
