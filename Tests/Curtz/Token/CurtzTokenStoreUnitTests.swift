@@ -66,7 +66,7 @@ final class CurtzStoreManager: StoreManager {
                     completion(.failure(.notFound))
                 }
             default:
-                break
+                completion(.success(()))
             }
         }
     }
@@ -109,6 +109,16 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         expect(sut, toCompleteWith: .failure(.failedToSave), forVal: value, andKey: key) {
             store.completeAdd(withError: .failedToSave)
+        }
+    }
+    
+    func test_save_completeSuccessfully_whenStoreCompletesSavingSuccessfully() {
+        let (sut, store) = makeSUT()
+        let key = "some-key"
+        let value = "some-value"
+        
+        expect(sut, toCompleteWith: .success(()), forVal: value, andKey: key) {
+            store.completeAddSuccessfully()
         }
     }
     
@@ -155,6 +165,8 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
             switch (receivedResult, expectedResult) {
             case let (.failure(receivedError), .failure(expectedError)):
                 XCTAssertEqual(receivedError as NSError, expectedError as NSError, file: file, line: line)
+            case (.success(), .success()):
+                break
             default:
                 XCTFail("Expected result \(expectedResult), received \(receivedResult) instead", file: file, line: line)
             }
@@ -166,6 +178,10 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
     }
+    
+    
+    
+    
     
     private final class StoreSpy: Store {
         
@@ -191,6 +207,10 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         func completeAdd(withError error: StoreError, at index: Int = 0) {
             addCompletions[index](.failure(error))
+        }
+        
+        func completeAddSuccessfully(at index: Int = 0) {
+            addCompletions[index](.success(()))
         }
     }
 }
