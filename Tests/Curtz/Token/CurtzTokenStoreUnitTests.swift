@@ -96,8 +96,8 @@ final class CurtzStoreManager: StoreManager {
                 default:
                     completion(.failure(.general(error)))
                 }
-            default:
-                break
+            case let .success(retrievedValue):
+                completion(.success(retrievedValue))
             }
         }
     }
@@ -161,12 +161,24 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         let (sut, store) = makeSUT()
         
         let key = "another-interesting-key"
-        let val = "retrievedval"
         
         expect(sut, toCompleteWith: .failure(.notFound), andKey: key) {
             store.completeSearch(withError: .notFound)
         }
     }
+    
+    func test_retreiveValue_completeswith_an_successfulRetrievedString_when_storeCompletesWithSuccessFetch() {
+        let (sut, store) = makeSUT()
+        
+        let key = "another-interesting-key"
+        let val = "retrievedval"
+        
+        expect(sut, toCompleteWith: .success(val), andKey: key) {
+            store.completeSearchSuccessfuly(withValue: val)
+        }
+    }
+    
+    
     
     func test_update_messagesTheStorewith_a_update_action_and_rightData() {
         let (sut, store) = makeSUT()
@@ -272,6 +284,10 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         
         func completeSearch(withError error: StoreError, at index: Int = 0) {
             searchCompletions[index](.failure(error))
+        }
+        
+        func completeSearchSuccessfuly(withValue value: String, at index: Int = 0) {
+            searchCompletions[index](.success(value))
         }
     }
 }
