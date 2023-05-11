@@ -139,8 +139,8 @@ final class CurtzStoreManager: StoreManager {
                 default:
                     completion(.failure(.general(error)))
                 }
-            default:
-                break
+            case .success:
+                completion(.success(()))
             }
         }
     }
@@ -258,6 +258,17 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
             store.completeDelete(withError: .failedToDelete)
         }
     }
+    
+    func test_removeValue_completeSuccessfully_when_storeCompletesSuccessfully() {
+        let (sut, store) = makeSUT()
+        let key = "another-key-to-delete"
+        
+        expect(sut, toCompleteWith: .success(()), forKey: key) {
+            store.completeDeleteSuccessfully()
+        }
+    }
+    
+    // TODO: Test for Memory deallocation
     
     
     // MARK: - Private
