@@ -40,10 +40,12 @@ enum StoreManagerError: Error, Equatable {
     
     static func == (lhs: StoreManagerError, rhs: StoreManagerError) -> Bool {
         switch (lhs, rhs) {
-        case let (.general(lhsError), .general(rhsError)):
-            return lhsError?.localizedDescription  == rhsError?.localizedDescription
+        case let (.general(lhsError as NSError), .general(rhsError as NSError)):
+            return lhsError.domain  == rhsError.domain && lhsError.code == rhsError.code
+        case let (lhsE as NSError, rhsE as NSError):
+            return lhsE.code == rhsE.code && lhsE.domain == rhsE.domain
         default:
-            return lhs.localizedDescription == rhs.localizedDescription
+            return false
         }
     }
     
