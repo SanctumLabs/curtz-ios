@@ -24,6 +24,9 @@ class CurtzTokenService: TokenService {
     }
 //    
     func getToken(completion: @escaping GetTokenCompletion) {
+        storeManager.retrieveValue(forKey: .accessTokenKey) { _ in
+            
+        }
 //        store.retrieve { [weak self] result in
 //            
 //            guard let _ = self else { return }
@@ -37,6 +40,10 @@ class CurtzTokenService: TokenService {
 //        }
     }
 }
+
+extension String {
+    static let accessTokenKey = "access_token"
+}
 //
 final class CurtzTokenServiceUnitTests: XCTestCase {
 //    
@@ -45,11 +52,11 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
         XCTAssertTrue(storeManager.messages.isEmpty)
     }
 //    
-//    func test_getToken_sendsARetrieveTokenMessageToTheStore(){
-//        let (sut, store) = makeSUT()
-//        sut.getToken { _ in }
-//        XCTAssertEqual(store.messages, [.retrieveToken])
-//    }
+    func test_getToken_sendsARetrieveTokenMessageToTheStore(){
+        let (sut, storeManager) = makeSUT()
+        sut.getToken { _ in }
+        XCTAssertEqual(storeManager.messages, [.retrieve("access_token")])
+    }
 //    
 //    func test_getToken_respondsWithATokenFromTheStore() {
 //        let (sut, store) = makeSUT()

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum StoreManagerMessage {
+enum StoreManagerMessage: Equatable {
     case save(String, String)
     case retrieve(String)
     case update(String, String)
