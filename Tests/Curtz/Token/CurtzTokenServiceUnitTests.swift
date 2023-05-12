@@ -24,8 +24,13 @@ class CurtzTokenService: TokenService {
     }
 //    
     func getToken(completion: @escaping GetTokenCompletion) {
-        storeManager.retrieveValue(forKey: .accessTokenKey) { _ in
-            
+        storeManager.retrieveValue(forKey: .accessTokenKey) { result in
+            switch result {
+            case let .success(token):
+                completion(.success(token))
+            default:
+                break
+            }
         }
 //        store.retrieve { [weak self] result in
 //            
@@ -57,14 +62,14 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
         sut.getToken { _ in }
         XCTAssertEqual(storeManager.messages, [.retrieve("access_token")])
     }
-//    
-//    func test_getToken_respondsWithATokenFromTheStore() {
-//        let (sut, store) = makeSUT()
-//        let token = accessToken()
-//        expect(sut, toCompleteWith: .success(token)) {
-//            store.completeRetrievalSuccessfully(with: token)
-//        }
-//    }
+    
+    func test_getToken_respondsWithATokenFromTheStore() {
+        let (sut, storeManager) = makeSUT()
+        let token = accessToken()
+        expect(sut, toCompleteWith: .success(token)) {
+            storeManager.completeRetrieveSuccessfully(withVal: token)
+        }
+    }
 //    
 //    func test_getToken_respondsWithErrorWhenStoreRespondsWithError() {
 //        let (sut, store) = makeSUT()
@@ -100,23 +105,23 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
     }
 
 //    
-//    private func expect(_ sut: TokenService, toCompleteWith expectedResult: CurtzTokenService.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line ) {
-//        
-//        let exp = expectation(description: "Wait for load completion")
-//        
-//        sut.getToken { receivedResult in
-//            switch(receivedResult, expectedResult) {
-//            case let (.success(receivedToken), .success(expectedToken)):
-//                XCTAssertEqual(receivedToken, expectedToken, file: file, line: line)
-//            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
-//                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
-//            default:
-//                XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
-//            }
-//            exp.fulfill()
-//        }
-//        
-//        action()
-//        wait(for: [exp], timeout: 0.1)
-//    }
+    private func expect(_ sut: TokenService, toCompleteWith expectedResult: CurtzTokenService.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line ) {
+        
+        let exp = expectation(description: "Wait for load completion")
+        
+        sut.getToken { receivedResult in
+            switch(receivedResult, expectedResult) {
+            case let (.success(receivedToken), .success(expectedToken)):
+                XCTAssertEqual(receivedToken, expectedToken, file: file, line: line)
+            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            default:
+                XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        wait(for: [exp], timeout: 0.1)
+    }
 }
