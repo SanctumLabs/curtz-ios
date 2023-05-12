@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Curtz
 
 /*
  1. Store access_token and refresh_token
@@ -54,22 +55,9 @@ enum StoreManagerError: Error, Equatable {
             return false
         }
     }
-    
-    
 }
 
-protocol StoreManager {
-    
-    typealias SaveResult = Swift.Result<Void, StoreManagerError>
-    typealias RetrieveResult = Swift.Result<String, StoreManagerError>
-    typealias UpdateResult = Swift.Result<Void, StoreManagerError>
-    typealias DeleteResult = Swift.Result<Void, StoreManagerError>
-    
-    func save(_ val: String, forKey key: String, completion: @escaping(SaveResult) -> Void)
-    func retrieveValue(forKey key: String, completion: @escaping(RetrieveResult) -> Void)
-    func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void)
-    func removeValue(forKey key: String, completion: @escaping(DeleteResult) -> Void)
-}
+
 
 final class CurtzStoreManager: StoreManager {
    
