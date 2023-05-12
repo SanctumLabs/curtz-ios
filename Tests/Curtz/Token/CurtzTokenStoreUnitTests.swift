@@ -81,7 +81,8 @@ final class CurtzStoreManager: StoreManager {
     }
     
     func save(_ val: String, forKey key: String, completion: @escaping (SaveResult) -> Void) {
-        store.add(val, key: key) { result  in
+        store.add(val, key: key) {[weak self] result  in
+            guard self != nil else { return }
             switch result  {
             case let .failure(error):
                 switch error {
@@ -97,7 +98,8 @@ final class CurtzStoreManager: StoreManager {
     }
     
     func retrieveValue(forKey key: String, completion: @escaping(RetrieveResult) -> Void){
-        store.search(forKey: key) { result in
+        store.search(forKey: key) {[weak self] result in
+            guard self != nil else { return }
             switch result {
             case let .failure(error):
                 switch error {
@@ -113,7 +115,8 @@ final class CurtzStoreManager: StoreManager {
     }
     
     func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void) {
-        store.update(val, forKey: key) { result in
+        store.update(val, forKey: key) {[weak self] result in
+            guard self != nil else { return }
             switch result {
             case let .failure(error):
                 switch error {
@@ -130,7 +133,8 @@ final class CurtzStoreManager: StoreManager {
     
     
     func removeValue(forKey key: String, completion: @escaping(DeleteResult) -> Void){
-        store.deleteValue(key: key) { result in
+        store.deleteValue(key: key) {[weak self] result in
+            guard self != nil else { return }
             switch result {
             case let .failure(error):
                 switch error {
@@ -184,6 +188,20 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         }
     }
     
+    func test_save_doesNOTdeliverResult_when_instance_is_deallocated() {
+        let store = StoreSpy()
+        var sut: StoreManager? = CurtzStoreManager(with: store)
+        let key = "dealloc-key"
+        let val = "dealloc-val"
+        
+        var capturedResults = [StoreManager.SaveResult]()
+        sut?.save(val, forKey: key, completion: { capturedResults.append($0)})
+        sut = nil
+        
+        store.completeAddSuccessfully()
+        XCTAssert(capturedResults.isEmpty)
+    }
+    
     func test_retrieveValue_messagesTheStorewith_a_search_action_and_rightData() {
         let (sut, store) = makeSUT()
         let key = "some-key"
@@ -211,6 +229,19 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         expect(sut, toCompleteWith: .success(val), andKey: key) {
             store.completeSearchSuccessfuly(withValue: val)
         }
+    }
+    
+    func test_retrieveValue_doesNOTdeliverResult_when_instance_is_deallocated() {
+        let store = StoreSpy()
+        var sut: StoreManager? = CurtzStoreManager(with: store)
+        let key = "dealloc-key"
+        
+        var capturedResults = [StoreManager.RetrieveResult]()
+        sut?.retrieveValue(forKey: key, completion: { capturedResults.append($0)})
+        sut = nil
+        
+        store.completeSearch(withError: .notFound)
+        XCTAssert(capturedResults.isEmpty)
     }
     
     func test_update_messagesTheStorewith_a_update_action_and_rightData() {
@@ -242,6 +273,20 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         }
     }
     
+    func test_update_doesNOTdeliverResult_when_instance_is_deallocated() {
+        let store = StoreSpy()
+        var sut: StoreManager? = CurtzStoreManager(with: store)
+        let key = "dealloc-key"
+        let value = "dealloc-value"
+        
+        var capturedResults = [StoreManager.UpdateResult]()
+        sut?.update(value, forKey: key, completion: { capturedResults.append($0)})
+
+        sut = nil
+        store.completeUpdateSuccessfully()
+        XCTAssert(capturedResults.isEmpty)
+    }
+    
     func test_removeValue_messagesTheStorewith_a_delete_action_and_withRightData() {
         let (sut, store) = makeSUT()
         let key = "another-key"
@@ -268,8 +313,18 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         }
     }
     
-    // TODO: Test for Memory deallocation
-    
+    func test_removeValue_doesNOTdeliverResult_when_instance_is_deallocated() {
+        let store = StoreSpy()
+        var sut: StoreManager? = CurtzStoreManager(with: store)
+        let key = "dealloc-key"
+        
+        var capturedResults = [StoreManager.DeleteResult]()
+        sut?.removeValue(forKey: key, completion: { capturedResults.append($0) })
+
+        sut = nil
+        store.completeDeleteSuccessfully()
+        XCTAssert(capturedResults.isEmpty)
+    }
     
     // MARK: - Private
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: StoreManager, store: StoreSpy) {
