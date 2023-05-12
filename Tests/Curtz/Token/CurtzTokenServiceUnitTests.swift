@@ -10,10 +10,9 @@ import Curtz
 
 
 /**
- 1. Receive and save the access_token and refresh_token
- 2. When a fetch request if made, return the token
- 3. If the the token has expired, then use the refresh token to request a new token
- 4. Save both the acces_token and refresh_token
+ TODO: Think and implement
+ - Save access_token and refresh_token
+ - Use the refresh_token to request for new access_token
  */
 
 class CurtzTokenService: TokenService {
@@ -22,9 +21,10 @@ class CurtzTokenService: TokenService {
     init(storeManager: StoreManager) {
         self.storeManager = storeManager
     }
-//    
+    
     func getToken(completion: @escaping GetTokenCompletion) {
-        storeManager.retrieveValue(forKey: .accessTokenKey) { result in
+        storeManager.retrieveValue(forKey: .accessTokenKey) {[weak self] result in
+            guard let _ = self else { return }
             switch result {
             case let .success(token):
                 completion(.success(token))
@@ -32,31 +32,20 @@ class CurtzTokenService: TokenService {
                 completion(.failure(error))
             }
         }
-//        store.retrieve { [weak self] result in
-//            
-//            guard let _ = self else { return }
-//            
-//            switch result {
-//            case let .success(token):
-//                completion(.success(token))
-//            case let .failure(error):
-//                completion(.failure(error))
-//            }
-//        }
     }
 }
 
 extension String {
     static let accessTokenKey = "access_token"
 }
-//
+
 final class CurtzTokenServiceUnitTests: XCTestCase {
-//    
+    
     func test_init_doesNOTPerformAnyRequest() {
         let (_, storeManager) = makeSUT()
         XCTAssertTrue(storeManager.messages.isEmpty)
     }
-//    
+    
     func test_getToken_sendsARetrieveTokenMessageToTheStore(){
         let (sut, storeManager) = makeSUT()
         sut.getToken { _ in }
@@ -79,21 +68,21 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
             storeManager.completeRetrieve(withError: error)
         }
     }
-//    
-//    func test_getToken_doesNOTRespondAfterSUThasBeenDeallocated() {
-//        let store = CurtzTokenStoreSpy()
-//        var sut: CurtzTokenService? = CurtzTokenService(store: store)
-//        
-//        var receivedResult = [TokenService.Result]()
-//        
-//        sut?.getToken { receivedResult.append($0)}
-//        sut = nil
-//        
-//        store.completeRetrieval(with: .notFound)
-//        XCTAssert(receivedResult.isEmpty)
-//    }
-//    
-//    // MARK: - Helpers
+
+    func test_getToken_doesNOTRespondAfterSUThasBeenDeallocated() {
+        let storeManager = StoreManagerSpy()
+        var sut: CurtzTokenService? = CurtzTokenService(storeManager: storeManager)
+        
+        var receivedResult = [TokenService.Result]()
+        
+        sut?.getToken { receivedResult.append($0)}
+        sut = nil
+        
+        storeManager.completeRetrieve(withError: .notFound)
+        XCTAssert(receivedResult.isEmpty)
+    }
+    
+    // MARK: - Helpers
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: TokenService, store: StoreManagerSpy){
         let storeManager = StoreManagerSpy()
         let sut = CurtzTokenService(storeManager: storeManager)
@@ -104,7 +93,7 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
         return (sut, storeManager)
     }
 
-//    
+    
     private func expect(_ sut: TokenService, toCompleteWith expectedResult: CurtzTokenService.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line ) {
         
         let exp = expectation(description: "Wait for load completion")
