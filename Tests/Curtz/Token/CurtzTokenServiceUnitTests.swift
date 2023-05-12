@@ -16,14 +16,14 @@ import Curtz
  4. Save both the acces_token and refresh_token
  */
 
-//class CurtzTokenService: TokenService {
-//    private let store: Store
+class CurtzTokenService: TokenService {
+    private let storeManager: StoreManager
+    
+    init(storeManager: StoreManager) {
+        self.storeManager = storeManager
+    }
 //    
-//    init(store: Store) {
-//        self.store = store
-//    }
-//    
-//    func getToken(completion: @escaping GetTokenCompletion) {
+    func getToken(completion: @escaping GetTokenCompletion) {
 //        store.retrieve { [weak self] result in
 //            
 //            guard let _ = self else { return }
@@ -35,15 +35,15 @@ import Curtz
 //                completion(.failure(error))
 //            }
 //        }
-//    }
-//}
+    }
+}
 //
-//final class CurtzTokenServiceUnitTests: XCTestCase {
+final class CurtzTokenServiceUnitTests: XCTestCase {
 //    
-//    func test_init_doesNOTPerformAnyRequest() {
-//        let (_, store) = makeSUT()
-//        XCTAssertTrue(store.messages.isEmpty)
-//    }
+    func test_init_doesNOTPerformAnyRequest() {
+        let (_, storeManager) = makeSUT()
+        XCTAssertTrue(storeManager.messages.isEmpty)
+    }
 //    
 //    func test_getToken_sendsARetrieveTokenMessageToTheStore(){
 //        let (sut, store) = makeSUT()
@@ -82,40 +82,16 @@ import Curtz
 //    }
 //    
 //    // MARK: - Helpers
-//    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: TokenService, store: CurtzTokenStoreSpy){
-//        let store = CurtzTokenStoreSpy()
-//        let sut = CurtzTokenService(store: store)
-//        
-//        trackForMemoryLeaks(store, file: file, line: line)
-//        trackForMemoryLeaks(sut, file: file, line: line)
-//        
-//        return (sut, store)
-//    }
-//    
-//    enum ReceivedMessages: Equatable {
-//        case retrieveToken
-//    }
-//    
-//    private class CurtzTokenStoreSpy: Store {
-//        private (set) public var messages: [ReceivedMessages] = []
-//        private (set) public var retrievalCompletions = [RetrievalCompletion]()
-//        
-//        func save(_ tokenRequest: SaveTokenRequest, completion: @escaping SaveCompletion) {
-//        }
-//        
-//        func retrieve(completion: @escaping RetrievalCompletion) {
-//            messages.append(.retrieveToken)
-//            retrievalCompletions.append(completion)
-//        }
-//        
-//        func completeRetrievalSuccessfully(with token: String, at index:Int = 0) {
-//            retrievalCompletions[index](.success(token))
-//        }
-//        
-//        func completeRetrieval(with error: StoreError, at index: Int = 0){
-//            retrievalCompletions[index](.failure(error))
-//        }
-//    }
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: TokenService, store: StoreManagerSpy){
+        let storeManager = StoreManagerSpy()
+        let sut = CurtzTokenService(storeManager: storeManager)
+        
+        trackForMemoryLeaks(storeManager, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
+        
+        return (sut, storeManager)
+    }
+
 //    
 //    private func expect(_ sut: TokenService, toCompleteWith expectedResult: CurtzTokenService.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line ) {
 //        
@@ -136,4 +112,4 @@ import Curtz
 //        action()
 //        wait(for: [exp], timeout: 0.1)
 //    }
-//}
+}
