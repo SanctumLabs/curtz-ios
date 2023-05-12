@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Curtz
 
 enum StoreManagerMessage: Equatable {
     case save(String, String)

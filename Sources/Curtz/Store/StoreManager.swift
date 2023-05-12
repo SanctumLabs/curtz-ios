@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol StoreManager {
+public protocol StoreManager {
     
     typealias SaveResult = Swift.Result<Void, StoreManagerError>
     typealias RetrieveResult = Swift.Result<String, StoreManagerError>
@@ -21,7 +21,7 @@ protocol StoreManager {
 }
 
 
-enum StoreManagerError: Error, Equatable {
+public enum StoreManagerError: Error, Equatable {
   
     case notFound
     case failedToSave
@@ -29,7 +29,7 @@ enum StoreManagerError: Error, Equatable {
     case failedToRemove
     case general(Error?)
     
-    static func == (lhs: StoreManagerError, rhs: StoreManagerError) -> Bool {
+    public static func == (lhs: StoreManagerError, rhs: StoreManagerError) -> Bool {
         switch (lhs, rhs) {
         case let (.general(lhsError as NSError), .general(rhsError as NSError)):
             return lhsError.domain  == rhsError.domain && lhsError.code == rhsError.code

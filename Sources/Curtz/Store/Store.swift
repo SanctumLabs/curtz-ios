@@ -8,7 +8,7 @@
 import Foundation
 
 
-protocol Store {
+public protocol Store {
     typealias AddResult = Swift.Result<Void, StoreError>
     typealias SearchResult = Swift.Result<String, StoreError>
     typealias UpdateResult = Swift.Result<Void, StoreError>
@@ -21,7 +21,7 @@ protocol Store {
 }
 
 
-enum StoreError: Error, Equatable {
+public enum StoreError: Error, Equatable {
     case notFound
     case failedToSave
     case failedToUpdate

@@ -8,14 +8,14 @@
 import Foundation
 
 
-final class CurtzStoreManager: StoreManager {
+public final class CurtzStoreManager: StoreManager {
     private let store: Store
     
-    init(with store: Store){
+    public init(with store: Store){
         self.store = store
     }
     
-    func save(_ val: String, forKey key: String, completion: @escaping (SaveResult) -> Void) {
+    public func save(_ val: String, forKey key: String, completion: @escaping (SaveResult) -> Void) {
         store.add(val, key: key) {[weak self] result  in
             guard self != nil else { return }
             switch result  {
@@ -32,7 +32,7 @@ final class CurtzStoreManager: StoreManager {
         }
     }
     
-    func retrieveValue(forKey key: String, completion: @escaping(RetrieveResult) -> Void){
+    public func retrieveValue(forKey key: String, completion: @escaping(RetrieveResult) -> Void){
         store.search(forKey: key) {[weak self] result in
             guard self != nil else { return }
             switch result {
@@ -49,7 +49,7 @@ final class CurtzStoreManager: StoreManager {
         }
     }
     
-    func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void) {
+    public func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void) {
         store.update(val, forKey: key) {[weak self] result in
             guard self != nil else { return }
             switch result {
@@ -67,7 +67,7 @@ final class CurtzStoreManager: StoreManager {
     }
     
     
-    func removeValue(forKey key: String, completion: @escaping(DeleteResult) -> Void){
+    public func removeValue(forKey key: String, completion: @escaping(DeleteResult) -> Void){
         store.deleteValue(key: key) {[weak self] result in
             guard self != nil else { return }
             switch result {
