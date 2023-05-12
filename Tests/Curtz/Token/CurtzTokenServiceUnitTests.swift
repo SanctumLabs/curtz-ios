@@ -28,8 +28,8 @@ class CurtzTokenService: TokenService {
             switch result {
             case let .success(token):
                 completion(.success(token))
-            default:
-                break
+            case let .failure(error):
+                completion(.failure(error))
             }
         }
 //        store.retrieve { [weak self] result in
@@ -70,15 +70,15 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
             storeManager.completeRetrieveSuccessfully(withVal: token)
         }
     }
-//    
-//    func test_getToken_respondsWithErrorWhenStoreRespondsWithError() {
-//        let (sut, store) = makeSUT()
-//        let error: StoreError = .notFound
-//        
-//        expect(sut, toCompleteWith: .failure(error)) {
-//            store.completeRetrieval(with: error)
-//        }
-//    }
+    
+    func test_getToken_respondsWithErrorWhenStoreRespondsWithError() {
+        let (sut, storeManager) = makeSUT()
+        let error: StoreManagerError = .notFound
+        
+        expect(sut, toCompleteWith: .failure(error)) {
+            storeManager.completeRetrieve(withError: error)
+        }
+    }
 //    
 //    func test_getToken_doesNOTRespondAfterSUThasBeenDeallocated() {
 //        let store = CurtzTokenStoreSpy()
