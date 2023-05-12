@@ -1,5 +1,5 @@
 //
-//  CurtzTokenStoreUnitTests.swift
+//  CurtzStoreManagerUnitTests.swift
 //  CurtzUnitTests
 //
 //  Created by George Nyakundi on 17/04/2023.
