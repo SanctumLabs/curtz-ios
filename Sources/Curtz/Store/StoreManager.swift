@@ -19,3 +19,24 @@ protocol StoreManager {
     func update(_ val: String, forKey key: String, completion: @escaping(UpdateResult) -> Void)
     func removeValue(forKey key: String, completion: @escaping(DeleteResult) -> Void)
 }
+
+
+enum StoreManagerError: Error, Equatable {
+  
+    case notFound
+    case failedToSave
+    case failedToUpdate
+    case failedToRemove
+    case general(Error?)
+    
+    static func == (lhs: StoreManagerError, rhs: StoreManagerError) -> Bool {
+        switch (lhs, rhs) {
+        case let (.general(lhsError as NSError), .general(rhsError as NSError)):
+            return lhsError.domain  == rhsError.domain && lhsError.code == rhsError.code
+        case let (lhsE as NSError, rhsE as NSError):
+            return lhsE.code == rhsE.code && lhsE.domain == rhsE.domain
+        default:
+            return false
+        }
+    }
+}
