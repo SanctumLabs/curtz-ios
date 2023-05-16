@@ -47,31 +47,31 @@ final class SecureCurtzStoreUnitTests: XCTestCase {
     }
     
     func test_update_shouldPersistNewValueIntheStore() {
-//        let sut = makeSUT()
-//        let initialValueToSave = "initial-value-to-save"
-//        let valueToUpdateTo = "heres-the-new value"
-//
-//        let key = "my-awesome-key"
-//
-//        let expectation = expectation(description: "wait for search")
-//
-//        // Add
-//        sut.add(initialValueToSave, key: key) { _ in }
-//        // Update
-//        sut.update(valueToUpdateTo, forKey: key) { _ in }
-//        // Fetch
-//        sut.search(forKey: key) { result in
-//            switch result {
-//            case let .success(retrievedValue):
-//                XCTAssertNotEqual(retrievedValue, initialValueToSave)
-//                XCTAssertEqual(retrievedValue, valueToUpdateTo)
-//            default:
-//                XCTFail("Update should be successful")
-//            }
-//            expectation.fulfill()
-//        }
-//
-//        wait(for: [expectation], timeout: 0.2)
+        let sut = makeSUT()
+        let initialValueToSave = "initial-value-to-save"
+        let valueToUpdateTo = "heres-the-new value"
+
+        let key = "my-awesome-key"
+
+        let expectationSearch = XCTestExpectation(description: "wait for search")
+
+        // Add
+        sut.add(initialValueToSave, key: key) { _ in }
+        // Update
+        sut.update(valueToUpdateTo, forKey: key) { _ in }
+        // Fetch
+        sut.search(forKey: key) { result in
+            switch result {
+            case let .success(retrievedValue):
+                XCTAssertNotEqual(retrievedValue, initialValueToSave)
+                XCTAssertEqual(retrievedValue, valueToUpdateTo)
+            default:
+                XCTFail("Update should be successful")
+            }
+            expectationSearch.fulfill()
+        }
+
+        wait(for: [expectationSearch], timeout: 0.9)
     }
     
     func test_delete_shouldDeleteARecordFromTheStore() {
@@ -129,9 +129,9 @@ final class KeyChainStore: Store {
         let query: [String: Any] = [
             kSecAttrAccessible as String : kSecAttrAccessibleWhenUnlocked,
             securityClass: kSecClassGenericPassword,
-            kSecAttrService as String: service,
+            serviceName: service,
             kSecAttrAccount as String: key,
-            kSecValueData as String: val
+            data: val.data(using: .utf8) as Any
         ]
         // Delete
         SecItemDelete(query as CFDictionary)
@@ -151,7 +151,8 @@ final class KeyChainStore: Store {
         let query: [String: Any] = [
             securityClass: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
-            kSecReturnData as String: kCFBooleanTrue as Any,
+            serviceName: service as Any,
+            shouldReturnData: kCFBooleanTrue as Any,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
         
@@ -171,14 +172,15 @@ final class KeyChainStore: Store {
     }
     
     func update(_ val: String, forKey key: String, completion: @escaping (UpdateResult) -> Void) {
-        let query: [String: AnyObject] = [
-            kSecAttrService as String: service as AnyObject,
-            kSecAttrAccount as String: key as AnyObject,
+        let query: [String: Any] = [
+            serviceName: service as Any,
+            kSecAttrAccount as String: key as Any,
             securityClass: kSecClassGenericPassword
         ]
         
-        let updateQuery: [String: AnyObject] = [
-            kSecValueData as String: val as AnyObject
+        let updateQuery: [String: Any] = [
+            kSecAttrAccount as String: key as Any,
+            kSecValueData as String: val.data(using: .utf8) as Any
         ]
         
         let status = SecItemUpdate(query as CFDictionary, updateQuery as CFDictionary)
@@ -194,7 +196,7 @@ final class KeyChainStore: Store {
         let query: [String: Any] = [
             serviceName: service,
             kSecAttrAccount as String: key,
-            kSecClass as String: kSecClassGenericPassword
+            securityClass: kSecClassGenericPassword
         ]
         
         let status = SecItemDelete(query as CFDictionary)
