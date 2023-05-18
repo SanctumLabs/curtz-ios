@@ -22,7 +22,7 @@ struct RegisterView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(.blue, lineWidth: 1)
                     }
-                TextField("Password", text: $password)
+                SecureField("Password", text: $password)
                     .padding()
                     .overlay {
                         RoundedRectangle(cornerRadius: 10)
