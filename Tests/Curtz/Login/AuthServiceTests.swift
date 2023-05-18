@@ -1,5 +1,5 @@
 //
-//  LoginServiceTests.swift
+//  AuthServiceTests.swift
 //  CurtzUnitTests
 //
 //  Created by George Nyakundi on 03/10/2022.
@@ -8,15 +8,16 @@
 import XCTest
 import Curtz
 
-final class LoginServiceTests: XCTestCase {
+final class AuthServiceTests: XCTestCase {
     
     func test_init_doesNOTperformAnyRequest() {
-        let (_, client) = makeSUT()
+        let (_, client, storeManager) = makeSUT()
         XCTAssertTrue(client.requestsMade.isEmpty)
+        XCTAssertTrue(storeManager.messages.isEmpty)
     }
     
     func test_login_performsARequest() {
-        let (sut, client) = makeSUT()
+        let (sut, client, _) = makeSUT()
         
         sut.login(user: testUser()){ _ in }
         XCTAssertFalse(client.requestsMade.isEmpty, "Should make a call atleast")
@@ -24,7 +25,7 @@ final class LoginServiceTests: XCTestCase {
     
     func test_login_performsRequestWithCorrectInformation() {
         let jsonDecoder = JSONDecoder()
-        let (sut, client) = makeSUT()
+        let (sut, client, _) = makeSUT()
         let userRequest = LoginRequest(email: "first@email.com", password: "aSeriousLystronsOne")
         sut.login(user: userRequest) { _ in }
         
@@ -37,7 +38,7 @@ final class LoginServiceTests: XCTestCase {
     }
     
     func test_login_deliversErrorOnClientError() {
-        let (sut, client) = makeSUT()
+        let (sut, client, _) = makeSUT()
         expect(sut, user: testUser(), toCompleteWith: failure(.connectivity), when: {
             let clientError = anyNSError()
             client.complete(with: clientError)
@@ -45,10 +46,10 @@ final class LoginServiceTests: XCTestCase {
     }
     
     func test_login_deliversErrorOnNON2xxStatusCode() {
-        let (sut, client) = makeSUT()
+        let (sut, client, _) = makeSUT()
         let statusCodes = [199, 300, 301, 400, 500, 503]
         statusCodes.enumerated().forEach { index, code in
-            expect(sut, user: testUser(), toCompleteWith: failure(.invalidData), when: {
+            expect(sut, user: testUser(), toCompleteWith: failure(.wrongCredentials), when: {
                 let data = errorJSON()
                 client.complete(withStatusCode: code, data: data, at: index)
             })
@@ -56,7 +57,7 @@ final class LoginServiceTests: XCTestCase {
     }
     
     func test_login_deliversLoginResponseOn2xxHTTPResponse() {
-        let (sut, client) = makeSUT()
+        let (sut, client, storeManager) = makeSUT()
         
         let user = testUser()
         let loginResponse = makeLoginResponse(id: testID(), email: user.email, createdAt: (Date(timeIntervalSince1970: 1598627222),"2020-08-28T15:07:02+00:00"), updatedAt: (Date(timeIntervalSince1970: 1598627222), "2020-08-28T15:07:02+00:00"), accessToken: accessToken(), refreshToken: refreshToken())
@@ -65,37 +66,51 @@ final class LoginServiceTests: XCTestCase {
             let json = makeJSON(loginResponse.json)
             client.complete(withStatusCode: 200, data: json)
         })
+        
+        XCTAssertEqual(storeManager.messages, [.save(accessToken(), "access_token"), .save(refreshToken(), "refresh_token")])
     }
     
     func test_login_doesNOTDeliverResultsAfterSUTInstanceHasBeenDeallocated() {
         let client = HTTPClientSpy()
-        var capturedResult = [LoginService.Result]()
+        let storeManager = StoreManagerSpy()
+        var capturedResult = [AuthService.Result]()
         
-        var sut: LoginService? = LoginService(loginURL: testLoginURL(), client: client)
+        var sut: AuthService? = AuthService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
         sut?.login(user: testUser(), completion: { capturedResult.append($0)})
         sut = nil
         client.complete(withStatusCode: 200, data: makeJSON(jsonFor()))
         XCTAssertTrue(capturedResult.isEmpty)
     }
     
-    // MARK: - Helpers
-    private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: LoginService, client: HTTPClientSpy) {
-        let client = HTTPClientSpy()
-        let sut = LoginService(loginURL: testLoginURL(), client: client)
+    func test_logout_sendsAdeleteMessageForBoth_accessToken_and_refreshToken_to_storeManager() {
+        let (sut, client , storeManager) = makeSUT()
+        sut.logout()
         
-        trackForMemoryLeaks(client, file: file, line: line)
-        trackForMemoryLeaks(sut, file: file, line: line)
-        
-        return (sut, client)
+        XCTAssertTrue(client.requestsMade.isEmpty)
+        XCTAssertEqual(storeManager.messages, [.removeValue("access_token"), .removeValue("refresh_token")])
     }
     
-    private func expect(_ sut: LoginService, user: LoginRequest, toCompleteWith expectedResult: LoginService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+    // MARK: - Helpers
+    private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: AuthService, client: HTTPClientSpy, storeManager: StoreManagerSpy) {
+        let client = HTTPClientSpy()
+        let storeManager = StoreManagerSpy()
+        let sut = AuthService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
+        
+        trackForMemoryLeaks(client, file: file, line: line)
+        trackForMemoryLeaks(storeManager, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
+        
+        
+        return (sut, client, storeManager)
+    }
+    
+    private func expect(_ sut: AuthService, user: LoginRequest, toCompleteWith expectedResult: AuthService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for registration completion")
         sut.login(user: user) { receivedResult in
             switch(receivedResult, expectedResult) {
             case let (.success(receivedResponse), .success(expectedResponse)):
                 XCTAssertEqual(receivedResponse, expectedResponse, file: file, line: line)
-            case let (.failure(receivedError as LoginService.Error), .failure(expectedError as LoginService.Error)):
+            case let (.failure(receivedError as AuthService.Error), .failure(expectedError as AuthService.Error)):
                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
             default:
                 XCTFail("Expected \(expectedResult), got \(receivedResult) instead", file: file, line: line)
@@ -121,7 +136,7 @@ final class LoginServiceTests: XCTestCase {
         return try! JSONSerialization.data(withJSONObject: json)
     }
     
-    private func failure(_ error: LoginService.Error) -> LoginService.Result {
+    private func failure(_ error: AuthService.Error) -> AuthService.Result {
         .failure(error)
     }
     
@@ -131,7 +146,7 @@ final class LoginServiceTests: XCTestCase {
     }
     
     private func makeLoginResponse(id: String, email: String, createdAt: (date: Date, iso8601String: String), updatedAt: (date: Date, iso8601String: String), accessToken: String, refreshToken: String) -> (model: LoginResponse, json: [String: Any]) {
-        let model = LoginResponse(id: id, email: email, createdAt: createdAt.date, updatedAt: updatedAt.date, accessToken: accessToken, refreshToken: refreshToken)
+        let model = LoginResponse(id: id, email: email, createdAt: createdAt.iso8601String, updatedAt: updatedAt.iso8601String, accessToken: accessToken, refreshToken: refreshToken)
         let json = jsonFor(id: id, email: email, createdAt: createdAt.iso8601String, updatedAt: updatedAt.iso8601String, accessToken: accessToken, refreshToken: refreshToken)
         
         return (model, json)
@@ -160,12 +175,6 @@ final class LoginServiceTests: XCTestCase {
         return "email@workspace.com"
     }
     
-    private func accessToken() -> String {
-        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM2NTg5MDYsImlhdCI6MTY2MzY1ODAwNiwiaXNzIjoiY3VydHoiLCJzdWIiOiJjYnVqZDhlZzI2dWRyYWUycmVuZyIsImlkIjoiY2J1amQ4ZWcyNnVkcmFlMnJlbmcifQ.isgfQh4cFcJbb5oWzYbwAiVdYoxmPwSYyDfGBY9ek8A"
-    }
     
-    private func refreshToken() -> String {
-        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjM2NjE2MDYsImlhdCI6MTY2MzY1ODAwNiwiaXNzIjoiY3VydHoiLCJzdWIiOiJjYnVqZDhlZzI2dWRyYWUycmVuZyIsImlkIjoiY2J1amQ4ZWcyNnVkcmFlMnJlbmcifQ.ZYVCa2e7HbmjtSNjiBG3Fjg2NOPkWrU1xhYFdyyfwbE"
-    }
 }
 

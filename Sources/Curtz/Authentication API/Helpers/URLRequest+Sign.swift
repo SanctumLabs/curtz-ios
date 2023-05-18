@@ -15,6 +15,38 @@ public extension URLRequest {
     }
 }
 
+extension URLRequest {
+    static func prepared(for requestType: RequestType, with url: URL) -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = .POST
+        request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
+        switch requestType {
+        case let .login(username, password):
+            let requestBody: [String: String] = [
+                "email": username,
+                "password": password
+            ]
+            let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = jsonData
+            
+        case let .registration(username, password):
+            let requestBody: [String: String] = [
+                "email": username,
+                "password": password
+            ]
+            let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+            request.httpBody = jsonData
+        }
+        
+        return request
+    }
+}
+
+enum RequestType {
+    case login(username: String,password: String)
+    case registration(username: String, password: String)
+}
+
 extension String {
     /// HTTP POST method
     static var POST = "POST"

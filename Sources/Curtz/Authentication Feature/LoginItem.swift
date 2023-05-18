@@ -20,12 +20,12 @@ public struct LoginRequest {
 public struct LoginResponse: Equatable {
     public let id: String
     public let email: String
-    public let createdAt: Date
-    public let updatedAt: Date
+    public let createdAt: String
+    public let updatedAt: String
     public let accessToken: String
     public let refreshToken: String
     
-    public init(id: String, email: String, createdAt: Date, updatedAt: Date, accessToken: String, refreshToken: String) {
+    public init(id: String, email: String, createdAt: String, updatedAt: String, accessToken: String, refreshToken: String) {
         self.id = id
         self.email = email
         self.createdAt = createdAt

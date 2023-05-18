@@ -8,7 +8,10 @@
 import SwiftUI
 
 struct DashboardView: View {
-    let urls: [CurtzURL]
+    @EnvironmentObject var vm: CurtziOSAppViewModel
+    @State private var successFullyLogout = false
+    
+    let urls: [CurtzURL] = [CurtzURL(id: "cbujla6g26udrae2rez", originalUrl: "http://georgenyakundi.com", customAlias: "", expiresOn: Date(timeIntervalSince1970: 1598627222), keywords: [], userId: "", shortCode: "blw94Z", createdAt: Date(timeIntervalSince1970: 1598627222), updatedAt: Date(timeIntervalSince1970: 1598627222), hits: 1)]
     var body: some View {
         ZStack {
             VStack(alignment: .leading) {
@@ -34,28 +37,41 @@ struct DashboardView: View {
                     }
                 }
             }
-            // Floating button
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    Button(action: {}, label: {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(.largeTitle))
-                            .padding()
-                    })
-                    .padding([.trailing])
-                }
+            
+            Button("Logout") {
+                vm.logout()
+                successFullyLogout = true
             }
+            .frame(height: 50)
+            .frame(maxWidth: .infinity)
+            .background(.red)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+            .padding()
+            // Floating button
+//            VStack {
+//                Spacer()
+//                HStack {
+//                    Spacer()
+//                    Button(action: {}, label: {
+//                        Image(systemName: "plus.circle.fill")
+//                            .font(.system(.largeTitle))
+//                            .padding()
+//                    })
+//                    .padding([.trailing])
+//                }
+//            }
         }
         .navigationTitle("Dashboard")
+        .navigate(to: LoginView(), when: $successFullyLogout)
+       
     }
 }
 
 struct DashboardView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            DashboardView(urls: sampleUrls())
+            DashboardView()
         }
     }
 }

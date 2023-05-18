@@ -12,8 +12,8 @@ public struct LoginMapper {
     private struct Item: Decodable {
         let id: String
         let email: String
-        let created_at: Date
-        let updated_at: Date
+        let created_at: String
+        let updated_at: String
         let access_token: String
         let refresh_token: String
         
@@ -22,12 +22,16 @@ public struct LoginMapper {
         }
     }
     
-    static func map(_ data: Data, from response: HTTPURLResponse) -> LoginService.Result {
+    static func map(_ data: Data, from response: HTTPURLResponse) -> AuthService.Result {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
-        guard isOK(response), let res = try? decoder.decode(Item.self, from: data) else {
-            return .failure(LoginService.Error.invalidData)
+        guard isOK(response) else {
+            return .failure(AuthService.Error.wrongCredentials)
+        }
+        
+        guard let res = try? decoder.decode(Item.self, from: data) else {
+            return .failure(AuthService.Error.invalidData)
         }
         return .success(res.response)
         

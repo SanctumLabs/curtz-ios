@@ -8,21 +8,30 @@
 import SwiftUI
 
 struct LoginView: View {
+    @EnvironmentObject var vm: CurtziOSAppViewModel
+    
     @State var email: String = ""
     @State var password: String = ""
+    @State var hasError: Bool = false
+    @State private var successFullyAuthenticated = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Login")
                 .font(.largeTitle)
                 .fontWeight(.semibold)
                 .multilineTextAlignment(.center)
+            if hasError {
+                Text("Couldn't login, please try again")
+                    .foregroundColor(.red)
+            }
             TextField("Email address", text: $email)
                 .padding()
                 .overlay {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(.blue, lineWidth: 1)
                 }
-            TextField("Password", text: $password)
+            SecureField("Password", text: $password)
                 .padding()
                 .overlay {
                     RoundedRectangle(cornerRadius: 10)
@@ -30,15 +39,23 @@ struct LoginView: View {
                 }
             
             Button("Continue") {
-                
+                vm.login(user: email, password: password) { result in
+                    switch result {
+                    case .failure:
+                        hasError = true
+                    case .success:
+                        successFullyAuthenticated = true
+                    }
+                }
             }
             .frame(height: 50)
             .frame(maxWidth: .infinity)
             .background(.blue)
             .foregroundColor(.white)
             .cornerRadius(10)
+            .disabled(email.isEmpty && password.isEmpty)
             NavigationLink(destination: RegisterView()) {
-                Text("Don't have an account?, Create one")
+                Text("Don't have an account? Create one")
                     .font(.caption)
                     .fontWeight(.thin)
                     .foregroundColor(.blue)
@@ -50,6 +67,12 @@ struct LoginView: View {
         .navigationBarTitleDisplayMode(.inline)
         .padding()
         .navigationBarBackButtonHidden()
+        .navigate(to: DashboardView(), when: $successFullyAuthenticated)
+    }
+    
+    private func clearFields() {
+        email = ""
+        password = ""
     }
 }
 

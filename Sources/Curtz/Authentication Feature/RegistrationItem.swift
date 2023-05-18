@@ -21,10 +21,10 @@ public struct RegistrationResponse: Equatable {
   
     public let id: String
     public let email: String
-    public let createdAt: Date
-    public let updatedAt: Date
+    public let createdAt: String
+    public let updatedAt: String
     
-    public init(id: String, email: String, createdAt: Date, updatedAt: Date) {
+    public init(id: String, email: String, createdAt: String, updatedAt: String) {
         self.id = id
         self.email = email
         self.createdAt = createdAt
