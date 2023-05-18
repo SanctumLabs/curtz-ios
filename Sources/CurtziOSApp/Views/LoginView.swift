@@ -8,14 +8,21 @@
 import SwiftUI
 
 struct LoginView: View {
+    @EnvironmentObject var vm: CurtziOSAppViewModel
+    
     @State var email: String = ""
     @State var password: String = ""
+    @State var hasError: Bool = false
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Login")
                 .font(.largeTitle)
                 .fontWeight(.semibold)
                 .multilineTextAlignment(.center)
+            if hasError {
+                Text("Couldn't login, please try again")
+                    .foregroundColor(.red)
+            }
             TextField("Email address", text: $email)
                 .padding()
                 .overlay {
@@ -30,13 +37,21 @@ struct LoginView: View {
                 }
             
             Button("Continue") {
-                
+                vm.login(user: email, password: password) { result in
+                    switch result {
+                    case .failure:
+                        hasError = true
+                    default:
+                        break
+                    }
+                }
             }
             .frame(height: 50)
             .frame(maxWidth: .infinity)
             .background(.blue)
             .foregroundColor(.white)
             .cornerRadius(10)
+            .disabled(email.isEmpty && password.isEmpty)
             NavigationLink(destination: RegisterView()) {
                 Text("Don't have an account?, Create one")
                     .font(.caption)
@@ -50,6 +65,11 @@ struct LoginView: View {
         .navigationBarTitleDisplayMode(.inline)
         .padding()
         .navigationBarBackButtonHidden()
+    }
+    
+    private func clearFields() {
+        email = ""
+        password = ""
     }
 }
 
