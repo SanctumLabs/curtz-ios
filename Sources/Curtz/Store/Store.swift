@@ -27,17 +27,5 @@ public enum StoreError: Error, Equatable {
     case failedToSave
     case failedToUpdate
     case failedToDelete
-    case generic(Error?)
-    
-    public static func == (lhs: StoreError, rhs: StoreError) -> Bool {
-        switch(lhs, rhs) {
-        case let(.generic(lhsError as NSError), .generic(rhsError as NSError)):
-            return lhsError.domain == rhsError.domain && lhsError.code == rhsError.code
-        case let (lhsE as NSError, rhsE as NSError):
-            return lhsE.domain == rhsE.domain && lhsE.code == rhsE.code && lhsE.localizedDescription == rhsE.localizedDescription
-        default:
-            return false
-        }
-    }
-    
+    case unknown
 }

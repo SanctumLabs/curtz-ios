@@ -24,7 +24,7 @@ public final class CurtzStoreManager: StoreManager {
                 case .failedToSave:
                     completion(.failure(.failedToSave))
                 default:
-                    completion(.failure(.general(error)))
+                    completion(.failure(.unknown))
                 }
             default:
                 completion(.success(()))
@@ -41,7 +41,7 @@ public final class CurtzStoreManager: StoreManager {
                 case .notFound:
                     completion(.failure(.notFound))
                 default:
-                    completion(.failure(.general(error)))
+                    completion(.failure(.unknown))
                 }
             case let .success(retrievedValue):
                 completion(.success(retrievedValue))
@@ -58,7 +58,7 @@ public final class CurtzStoreManager: StoreManager {
                 case .failedToUpdate:
                     completion(.failure(.failedToUpdate))
                 default:
-                    completion(.failure(.general(error)))
+                    completion(.failure(.unknown))
                 }
             case .success:
                 completion(.success(()))
@@ -76,7 +76,7 @@ public final class CurtzStoreManager: StoreManager {
                 case .failedToDelete:
                     completion(.failure(.failedToRemove))
                 default:
-                    completion(.failure(.general(error)))
+                    completion(.failure(.unknown))
                 }
             case .success:
                 completion(.success(()))
