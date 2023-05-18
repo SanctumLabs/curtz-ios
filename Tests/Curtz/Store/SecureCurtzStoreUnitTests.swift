@@ -74,6 +74,25 @@ final class SecureCurtzStoreUnitTests: XCTestCase {
         wait(for: [expectationSearch], timeout: 0.9)
     }
     
+    func test_update_shouldReturnAnError_when_ItFails() {
+        let sut = makeSUT()
+        let key = "a-key-that-does-not-exist"
+        let val = "nothing"
+        let expectation = XCTestExpectation(description: "wait for update")
+        
+        sut.update(val, forKey: key) { result in
+            switch result {
+            case let .failure(receivedError):
+                XCTAssertEqual(receivedError, .failedToUpdate)
+            default:
+                XCTFail("Should fail since a value with this key does not exist")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 0.1)
+    }
+    
     func test_delete_shouldDeleteARecordFromTheStore() {
         let sut = makeSUT()
         let value = "hatathasdfdafad"
