@@ -167,13 +167,8 @@ final class KeyChainStore: Store {
     }
     
     func search(forKey key: String, completion: @escaping (SearchResult) -> Void) {
-        let query: [String: Any] = [
-            securityClass: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
-            serviceName: service as Any,
-            shouldReturnData: kCFBooleanTrue as Any,
-            kSecMatchLimit as String: kSecMatchLimitOne
-        ]
+        var query = queryFor(.search)
+        query[kSecAttrAccount as String] = key
         
         var dataTypeRef: AnyObject?
         
@@ -244,6 +239,11 @@ final class KeyChainStore: Store {
         case .update:
             query[serviceName] = service
             query[securityClass] = kSecClassGenericPassword
+        case .search:
+            query[securityClass] = kSecClassGenericPassword
+            query[serviceName] = service
+            query[shouldReturnData] = kCFBooleanTrue as Any
+            query[kSecMatchLimit as String] = kSecMatchLimitOne
         default:
             break
         }
