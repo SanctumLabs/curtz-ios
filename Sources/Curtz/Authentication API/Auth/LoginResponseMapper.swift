@@ -40,6 +40,5 @@ public struct LoginMapper {
     private static func isOK(_ response: HTTPURLResponse) -> Bool {
         (200...299).contains(response.statusCode)
     }
-    
 }
 
