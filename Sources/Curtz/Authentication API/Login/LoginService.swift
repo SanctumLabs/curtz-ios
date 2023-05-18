@@ -45,4 +45,9 @@ public class LoginService {
             }
         }
     }
+    
+    public func logout() {
+        storeManager.removeValue(forKey: .accessTokenKey) { _ in }
+        storeManager.removeValue(forKey: .refreshTokenKey) { _ in }
+    }
 }

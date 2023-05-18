@@ -82,6 +82,14 @@ final class LoginServiceTests: XCTestCase {
         XCTAssertTrue(capturedResult.isEmpty)
     }
     
+    func test_logout_sendsAdeleteMessageForBoth_accessToken_and_refreshToken_to_storeManager() {
+        let (sut, client , storeManager) = makeSUT()
+        sut.logout()
+        
+        XCTAssertTrue(client.requestsMade.isEmpty)
+        XCTAssertEqual(storeManager.messages, [.removeValue("access_token"), .removeValue("refresh_token")])
+    }
+    
     // MARK: - Helpers
     private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: LoginService, client: HTTPClientSpy, storeManager: StoreManagerSpy) {
         let client = HTTPClientSpy()
