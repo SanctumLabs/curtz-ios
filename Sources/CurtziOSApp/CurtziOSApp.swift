@@ -9,11 +9,18 @@ import SwiftUI
 
 @main
 struct CurtziOSApp: App {
+    
+    let appViewModel: CurtziOSAppViewModel
+    
+    init() {
+        appViewModel = CurtziOSAppViewModel()
+    }
+    
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                RegisterView()
-            }
+                LoginView()
+            }.environmentObject(appViewModel)
         }
     }
 }
