@@ -11,7 +11,7 @@ import Curtz
 
 final class SecureCurtzStoreUnitTests: XCTestCase {
     
-    func test_search_shouldReturnANotFoundErrorForANonExistentKey() {
+    func test_search_shouldReturnANotFoundError_For_ANonExistentKey() {
         let sut = makeSUT()
         let key = "a-weird-key"
         
@@ -212,11 +212,9 @@ final class KeyChainStore: Store {
     }
     
     func deleteValue(key: String, completion: @escaping (DeleteResult) -> Void) {
-        let query: [String: Any] = [
-            serviceName: service,
-            kSecAttrAccount as String: key,
-            securityClass: kSecClassGenericPassword
-        ]
+
+        var query = queryFor(.delete)
+        query[kSecAttrAccount as String] = key
         
         let status = SecItemDelete(query as CFDictionary)
         
@@ -236,6 +234,29 @@ final class KeyChainStore: Store {
     private let matchLimit = kSecMatchLimit as String
     private let matchOnlyOne = kSecMatchLimitOne as String
     private let data = kSecValueData as String
+    
+    // MARK: - Helper Methods
+    private func queryFor( _ action: ActionType) -> [String: Any] {
+        var query: [String: Any] = [:]
+        
+        switch action {
+        case .delete:
+            query[serviceName] = service
+            query[securityClass] = kSecClassGenericPassword
+        default:
+            break
+        }
+        
+        return query
+    }
+    
+    private enum ActionType {
+        case add
+        case search
+        case update
+        case delete
+    }
+    
 }
 
 extension String: LocalizedError {}
