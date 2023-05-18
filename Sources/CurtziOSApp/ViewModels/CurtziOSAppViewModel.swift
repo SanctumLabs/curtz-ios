@@ -15,6 +15,7 @@ class CurtziOSAppViewModel: ObservableObject {
     private let httpClient: HTTPClient
     private let authenticatedHTTPClient: HTTPClient
     private let authService: AuthService
+    // FOR Local Development
     private let baseURL: URL = URL(string: "http://localhost:8085")!
     
     init() {
@@ -22,7 +23,6 @@ class CurtziOSAppViewModel: ObservableObject {
         tokenService = CurtzTokenService(storeManager: storeManager)
         httpClient = URLSessionHTTPClient()
         authenticatedHTTPClient = AuthenticatedHTTPClientDecorater(decoratee: httpClient, tokenService: tokenService)
-        
         
         authService = AuthService(loginURL: CurtzEndpoint.login.url(baseURL: baseURL), client: httpClient, storeManager: storeManager)
     }
@@ -41,7 +41,7 @@ class CurtziOSAppViewModel: ObservableObject {
     }
     
     func logout() {
-        
+        authService.logout()
     }
     
 }

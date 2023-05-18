@@ -13,6 +13,8 @@ struct LoginView: View {
     @State var email: String = ""
     @State var password: String = ""
     @State var hasError: Bool = false
+    @State private var successFullyAuthenticated = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Login")
@@ -41,8 +43,8 @@ struct LoginView: View {
                     switch result {
                     case .failure:
                         hasError = true
-                    default:
-                        break
+                    case .success:
+                        successFullyAuthenticated = true
                     }
                 }
             }
@@ -53,7 +55,7 @@ struct LoginView: View {
             .cornerRadius(10)
             .disabled(email.isEmpty && password.isEmpty)
             NavigationLink(destination: RegisterView()) {
-                Text("Don't have an account?, Create one")
+                Text("Don't have an account? Create one")
                     .font(.caption)
                     .fontWeight(.thin)
                     .foregroundColor(.blue)
@@ -65,6 +67,7 @@ struct LoginView: View {
         .navigationBarTitleDisplayMode(.inline)
         .padding()
         .navigationBarBackButtonHidden()
+        .navigate(to: DashboardView(), when: $successFullyAuthenticated)
     }
     
     private func clearFields() {
