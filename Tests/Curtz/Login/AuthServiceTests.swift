@@ -49,7 +49,7 @@ final class AuthServiceTests: XCTestCase {
         let (sut, client, _) = makeSUT()
         let statusCodes = [199, 300, 301, 400, 500, 503]
         statusCodes.enumerated().forEach { index, code in
-            expect(sut, user: testUser(), toCompleteWith: failure(.invalidData), when: {
+            expect(sut, user: testUser(), toCompleteWith: failure(.wrongCredentials), when: {
                 let data = errorJSON()
                 client.complete(withStatusCode: code, data: data, at: index)
             })

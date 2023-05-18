@@ -26,7 +26,11 @@ public struct LoginMapper {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
-        guard isOK(response), let res = try? decoder.decode(Item.self, from: data) else {
+        guard isOK(response) else {
+            return .failure(AuthService.Error.wrongCredentials)
+        }
+        
+        guard let res = try? decoder.decode(Item.self, from: data) else {
             return .failure(AuthService.Error.invalidData)
         }
         return .success(res.response)

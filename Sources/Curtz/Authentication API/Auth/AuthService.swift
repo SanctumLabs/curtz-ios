@@ -15,6 +15,7 @@ public class AuthService {
     public typealias Result = LoginResult
     public enum Error: Swift.Error {
         case connectivity
+        case wrongCredentials
         case invalidData
     }
     
@@ -30,7 +31,6 @@ public class AuthService {
             guard let self else { return }
             switch result {
             case let .success((data, response)):
-                
                 let result = LoginMapper.map(data, from: response)
                 
                 if case let .success(res) = result {
