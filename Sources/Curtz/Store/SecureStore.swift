@@ -44,11 +44,7 @@ public final class SecureStore: Store {
             return
         }
         let str = String(decoding: data, as: UTF8.self)
-        if str.isEmpty {
-            completion(.failure(.notFound))
-        } else {
-            completion(.success(str))
-        }
+        completion(.success(str))
     }
     
     public func update(_ val: String, forKey key: String, completion: @escaping (UpdateResult) -> Void) {
