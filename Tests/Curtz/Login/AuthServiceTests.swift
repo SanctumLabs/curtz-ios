@@ -146,7 +146,7 @@ final class AuthServiceTests: XCTestCase {
     }
     
     private func makeLoginResponse(id: String, email: String, createdAt: (date: Date, iso8601String: String), updatedAt: (date: Date, iso8601String: String), accessToken: String, refreshToken: String) -> (model: LoginResponse, json: [String: Any]) {
-        let model = LoginResponse(id: id, email: email, createdAt: createdAt.date, updatedAt: updatedAt.date, accessToken: accessToken, refreshToken: refreshToken)
+        let model = LoginResponse(id: id, email: email, createdAt: createdAt.iso8601String, updatedAt: updatedAt.iso8601String, accessToken: accessToken, refreshToken: refreshToken)
         let json = jsonFor(id: id, email: email, createdAt: createdAt.iso8601String, updatedAt: updatedAt.iso8601String, accessToken: accessToken, refreshToken: refreshToken)
         
         return (model, json)

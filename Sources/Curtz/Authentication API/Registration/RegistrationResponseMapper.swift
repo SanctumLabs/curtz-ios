@@ -13,8 +13,8 @@ final class RegistrationMapper {
     private struct Item: Decodable {
         let id: String
         let email: String
-        let created_at: Date
-        let updated_at: Date
+        let created_at: String
+        let updated_at: String
         
         var response: RegistrationResponse {
             return RegistrationResponse(id: id, email: email, createdAt: created_at, updatedAt: updated_at)

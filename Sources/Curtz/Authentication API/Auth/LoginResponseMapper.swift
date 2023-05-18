@@ -12,8 +12,8 @@ public struct LoginMapper {
     private struct Item: Decodable {
         let id: String
         let email: String
-        let created_at: Date
-        let updated_at: Date
+        let created_at: String
+        let updated_at: String
         let access_token: String
         let refresh_token: String
         

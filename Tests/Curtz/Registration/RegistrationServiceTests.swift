@@ -135,7 +135,7 @@ class RegistrationServiceTests: XCTestCase {
     private func makeRegistrationResponse(id: String, email: String, createdAt: (date: Date, iso8601String: String), updatedAt: (date: Date, iso8601String: String))
     -> (model: RegistrationResponse, json: [String: Any])
     {
-        let item = RegistrationResponse(id: id, email: email, createdAt: createdAt.date, updatedAt: updatedAt.date)
+        let item = RegistrationResponse(id: id, email: email, createdAt: createdAt.iso8601String, updatedAt: updatedAt.iso8601String)
         
         let json = jsonFor(
             id: id,
