@@ -191,11 +191,9 @@ final class KeyChainStore: Store {
     }
     
     func update(_ val: String, forKey key: String, completion: @escaping (UpdateResult) -> Void) {
-        let query: [String: Any] = [
-            serviceName: service as Any,
-            kSecAttrAccount as String: key as Any,
-            securityClass: kSecClassGenericPassword
-        ]
+        
+        var query = queryFor(.update)
+        query[kSecAttrAccount as String] =  key as Any
         
         let updateQuery: [String: Any] = [
             kSecAttrAccount as String: key as Any,
@@ -241,6 +239,9 @@ final class KeyChainStore: Store {
         
         switch action {
         case .delete:
+            query[serviceName] = service
+            query[securityClass] = kSecClassGenericPassword
+        case .update:
             query[serviceName] = service
             query[securityClass] = kSecClassGenericPassword
         default:
