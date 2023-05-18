@@ -125,10 +125,9 @@ final class SecureCurtzStoreUnitTests: XCTestCase {
         wait(for: [firstExpectation, secondExpectation], timeout: 0.2)
     }
     
-    
     // MARK: - Helpers
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> KeyChainStore {
-        let sut = KeyChainStore()
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> SecureStore {
+        let sut = SecureStore()
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
@@ -136,22 +135,19 @@ final class SecureCurtzStoreUnitTests: XCTestCase {
 }
 
 
-// IMPLEMENT KeyChainStore
+// IMPLEMENT SecureStore
 
-final class KeyChainStore: Store {
+final class SecureStore: Store {
     
     init() { /* no code required */}
     
     private let service = "com.sanctumlabs.curtz"
     
     func add(_ val: String, key: String, completion: @escaping (AddResult) -> Void) {
-        let query: [String: Any] = [
-            kSecAttrAccessible as String : kSecAttrAccessibleWhenUnlocked,
-            securityClass: kSecClassGenericPassword,
-            serviceName: service,
-            kSecAttrAccount as String: key,
-            data: val.data(using: .utf8) as Any
-        ]
+
+        var query = queryFor(.add)
+        query[kSecAttrAccount as String] = key
+        query[data] = val.data(using: .utf8) as Any
         // Delete
         SecItemDelete(query as CFDictionary)
         
@@ -229,21 +225,17 @@ final class KeyChainStore: Store {
     private let data = kSecValueData as String
     
     // MARK: - Helper Methods
-    private func queryFor( _ action: ActionType) -> [String: Any] {
+    func queryFor( _ action: StoreActionType) -> [String: Any] {
         var query: [String: Any] = [:]
+        query[serviceName] = service
+        query[securityClass] = kSecClassGenericPassword
         
         switch action {
-        case .delete:
-            query[serviceName] = service
-            query[securityClass] = kSecClassGenericPassword
-        case .update:
-            query[serviceName] = service
-            query[securityClass] = kSecClassGenericPassword
         case .search:
-            query[securityClass] = kSecClassGenericPassword
-            query[serviceName] = service
             query[shouldReturnData] = kCFBooleanTrue as Any
             query[kSecMatchLimit as String] = kSecMatchLimitOne
+        case .add:
+            query[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlocked
         default:
             break
         }
@@ -251,7 +243,7 @@ final class KeyChainStore: Store {
         return query
     }
     
-    private enum ActionType {
+    enum StoreActionType {
         case add
         case search
         case update
