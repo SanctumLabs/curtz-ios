@@ -133,8 +133,3 @@ final class SecureCurtzStoreUnitTests: XCTestCase {
     }
     
 }
-
-
-
-
-extension String: LocalizedError {}
