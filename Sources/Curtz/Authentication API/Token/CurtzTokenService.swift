@@ -34,4 +34,5 @@ public final class CurtzTokenService: TokenService {
 
 extension String {
     static let accessTokenKey = "access_token"
+    static let refreshTokenKey = "refresh_token"
 }

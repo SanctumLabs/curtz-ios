@@ -9,6 +9,7 @@ import Foundation
 
 public class LoginService {
     private let client: HTTPClient
+    private let storeManager: StoreManager
     private let loginURL: URL
     
     public typealias Result = LoginResult
@@ -17,18 +18,28 @@ public class LoginService {
         case invalidData
     }
     
-    public init(loginURL: URL, client: HTTPClient) {
+    public init(loginURL: URL, client: HTTPClient, storeManager: StoreManager) {
         self.client = client
         self.loginURL = loginURL
+        self.storeManager = storeManager
     }
     
     public func login(user: LoginRequest, completion: @escaping (Result) -> Void) {
         
         client.perform(request: .prepared(for: .login(username: user.email, password: user.password), with: self.loginURL)) {[weak self] result in
-            guard self != nil else { return }
+            guard let self else { return }
             switch result {
             case let .success((data, response)):
-                completion(LoginMapper.map(data, from: response))
+                
+                let result = LoginMapper.map(data, from: response)
+                
+                if case let .success(res) = result {
+                    self.storeManager.save(res.accessToken, forKey: .accessTokenKey) { _ in }
+                    self.storeManager.save(res.refreshToken, forKey: .refreshTokenKey) { _ in }
+                }
+                
+                completion(result)
+                
             case .failure:
                 completion(.failure(Error.connectivity))
             }

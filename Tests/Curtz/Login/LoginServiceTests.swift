@@ -11,12 +11,13 @@ import Curtz
 final class LoginServiceTests: XCTestCase {
     
     func test_init_doesNOTperformAnyRequest() {
-        let (_, client) = makeSUT()
+        let (_, client, storeManager) = makeSUT()
         XCTAssertTrue(client.requestsMade.isEmpty)
+        XCTAssertTrue(storeManager.messages.isEmpty)
     }
     
     func test_login_performsARequest() {
-        let (sut, client) = makeSUT()
+        let (sut, client, _) = makeSUT()
         
         sut.login(user: testUser()){ _ in }
         XCTAssertFalse(client.requestsMade.isEmpty, "Should make a call atleast")
@@ -24,7 +25,7 @@ final class LoginServiceTests: XCTestCase {
     
     func test_login_performsRequestWithCorrectInformation() {
         let jsonDecoder = JSONDecoder()
-        let (sut, client) = makeSUT()
+        let (sut, client, _) = makeSUT()
         let userRequest = LoginRequest(email: "first@email.com", password: "aSeriousLystronsOne")
         sut.login(user: userRequest) { _ in }
         
@@ -37,7 +38,7 @@ final class LoginServiceTests: XCTestCase {
     }
     
     func test_login_deliversErrorOnClientError() {
-        let (sut, client) = makeSUT()
+        let (sut, client, _) = makeSUT()
         expect(sut, user: testUser(), toCompleteWith: failure(.connectivity), when: {
             let clientError = anyNSError()
             client.complete(with: clientError)
@@ -45,7 +46,7 @@ final class LoginServiceTests: XCTestCase {
     }
     
     func test_login_deliversErrorOnNON2xxStatusCode() {
-        let (sut, client) = makeSUT()
+        let (sut, client, _) = makeSUT()
         let statusCodes = [199, 300, 301, 400, 500, 503]
         statusCodes.enumerated().forEach { index, code in
             expect(sut, user: testUser(), toCompleteWith: failure(.invalidData), when: {
@@ -56,7 +57,7 @@ final class LoginServiceTests: XCTestCase {
     }
     
     func test_login_deliversLoginResponseOn2xxHTTPResponse() {
-        let (sut, client) = makeSUT()
+        let (sut, client, storeManager) = makeSUT()
         
         let user = testUser()
         let loginResponse = makeLoginResponse(id: testID(), email: user.email, createdAt: (Date(timeIntervalSince1970: 1598627222),"2020-08-28T15:07:02+00:00"), updatedAt: (Date(timeIntervalSince1970: 1598627222), "2020-08-28T15:07:02+00:00"), accessToken: accessToken(), refreshToken: refreshToken())
@@ -65,13 +66,16 @@ final class LoginServiceTests: XCTestCase {
             let json = makeJSON(loginResponse.json)
             client.complete(withStatusCode: 200, data: json)
         })
+        
+        XCTAssertEqual(storeManager.messages, [.save(accessToken(), "access_token"), .save(refreshToken(), "refresh_token")])
     }
     
     func test_login_doesNOTDeliverResultsAfterSUTInstanceHasBeenDeallocated() {
         let client = HTTPClientSpy()
+        let storeManager = StoreManagerSpy()
         var capturedResult = [LoginService.Result]()
         
-        var sut: LoginService? = LoginService(loginURL: testLoginURL(), client: client)
+        var sut: LoginService? = LoginService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
         sut?.login(user: testUser(), completion: { capturedResult.append($0)})
         sut = nil
         client.complete(withStatusCode: 200, data: makeJSON(jsonFor()))
@@ -79,14 +83,17 @@ final class LoginServiceTests: XCTestCase {
     }
     
     // MARK: - Helpers
-    private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: LoginService, client: HTTPClientSpy) {
+    private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: LoginService, client: HTTPClientSpy, storeManager: StoreManagerSpy) {
         let client = HTTPClientSpy()
-        let sut = LoginService(loginURL: testLoginURL(), client: client)
+        let storeManager = StoreManagerSpy()
+        let sut = LoginService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
         
         trackForMemoryLeaks(client, file: file, line: line)
+        trackForMemoryLeaks(storeManager, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         
-        return (sut, client)
+        
+        return (sut, client, storeManager)
     }
     
     private func expect(_ sut: LoginService, user: LoginRequest, toCompleteWith expectedResult: LoginService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
