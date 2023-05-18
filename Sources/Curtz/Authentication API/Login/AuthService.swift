@@ -1,5 +1,5 @@
 //
-//  LoginService.swift
+//  AuthService.swift
 //  Curtz
 //
 //  Created by George Nyakundi on 02/02/2023.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class LoginService {
+public class AuthService {
     private let client: HTTPClient
     private let storeManager: StoreManager
     private let loginURL: URL

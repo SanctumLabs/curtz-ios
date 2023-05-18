@@ -22,12 +22,12 @@ public struct LoginMapper {
         }
     }
     
-    static func map(_ data: Data, from response: HTTPURLResponse) -> LoginService.Result {
+    static func map(_ data: Data, from response: HTTPURLResponse) -> AuthService.Result {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
         guard isOK(response), let res = try? decoder.decode(Item.self, from: data) else {
-            return .failure(LoginService.Error.invalidData)
+            return .failure(AuthService.Error.invalidData)
         }
         return .success(res.response)
         

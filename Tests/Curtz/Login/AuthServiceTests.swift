@@ -1,5 +1,5 @@
 //
-//  LoginServiceTests.swift
+//  AuthServiceTests.swift
 //  CurtzUnitTests
 //
 //  Created by George Nyakundi on 03/10/2022.
@@ -8,7 +8,7 @@
 import XCTest
 import Curtz
 
-final class LoginServiceTests: XCTestCase {
+final class AuthServiceTests: XCTestCase {
     
     func test_init_doesNOTperformAnyRequest() {
         let (_, client, storeManager) = makeSUT()
@@ -73,9 +73,9 @@ final class LoginServiceTests: XCTestCase {
     func test_login_doesNOTDeliverResultsAfterSUTInstanceHasBeenDeallocated() {
         let client = HTTPClientSpy()
         let storeManager = StoreManagerSpy()
-        var capturedResult = [LoginService.Result]()
+        var capturedResult = [AuthService.Result]()
         
-        var sut: LoginService? = LoginService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
+        var sut: AuthService? = AuthService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
         sut?.login(user: testUser(), completion: { capturedResult.append($0)})
         sut = nil
         client.complete(withStatusCode: 200, data: makeJSON(jsonFor()))
@@ -91,10 +91,10 @@ final class LoginServiceTests: XCTestCase {
     }
     
     // MARK: - Helpers
-    private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: LoginService, client: HTTPClientSpy, storeManager: StoreManagerSpy) {
+    private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: AuthService, client: HTTPClientSpy, storeManager: StoreManagerSpy) {
         let client = HTTPClientSpy()
         let storeManager = StoreManagerSpy()
-        let sut = LoginService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
+        let sut = AuthService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
         
         trackForMemoryLeaks(client, file: file, line: line)
         trackForMemoryLeaks(storeManager, file: file, line: line)
@@ -104,13 +104,13 @@ final class LoginServiceTests: XCTestCase {
         return (sut, client, storeManager)
     }
     
-    private func expect(_ sut: LoginService, user: LoginRequest, toCompleteWith expectedResult: LoginService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: AuthService, user: LoginRequest, toCompleteWith expectedResult: AuthService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for registration completion")
         sut.login(user: user) { receivedResult in
             switch(receivedResult, expectedResult) {
             case let (.success(receivedResponse), .success(expectedResponse)):
                 XCTAssertEqual(receivedResponse, expectedResponse, file: file, line: line)
-            case let (.failure(receivedError as LoginService.Error), .failure(expectedError as LoginService.Error)):
+            case let (.failure(receivedError as AuthService.Error), .failure(expectedError as AuthService.Error)):
                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
             default:
                 XCTFail("Expected \(expectedResult), got \(receivedResult) instead", file: file, line: line)
@@ -136,7 +136,7 @@ final class LoginServiceTests: XCTestCase {
         return try! JSONSerialization.data(withJSONObject: json)
     }
     
-    private func failure(_ error: LoginService.Error) -> LoginService.Result {
+    private func failure(_ error: AuthService.Error) -> AuthService.Result {
         .failure(error)
     }
     
