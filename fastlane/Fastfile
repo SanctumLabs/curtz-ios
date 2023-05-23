@@ -17,6 +17,7 @@
 desc "Project setup"
 lane :setup do 
   xcodegen
+  cocoapods
 end 
 
 desc "Test and generate coverage data"
