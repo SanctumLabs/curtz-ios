@@ -14,6 +14,7 @@ public class RegistrationService {
     public enum Error: Swift.Error {
         case connectivity
         case invalidData
+        case clientError(String)
     }
     
     public typealias Result = RegistrationResult

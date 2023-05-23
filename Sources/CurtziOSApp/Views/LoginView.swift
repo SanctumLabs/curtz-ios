@@ -54,7 +54,10 @@ struct LoginView: View {
             .foregroundColor(.white)
             .cornerRadius(10)
             .disabled(email.isEmpty && password.isEmpty)
-            NavigationLink(destination: RegisterView()) {
+            NavigationLink(
+                destination: RegisterView()
+                    .navigationBarBackButtonHidden(true)
+            ) {
                 Text("Don't have an account? Create one")
                     .font(.caption)
                     .fontWeight(.thin)

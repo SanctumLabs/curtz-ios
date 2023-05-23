@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Curtz
 
 struct RegisterView: View {
     @EnvironmentObject var vm: CurtziOSAppViewModel
@@ -45,13 +46,25 @@ struct RegisterView: View {
                     }
                
                 Button("Continue") {
+                    hasError = false
+                    hasCompletedSuccessfully = false
                     vm.register(user: email, password: password) { result in
                         switch result {
                         case .success:
                             hasCompletedSuccessfully = true
-                        case let .failure(error):
+                            clearFields()
+                        case let .failure(error as RegistrationService.Error):
                             hasError = true
-                            errorMessage = error.localizedDescription
+                            switch error {
+                            case let .clientError(errorMsg):
+                                errorMessage = errorMsg
+                                
+                            default:
+                                errorMessage = "Please try again"
+                            }
+                        default:
+                            hasError = true
+                            errorMessage = "Something went wrong 😭"
                         }
                     }
                 }
@@ -61,7 +74,10 @@ struct RegisterView: View {
                 .foregroundColor(.white)
                 .cornerRadius(10)
                 
-                NavigationLink(destination: LoginView()) {
+                NavigationLink(destination:
+                                LoginView()
+                    .navigationBarBackButtonHidden(true)
+                ) {
                     Text("Already have an account?")
                         .font(.caption)
                         .fontWeight(.thin)
@@ -79,6 +95,11 @@ struct RegisterView: View {
             .navigationBarTitleDisplayMode(.inline)
             .padding()
             .navigationBarBackButtonHidden()
+    }
+    
+    private func clearFields() {
+        email = ""
+        password = ""
     }
 }
 
