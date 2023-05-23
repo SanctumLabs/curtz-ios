@@ -44,4 +44,6 @@ class CurtziOSAppViewModel: ObservableObject {
         authService.logout()
     }
     
+    
+    
 }
