@@ -8,14 +8,29 @@
 import SwiftUI
 
 struct RegisterView: View {
+    @EnvironmentObject var vm: CurtziOSAppViewModel
+    
     @State var email: String = ""
     @State var password: String = ""
+    @State var hasError: Bool = false
+    @State var errorMessage: String = ""
+    @State var hasCompletedSuccessfully: Bool = false
+    
     var body: some View {
             VStack(alignment: .leading, spacing: 15) {
                 Text("Register")
                     .font(.largeTitle)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
+                if hasError {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                }
+                
+                if hasCompletedSuccessfully {
+                    Text("Account created successfully 🎉")
+                        .foregroundColor(.green)
+                }
                 TextField("Email address", text: $email)
                     .padding()
                     .overlay {
@@ -30,7 +45,15 @@ struct RegisterView: View {
                     }
                
                 Button("Continue") {
-                    
+                    vm.register(user: email, password: password) { result in
+                        switch result {
+                        case .success:
+                            hasCompletedSuccessfully = true
+                        case let .failure(error):
+                            hasError = true
+                            errorMessage = error.localizedDescription
+                        }
+                    }
                 }
                 .frame(height: 50)
                 .frame(maxWidth: .infinity)
