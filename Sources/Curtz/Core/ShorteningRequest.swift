@@ -18,3 +18,18 @@ public struct ShorteningRequest {
         self.expiresOn = expiresOn
     }
 }
+
+public struct ShorteningResponse: Equatable {
+    public let id: String
+    public let originalUrl: String
+    public let customAlias: String
+    public let expiresOn: String
+    public let keywords: [String]
+    public let shortCode: String
+    public let hits: Int
+}
+
+public enum ShorteningResult {
+    case success(ShorteningResponse)
+    case failure(Error)
+}

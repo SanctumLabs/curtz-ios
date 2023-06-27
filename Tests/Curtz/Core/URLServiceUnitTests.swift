@@ -20,21 +20,20 @@ final class URLServiceUnitTests: XCTestCase {
         let jsonDecoder = JSONDecoder()
         
         let (sut, client) = makeSUT()
-        let urlToShorten = "http://crazy-website.com"
-        let keywords = ["fancy", "another one"]
-        let expiresOn = "2022-10-20T09:16:07.70609+02:00"
-        
-        let requestSent = ShorteningRequest(originalUrl: urlToShorten, keywords: keywords, expiresOn: expiresOn)
-        sut.shorten(urlRequest: requestSent)
+        sut.shorten(urlRequest: testShorteningRequest()) { _ in }
         
         client.requestsMade.forEach { request in
             let requestReceived = try! jsonDecoder.decode(TestShorteningRequest.self, from: request.httpBody!)
             XCTAssertEqual(request.httpMethod, "POST")
             XCTAssertEqual(request.url, testShorteningURL())
-            XCTAssertEqual(requestSent.keywords, requestReceived.keywords)
-            XCTAssertEqual(requestSent.expiresOn, requestReceived.expiresOn)
-            XCTAssertEqual(requestSent.originalUrl, requestReceived.originalUrl)
+            XCTAssertEqual(testShorteningRequest().keywords, requestReceived.keywords)
+            XCTAssertEqual(testShorteningRequest().expiresOn, requestReceived.expiresOn)
+            XCTAssertEqual(testShorteningRequest().originalUrl, requestReceived.originalUrl)
         }
+    }
+    
+    func test_shortenURL_deliversErrorOnClientError() {
+        let (sut, client) = makeSUT()
     }
     
     //MARK: - Helpers
@@ -70,6 +69,14 @@ final class URLServiceUnitTests: XCTestCase {
             self.keywords = try container.decode([String].self, forKey: .keywords)
             self.expiresOn = try container.decode(String.self, forKey: .expiresOn)
         }
+    }
+    
+    private func testShorteningRequest() -> ShorteningRequest {
+        let urlToShorten = "http://crazy-website.com"
+        let keywords = ["fancy", "another one"]
+        let expiresOn = "2022-10-20T09:16:07.70609+02:00"
+        
+        return ShorteningRequest(originalUrl: urlToShorten, keywords: keywords, expiresOn: expiresOn)
     }
 }
 
