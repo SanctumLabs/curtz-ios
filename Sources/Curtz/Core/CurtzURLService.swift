@@ -14,6 +14,7 @@ public final class CurtzURLService {
     
     public enum Error: Swift.Error {
         case connectivity
+        case invalidData
     }
     
     public typealias Result = ShorteningResult
@@ -24,8 +25,8 @@ public final class CurtzURLService {
     }
     
     public func shorten(urlRequest: ShorteningRequest, completion: @escaping(Result) -> Void) {
-        httpClient.perform(request: .prepared(for: .shortening(originalUrl: urlRequest.originalUrl, keywords: urlRequest.keywords, expiresOn: urlRequest.expiresOn), with: serviceURL)) { _ in
-            
+        httpClient.perform(request: .prepared(for: .shortening(originalUrl: urlRequest.originalUrl, keywords: urlRequest.keywords, expiresOn: urlRequest.expiresOn), with: serviceURL)) { result in
+            completion(.failure(Error.invalidData))
         }
     }
 }

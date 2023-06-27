@@ -34,6 +34,11 @@ final class URLServiceUnitTests: XCTestCase {
     
     func test_shortenURL_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
+        
+        expect(sut, shortening: testShorteningRequest(), toCompleteWith: failure(.invalidData)) {
+            let clientError = anyNSError()
+            client.complete(with: clientError)
+        }
     }
     
     //MARK: - Helpers
@@ -77,6 +82,30 @@ final class URLServiceUnitTests: XCTestCase {
         let expiresOn = "2022-10-20T09:16:07.70609+02:00"
         
         return ShorteningRequest(originalUrl: urlToShorten, keywords: keywords, expiresOn: expiresOn)
+    }
+    
+    private func expect(_ sut: CurtzURLService, shortening shorteningRequest: ShorteningRequest, toCompleteWith expectedResult: CurtzURLService.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+        let expectation = expectation(description: "wait for expectation")
+        
+        sut.shorten(urlRequest: shorteningRequest) { receivedResult in
+            switch(receivedResult, expectedResult) {
+            case let (.success(receievedResponse), .success(expectedResponse)):
+                XCTAssertEqual(receievedResponse, expectedResponse, file: file, line: line)
+            case let (.failure(receivedError as CurtzURLService.Error), .failure(expectedError as CurtzURLService.Error)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            default:
+                XCTFail("Expected result \(expectedResult), got \(receivedResult)", file: file, line: line)
+            }
+            expectation.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    private func failure(_ error: CurtzURLService.Error) -> CurtzURLService.Result {
+        .failure(error)
     }
 }
 
