@@ -36,4 +36,7 @@ public class RegistrationService {
             }
         }
     }
+    
 }
+
+extension RegistrationService.Error : Equatable {}
