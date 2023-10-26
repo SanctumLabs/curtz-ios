@@ -7,64 +7,71 @@
 
 import SwiftUI
 
+enum DashboardTab: String {
+    case home = "Home"
+    case settings = "Settings"
+}
+
 struct DashboardView: View {
     @EnvironmentObject var vm: CurtziOSAppViewModel
     @State private var successFullyLogout = false
     
+    @State var activeTab: String = DashboardTab.home.rawValue
+    
+    
     let urls: [CurtzURL] = [CurtzURL(id: "cbujla6g26udrae2rez", originalUrl: "http://georgenyakundi.com", customAlias: "", expiresOn: Date(timeIntervalSince1970: 1598627222), keywords: [], userId: "", shortCode: "blw94Z", createdAt: Date(timeIntervalSince1970: 1598627222), updatedAt: Date(timeIntervalSince1970: 1598627222), hits: 1)]
     var body: some View {
-        ZStack {
-            VStack(alignment: .leading) {
-                List {
-                    ForEach(urls, id: \.id) { url in
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack {
-                                Text("Short Code: \(url.shortCode)")
-                                Spacer()
-                                Text("Hits: \(url.hits)")
-                                    .font(.title)
-                            }.padding([.top])
-                            Text("Expires on: \(url.expiresOn.formatted())")
-                                .padding([.top, .bottom])
-                            Text("Original URL:\(url.originalUrl)")
-                                .font(.footnote)
-                            Text("Created: \(url.createdAt.formatted())")
-                                .font(.footnote)
-                            Text("Updated: \(url.updatedAt.formatted())")
-                                .font(.footnote)
-                        }
-                        .padding([.bottom])
-                    }
-                }
-            }
-            
-            Button("Logout") {
-                vm.logout()
-                successFullyLogout = true
-            }
-            .frame(height: 50)
-            .frame(maxWidth: .infinity)
-            .background(.red)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-            .padding()
-            // Floating button
-//            VStack {
-//                Spacer()
-//                HStack {
-//                    Spacer()
-//                    Button(action: {}, label: {
-//                        Image(systemName: "plus.circle.fill")
-//                            .font(.system(.largeTitle))
-//                            .padding()
-//                    })
-//                    .padding([.trailing])
-//                }
-//            }
+        ZStack(alignment: .bottom) {
+            TabView(selection: $activeTab,
+                    content:  {
+                HomeView()
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .tag(DashboardTab.home.rawValue)
+                SettingsView()
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .tag(DashboardTab.settings.rawValue)
+            })
+            CustomTabBar(currentTab: $activeTab)
         }
-        .navigationTitle("Dashboard")
-        .navigate(to: LoginView(), when: $successFullyLogout)
-       
+        //        ZStack {
+        //            VStack(alignment: .leading) {
+        //                List {
+        //                    ForEach(urls, id: \.id) { url in
+        //                        VStack(alignment: .leading, spacing: 10) {
+        //                            HStack {
+        //                                Text("Short Code: \(url.shortCode)")
+        //                                Spacer()
+        //                                Text("Hits: \(url.hits)")
+        //                                    .font(.title)
+        //                            }.padding([.top])
+        //                            Text("Expires on: \(url.expiresOn.formatted())")
+        //                                .padding([.top, .bottom])
+        //                            Text("Original URL:\(url.originalUrl)")
+        //                                .font(.footnote)
+        //                            Text("Created: \(url.createdAt.formatted())")
+        //                                .font(.footnote)
+        //                            Text("Updated: \(url.updatedAt.formatted())")
+        //                                .font(.footnote)
+        //                        }
+        //                        .padding([.bottom])
+        //                    }
+        //                }
+        //            }
+        //
+        //            Button("Logout") {
+        //                vm.logout()
+        //                successFullyLogout = true
+        //            }
+        //            .frame(height: 50)
+        //            .frame(maxWidth: .infinity)
+        //            .background(.red)
+        //            .foregroundColor(.white)
+        //            .cornerRadius(10)
+        //            .padding()
+        //        }
+        //        .navigationTitle("Dashboard")
+        //        .navigate(to: LoginView(), when: $successFullyLogout)
+        //
     }
 }
 
@@ -92,7 +99,7 @@ struct CurtzURL: Equatable {
 extension DashboardView_Previews {
     
     static func sampleUrls() -> [CurtzURL] {
-        let dummyCurtzUrl = CurtzURL(id: "cbujla6g26udrae2rez", originalUrl: "http://georgenyakundi.com", customAlias: "", expiresOn: Date(timeIntervalSince1970: 1598627222), keywords: [], userId: "", shortCode: "blw94Z", createdAt: Date(timeIntervalSince1970: 1598627222), updatedAt: Date(timeIntervalSince1970: 1598627222), hits: 1)
+        let dummyCurtzUrl = CurtzURL(id: "cbujla6g26udrae2rez", originalUrl: "http://georgenyakundi.com", customAlias: "", expiresOn: Date(timeIntervalSince1970: 1598627222), keywords: ["first", "second"], userId: "", shortCode: "blw94Z", createdAt: Date(timeIntervalSince1970: 1598627222), updatedAt: Date(timeIntervalSince1970: 1598627222), hits: 1)
         
         return [dummyCurtzUrl]
     }
