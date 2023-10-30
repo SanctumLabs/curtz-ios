@@ -19,7 +19,8 @@ struct CurtziOSApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                LoginView()
+                LandingView()
+//                LoginView()
             }.environmentObject(appViewModel)
         }
     }

@@ -54,23 +54,11 @@ struct LoginView: View {
             .foregroundColor(.white)
             .cornerRadius(10)
             .disabled(email.isEmpty && password.isEmpty)
-            NavigationLink(
-                destination: RegisterView()
-                    .navigationBarBackButtonHidden(true)
-            ) {
-                Text("Don't have an account? Create one")
-                    .font(.caption)
-                    .fontWeight(.thin)
-                    .foregroundColor(.blue)
-                    .multilineTextAlignment(.center)
-            }
-            Spacer()
         }
         .navigationTitle("Curtz")
         .navigationBarTitleDisplayMode(.inline)
         .padding()
         .navigationBarBackButtonHidden()
-        .navigate(to: DashboardView(), when: $successFullyAuthenticated)
     }
     
     private func clearFields() {

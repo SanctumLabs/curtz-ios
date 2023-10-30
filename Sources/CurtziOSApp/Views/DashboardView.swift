@@ -17,6 +17,7 @@ struct DashboardView: View {
     @State private var successFullyLogout = false
     
     @State var activeTab: String = DashboardTab.home.rawValue
+    @State var ctaSelected: Bool = false
     
     
     let urls: [CurtzURL] = [CurtzURL(id: "cbujla6g26udrae2rez", originalUrl: "http://georgenyakundi.com", customAlias: "", expiresOn: Date(timeIntervalSince1970: 1598627222), keywords: [], userId: "", shortCode: "blw94Z", createdAt: Date(timeIntervalSince1970: 1598627222), updatedAt: Date(timeIntervalSince1970: 1598627222), hits: 1)]
@@ -31,8 +32,11 @@ struct DashboardView: View {
 //                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .tag(DashboardTab.settings.rawValue)
             })
-            CustomTabBar(currentTab: $activeTab)
+            CustomTabBar(currentTab: $activeTab, ctaSelected: $ctaSelected)
         }
+        .fullScreenCover(isPresented: $ctaSelected, content: {
+            ShortenerView(ctaSelected: $ctaSelected)
+        })
         //        ZStack {
         //            VStack(alignment: .leading) {
         //                List {

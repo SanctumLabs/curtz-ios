@@ -10,6 +10,7 @@ import SwiftUI
 struct CustomTabBar: View {
     @State var animate = true
     @Binding var currentTab: String
+    @Binding var ctaSelected: Bool
     var body: some View {
         HStack(spacing: 4, content: {
             TabButton(image: DashboardTab.home.rawValue,currentTab: $currentTab)
@@ -27,6 +28,7 @@ struct CustomTabBar: View {
                 Button {
                     let impactMed = UIImpactFeedbackGenerator(style: .light)
                     impactMed.impactOccurred()
+                    ctaSelected = true
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -65,7 +67,7 @@ struct TabButton: View {
 }
 
 #Preview {
-    CustomTabBar(currentTab: .constant(DashboardTab.home.rawValue))
+    CustomTabBar(currentTab: .constant(DashboardTab.home.rawValue), ctaSelected: .constant(false))
 }
 
 
@@ -87,6 +89,9 @@ extension Color {
     }
     static var SubtitleText: Color {
         return Color("SubtitleText")
+    }
+    static var PrimaryBackground: Color {
+        return Color("PrimaryBackground")
     }
 }
 
