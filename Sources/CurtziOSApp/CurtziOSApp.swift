@@ -20,7 +20,6 @@ struct CurtziOSApp: App {
         WindowGroup {
             NavigationView {
                 LandingView()
-//                LoginView()
             }.environmentObject(appViewModel)
         }
     }

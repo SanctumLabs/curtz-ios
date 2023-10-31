@@ -74,16 +74,6 @@ struct RegisterView: View {
                 .foregroundColor(.white)
                 .cornerRadius(10)
                 
-                NavigationLink(destination:
-                                LoginView()
-                    .navigationBarBackButtonHidden(true)
-                ) {
-                    Text("Already have an account?")
-                        .font(.caption)
-                        .fontWeight(.thin)
-                        .foregroundColor(.blue)
-                        .multilineTextAlignment(.center)
-                }
                 Spacer()
                 Text("By creating an account, you agree to Curtz's Conditions of Use and Private Notice.")
                     .font(.caption)

@@ -14,31 +14,56 @@ struct LoginView: View {
     @State var password: String = ""
     @State var hasError: Bool = false
     @State private var successFullyAuthenticated = false
-
+    @Binding var dismiss: Bool
+    
+    @FocusState private var emailTextFieldFocussed: Bool
+    @FocusState private var passwordTextFieldFocussed: Bool
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("Login")
-                .font(.largeTitle)
-                .fontWeight(.semibold)
-                .multilineTextAlignment(.center)
+            VStack(alignment: .leading) {
+                HStack {
+                    Button {
+                        dismiss.toggle()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    Spacer()
+                    Text("Login")
+                    Spacer()
+                }
+            }
+            
             if hasError {
                 Text("Couldn't login, please try again")
                     .foregroundColor(.red)
             }
-            TextField("Email address", text: $email)
-                .padding()
-                .overlay {
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(.blue, lineWidth: 1)
-                }
-            SecureField("Password", text: $password)
-                .padding()
-                .overlay {
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(.blue, lineWidth: 1)
-                }
+            VStack(alignment: .leading) {
+                Text("Email address")
+                    .foregroundStyle(emailTextFieldFocussed ? .blue : .black)
+                TextField("Email address", text: $email)
+                    .padding()
+                    .focused($emailTextFieldFocussed)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(emailTextFieldFocussed ? .blue: .black, lineWidth: 1)
+                    }
+            }
+            VStack(alignment: .leading) {
+                Text("Password")
+                    .foregroundStyle(passwordTextFieldFocussed ? .blue : .black)
+                SecureField("Password", text: $password)
+                    .padding()
+                    .focused($passwordTextFieldFocussed)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(passwordTextFieldFocussed ? .blue: .black, lineWidth: 1)
+                    }
+            }
             
-            Button("Continue") {
+            Button(action: {
+                passwordTextFieldFocussed = false
+                emailTextFieldFocussed = false
                 vm.login(user: email, password: password) { result in
                     switch result {
                     case .failure:
@@ -47,13 +72,16 @@ struct LoginView: View {
                         successFullyAuthenticated = true
                     }
                 }
-            }
-            .frame(height: 50)
+            }, label: {
+                Text("Continue")
+                    .frame(maxWidth: 340)
+            })
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
             .frame(maxWidth: .infinity)
-            .background(.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
             .disabled(email.isEmpty && password.isEmpty)
+            Spacer()
         }
         .navigationTitle("Curtz")
         .navigationBarTitleDisplayMode(.inline)
@@ -69,6 +97,6 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginView(dismiss: .constant(false))
     }
 }

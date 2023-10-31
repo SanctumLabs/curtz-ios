@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct LandingView: View {
+    
+    @State var isLogin: Bool = false
+    @State var isRegistering: Bool = false
+    
     var body: some View {
         VStack {
             Spacer()
@@ -15,7 +19,11 @@ struct LandingView: View {
                 .font(.largeTitle)
             Spacer()
             VStack {
-                Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                Button(action: {
+                    withAnimation {
+                        isLogin.toggle()
+                    }
+                }, label: {
                     Text("Login")
                         .frame(maxWidth: 300)
                 })
@@ -24,7 +32,9 @@ struct LandingView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
                 .padding([.bottom], 20)
                 
-                Button(action: {}) {
+                Button(action: {
+                    isRegistering.toggle()
+                }) {
                     Text("Register")
                         .frame(maxWidth: 300)
                 }
@@ -32,6 +42,13 @@ struct LandingView: View {
                 .controlSize(.large)
             }
             .padding([.bottom,], 20)
+            .fullScreenCover(isPresented: $isLogin, content: {
+                LoginView(dismiss: $isLogin)
+            })
+            .fullScreenCover(isPresented: $isRegistering, onDismiss: { isRegistering.toggle()}, content: {
+                RegisterView()
+            })
+            
         }
     }
 }
