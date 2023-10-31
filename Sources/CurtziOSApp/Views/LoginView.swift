@@ -13,8 +13,8 @@ struct LoginView: View {
     @State var email: String = ""
     @State var password: String = ""
     @State var hasError: Bool = false
-    @State private var successFullyAuthenticated = false
     @Binding var dismiss: Bool
+    @Binding var loggedInSuccessfully: Bool
     
     @FocusState private var emailTextFieldFocussed: Bool
     @FocusState private var passwordTextFieldFocussed: Bool
@@ -24,9 +24,13 @@ struct LoginView: View {
             VStack(alignment: .leading) {
                 HStack {
                     Button {
-                        dismiss.toggle()
+                        withAnimation {
+                            dismiss = false
+                        }
+                        
                     } label: {
                         Image(systemName: "xmark")
+                            .foregroundColor(.black)
                     }
                     Spacer()
                     Text("Login")
@@ -69,7 +73,8 @@ struct LoginView: View {
                     case .failure:
                         hasError = true
                     case .success:
-                        successFullyAuthenticated = true
+                        loggedInSuccessfully = true
+                        dismiss = true
                     }
                 }
             }, label: {
@@ -97,6 +102,6 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(dismiss: .constant(false))
+        LoginView(dismiss: .constant(false), loggedInSuccessfully: .constant(false))
     }
 }

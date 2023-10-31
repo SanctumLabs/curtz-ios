@@ -11,6 +11,7 @@ struct LandingView: View {
     
     @State var isLogin: Bool = false
     @State var isRegistering: Bool = false
+    @Binding var loggedInSuccessfully: Bool
     
     var body: some View {
         VStack {
@@ -21,7 +22,7 @@ struct LandingView: View {
             VStack {
                 Button(action: {
                     withAnimation {
-                        isLogin.toggle()
+                        isLogin = true
                     }
                 }, label: {
                     Text("Login")
@@ -33,7 +34,9 @@ struct LandingView: View {
                 .padding([.bottom], 20)
                 
                 Button(action: {
-                    isRegistering.toggle()
+                    withAnimation {
+                        isRegistering = true
+                    }
                 }) {
                     Text("Register")
                         .frame(maxWidth: 300)
@@ -43,10 +46,10 @@ struct LandingView: View {
             }
             .padding([.bottom,], 20)
             .fullScreenCover(isPresented: $isLogin, content: {
-                LoginView(dismiss: $isLogin)
+                LoginView(dismiss: $isLogin, loggedInSuccessfully: $loggedInSuccessfully)
             })
             .fullScreenCover(isPresented: $isRegistering, onDismiss: { isRegistering.toggle()}, content: {
-                RegisterView()
+                RegisterView(dismiss: $isRegistering)
             })
             
         }
@@ -54,5 +57,5 @@ struct LandingView: View {
 }
 
 #Preview {
-    LandingView()
+    LandingView(loggedInSuccessfully: .constant(false))
 }
