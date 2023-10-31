@@ -16,6 +16,7 @@ class CurtziOSAppViewModel: ObservableObject {
     private let authenticatedHTTPClient: HTTPClient
     private let authService: AuthService
     private let registrationService: RegistrationService
+    
     // FOR Local Development
     private let baseURL: URL = URL(string: "http://localhost:8085")!
     

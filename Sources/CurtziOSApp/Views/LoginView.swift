@@ -79,12 +79,13 @@ struct LoginView: View {
                 }
             }, label: {
                 Text("Continue")
-                    .frame(maxWidth: 340)
+                    .foregroundColor(Color.LightIcon)
+                    .padding([.vertical], 18)
+                    .frame(maxWidth: .infinity)
+                    .background(RoundedRectangle(cornerRadius: 30, style: .continuous).fill(Color.DarkBackground))
             })
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-            .frame(maxWidth: .infinity)
+            .padding([.top], 8)
+
             .disabled(email.isEmpty && password.isEmpty)
             Spacer()
         }

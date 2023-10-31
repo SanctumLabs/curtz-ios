@@ -99,11 +99,12 @@ struct RegisterView: View {
             }, label: {
                 Text("Continue")
                     .frame(maxWidth: 340)
-            }).buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                .frame(maxWidth: .infinity)
-                .disabled(email.isEmpty && password.isEmpty)
+            })
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+            .frame(maxWidth: .infinity)
+            .disabled(email.isEmpty && password.isEmpty)
             
             Spacer()
             Text("By creating an account, you agree to Curtz's Conditions of Use and Private Notice.")

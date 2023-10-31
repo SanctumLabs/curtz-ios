@@ -26,12 +26,12 @@ struct LandingView: View {
                     }
                 }, label: {
                     Text("Login")
-                        .frame(maxWidth: 300)
+                        .foregroundColor(Color.LightIcon)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: 320)
+                        .background(RoundedRectangle(cornerRadius: 30, style: .continuous).fill(Color.DarkBackground))
                 })
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                .padding([.bottom], 20)
+                .padding([.bottom], 10)
                 
                 Button(action: {
                     withAnimation {

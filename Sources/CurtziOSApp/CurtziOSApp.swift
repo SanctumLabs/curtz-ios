@@ -21,7 +21,7 @@ struct CurtziOSApp: App {
         WindowGroup {
             NavigationView {
                 if loggedInSuccessfully {
-                    DashboardView()
+                    DashboardView(loggedIn: $loggedInSuccessfully)
                 } else {
                     LandingView(loggedInSuccessfully: $loggedInSuccessfully)
                 }
