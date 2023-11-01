@@ -21,9 +21,18 @@ final class RegistrationMapper {
         }
     }
     
+    private struct ErrorItem: Decodable {
+        let message: String
+    }
+    
     static func map(_ data: Data, from response: HTTPURLResponse) -> RegistrationService.Result {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
+        
+        if isBadRequest(response) {
+            let res = try? decoder.decode(ErrorItem.self, from: data)
+            return .failure(RegistrationService.Error.clientError(res?.message ?? ""))
+        }
         
         guard isOK(response), let res = try? decoder.decode(Item.self, from: data) else {
             return .failure(RegistrationService.Error.invalidData)
@@ -33,5 +42,9 @@ final class RegistrationMapper {
     
     private static func isOK(_ response: HTTPURLResponse) -> Bool {
         (200...299).contains(response.statusCode)
+    }
+    
+    private static func isBadRequest(_ response: HTTPURLResponse) -> Bool {
+        response.statusCode == 400
     }
 }

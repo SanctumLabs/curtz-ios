@@ -51,13 +51,24 @@ class RegistrationServiceTests: XCTestCase {
     
     func test_register_deliversErrorOnNon200StatusCode() {
         let (sut, client) = makeSUT()
-        let statusCodes = [199, 201, 300, 400, 500]
+        let statusCodes = [199, 201, 300, 500]
         
         statusCodes.enumerated().forEach { index, code in
             expect(sut, registering: testUser(), toCompleteWith: failure(.invalidData)) {
                 let data = makeErrorJSON()
                 client.complete(withStatusCode: code, data: data, at: index)
             }
+        }
+    }
+    
+    func test_register_deliversErrorMessageForClientErrorStatusCode() {
+        let (sut, client) = makeSUT()
+        let statusCode = 400
+        let serverMessage = "User already exists"
+        
+        expect(sut, registering: testUser(), toCompleteWith: failure(.clientError(serverMessage))) {
+            let data = makeErrorJSON(serverMessage)
+            client.complete(withStatusCode: statusCode, data: data)
         }
     }
     

@@ -11,6 +11,7 @@ import SwiftUI
 struct CurtziOSApp: App {
     
     let appViewModel: CurtziOSAppViewModel
+    @State var loggedInSuccessfully: Bool = false
     
     init() {
         appViewModel = CurtziOSAppViewModel()
@@ -19,7 +20,12 @@ struct CurtziOSApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                LoginView()
+                if loggedInSuccessfully {
+                    DashboardView(loggedIn: $loggedInSuccessfully)
+                } else {
+                    LandingView(loggedInSuccessfully: $loggedInSuccessfully)
+                }
+                
             }.environmentObject(appViewModel)
         }
     }

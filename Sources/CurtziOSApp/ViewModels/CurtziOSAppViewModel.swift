@@ -15,6 +15,8 @@ class CurtziOSAppViewModel: ObservableObject {
     private let httpClient: HTTPClient
     private let authenticatedHTTPClient: HTTPClient
     private let authService: AuthService
+    private let registrationService: RegistrationService
+    
     // FOR Local Development
     private let baseURL: URL = URL(string: "http://localhost:8085")!
     
@@ -25,6 +27,7 @@ class CurtziOSAppViewModel: ObservableObject {
         authenticatedHTTPClient = AuthenticatedHTTPClientDecorater(decoratee: httpClient, tokenService: tokenService)
         
         authService = AuthService(loginURL: CurtzEndpoint.login.url(baseURL: baseURL), client: httpClient, storeManager: storeManager)
+        registrationService = RegistrationService(registrationURL: CurtzEndpoint.register.url(baseURL: baseURL), client: httpClient)
     }
     
     
@@ -42,6 +45,18 @@ class CurtziOSAppViewModel: ObservableObject {
     
     func logout() {
         authService.logout()
+    }
+    
+    func register(user: String, password: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        let registrationRequest = RegistrationRequest(email: user, password: password)
+        registrationService.register(user: registrationRequest) { result in
+            switch result {
+            case .success:
+                completion(.success(()))
+            case let .failure(error):
+                completion(.failure(error))
+            }
+        }
     }
     
 }
