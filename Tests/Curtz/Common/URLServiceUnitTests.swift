@@ -84,7 +84,14 @@ final class URLServiceUnitTests: XCTestCase {
         return ShorteningRequest(originalUrl: urlToShorten, keywords: keywords, expiresOn: expiresOn)
     }
     
-    private func expect(_ sut: CurtzURLService, shortening shorteningRequest: ShorteningRequest, toCompleteWith expectedResult: CurtzURLService.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+    private func expect(
+        _ sut: CurtzURLService,
+        shortening shorteningRequest: ShorteningRequest,
+        toCompleteWith expectedResult: CurtzURLService.Result,
+        when action: () -> Void,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
         let expectation = expectation(description: "wait for expectation")
         
         sut.shorten(urlRequest: shorteningRequest) { receivedResult in
