@@ -37,9 +37,10 @@ extension URLRequest {
             let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
             request.httpBody = jsonData
             
-        case let .shortening(originalUrl, keywords, expiresOn):
+        case let .shortening(originalUrl, customAlias, keywords, expiresOn):
             let requestBody: [String: Any] = [
                 "original_url": originalUrl,
+                "custom_alias": customAlias,
                 "keywords": keywords,
                 "expires_on": expiresOn
             ]
@@ -54,7 +55,7 @@ extension URLRequest {
 public enum RequestType {
     case login(username: String,password: String)
     case registration(username: String, password: String)
-    case shortening(originalUrl: String, keywords: [String], expiresOn: String)
+    case shortening(originalUrl: String, customAlias: String, keywords: [String], expiresOn: String)
 }
 
 extension String {

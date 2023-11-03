@@ -11,12 +11,14 @@ import Curtz
 
 struct ShortenRequest {
     let originalUrl: String
-    let keyWords: [String]
+    let customAlias: String
+    let keywords: [String]
     let expiresOn: String
     
-    init(originalUrl: String, keyWords: [String], expiresOn: String) {
+    init(originalUrl: String, customAlias: String, keywords: [String], expiresOn: String) {
         self.originalUrl = originalUrl
-        self.keyWords = keyWords
+        self.customAlias = customAlias
+        self.keywords = keywords
         self.expiresOn = expiresOn
     }
 }
@@ -52,7 +54,8 @@ class CoreService {
             request: .prepared(
                 for: .shortening(
                     originalUrl: request.originalUrl,
-                    keywords: request.keyWords,
+                    customAlias: request.customAlias,
+                    keywords: request.keywords,
                     expiresOn: request.expiresOn
                 ),
                 with: serviceURL
@@ -64,20 +67,52 @@ class CoreService {
 }
 
 final class CoreServiceUnitTests: XCTestCase {
+    
+    let jsonDecoder = JSONDecoder()
+    
     func test_init_doesNotPerformAnyURLRequest() {
         let (_, client) = makeSUT()
         XCTAssertTrue(client.requestsMade.isEmpty)
     }
     
-    func test_ShortenURL_performsRequest_withSomeHTTPBody() {
+    func test_ShortenURL_performsRequest() {
         let (sut, client) = makeSUT()
         sut.shorten(testShortenRequest())
         XCTAssertFalse(client.requestsMade.isEmpty, "RequestShould be forwarded to the client")
     }
+    
+    func test_ShortenURL_performsRequest_withCorrectBody() {
+        let (sut, client) = makeSUT()
+        let testRequest = testShortenRequest()
+        sut.shorten(testRequest)
+        
+        client.requestsMade.forEach { request in
+            let receivedRequest = try! jsonDecoder.decode(TestShortenRequest.self, from: request.httpBody!)
+            XCTAssertEqual(request.httpMethod!, "POST")
+            XCTAssertEqual(receivedRequest.originalUrl, testRequest.originalUrl)
+            XCTAssertEqual(receivedRequest.customAlias, testRequest.customAlias)
+            XCTAssertEqual(receivedRequest.keywords, testRequest.keywords)
+            XCTAssertEqual(receivedRequest.expiresOn, testRequest.expiresOn)
+        }
+    }
 
     // MARK: - Helpers
     private func testShortenRequest() -> ShortenRequest {
-        ShortenRequest(originalUrl: "", keyWords: [], expiresOn: "")
+        ShortenRequest(originalUrl: "https://sampleUrl.com",customAlias: "alias", keywords: [], expiresOn: "")
+    }
+    
+    private struct TestShortenRequest: Decodable {
+        let originalUrl: String
+        let customAlias: String
+        let keywords: [String]
+        let expiresOn: String
+        
+        enum CodingKeys:String, CodingKey {
+            case originalUrl = "original_url"
+            case customAlias = "custom_alias"
+            case keywords
+            case expiresOn =  "expires_on"
+        }
     }
     
     private func testServiceURL() -> URL {
