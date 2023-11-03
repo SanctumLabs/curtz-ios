@@ -69,7 +69,7 @@ final class CoreServiceUnitTests: XCTestCase {
         XCTAssertTrue(client.requestsMade.isEmpty)
     }
     
-    func test_registerURL_performsRequest_withSomeHTTPBody() {
+    func test_ShortenURL_performsRequest_withSomeHTTPBody() {
         let (sut, client) = makeSUT()
         sut.shorten(testShortenRequest())
         XCTAssertFalse(client.requestsMade.isEmpty, "RequestShould be forwarded to the client")
