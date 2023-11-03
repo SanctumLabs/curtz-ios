@@ -16,7 +16,7 @@ public extension URLRequest {
 }
 
 extension URLRequest {
-    static func prepared(for requestType: RequestType, with url: URL) -> URLRequest {
+    public static func prepared(for requestType: RequestType, with url: URL) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = .POST
         request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
@@ -51,7 +51,7 @@ extension URLRequest {
     }
 }
 
-enum RequestType {
+public enum RequestType {
     case login(username: String,password: String)
     case registration(username: String, password: String)
     case shortening(originalUrl: String, keywords: [String], expiresOn: String)

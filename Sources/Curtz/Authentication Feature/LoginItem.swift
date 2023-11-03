@@ -25,7 +25,14 @@ public struct LoginResponse: Equatable {
     public let accessToken: String
     public let refreshToken: String
     
-    public init(id: String, email: String, createdAt: String, updatedAt: String, accessToken: String, refreshToken: String) {
+    public init(
+        id: String,
+        email: String,
+        createdAt: String,
+        updatedAt: String,
+        accessToken: String,
+        refreshToken: String
+    ) {
         self.id = id
         self.email = email
         self.createdAt = createdAt
