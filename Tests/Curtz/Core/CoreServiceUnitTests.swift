@@ -35,6 +35,8 @@ struct ShortenResponse {
     let hits: Int
 }
 
+extension ShortenResponse: Equatable {}
+
 enum ShortenResult {
     case success(ShortenResponse)
     case failure(Error)
@@ -44,12 +46,18 @@ class CoreService {
     private let client: HTTPClient
     private let serviceURL: URL
     
+    typealias ShorteningResult = ShortenResult
+    
+    enum Error: Swift.Error {
+        case malformedRequest
+    }
+    
     init(serviceURL: URL, client: HTTPClient) {
         self.serviceURL = serviceURL
         self.client = client
     }
     
-    func shorten(_ request: ShortenRequest) {
+    func shorten(_ request: ShortenRequest, completetion: @escaping(ShorteningResult) -> Void) {
         client.perform(
             request: .prepared(
                 for: .shortening(
@@ -60,8 +68,13 @@ class CoreService {
                 ),
                 with: serviceURL
             )
-        ) { _ in
-            
+        ) { result in
+            switch result {
+            case .success((_, _)):
+                break
+            default:
+                completetion(.failure(Error.malformedRequest))
+            }
         }
     }
 }
@@ -77,14 +90,14 @@ final class CoreServiceUnitTests: XCTestCase {
     
     func test_ShortenURL_performsRequest() {
         let (sut, client) = makeSUT()
-        sut.shorten(testShortenRequest())
+        sut.shorten(testShortenRequest()){ _ in }
         XCTAssertFalse(client.requestsMade.isEmpty, "RequestShould be forwarded to the client")
     }
     
     func test_ShortenURL_performsRequest_withCorrectBody() {
         let (sut, client) = makeSUT()
         let testRequest = testShortenRequest()
-        sut.shorten(testRequest)
+        sut.shorten(testRequest){ _ in }
         
         client.requestsMade.forEach { request in
             let receivedRequest = try! jsonDecoder.decode(TestShortenRequest.self, from: request.httpBody!)
@@ -93,6 +106,14 @@ final class CoreServiceUnitTests: XCTestCase {
             XCTAssertEqual(receivedRequest.customAlias, testRequest.customAlias)
             XCTAssertEqual(receivedRequest.keywords, testRequest.keywords)
             XCTAssertEqual(receivedRequest.expiresOn, testRequest.expiresOn)
+        }
+    }
+    
+    func test_ShortenURL_deliversErrorOnClientError() {
+        let (sut, client) = makeSUT()
+        expect(sut, with: testShortenRequest(), toCompleteWith: failure(.malformedRequest)) {
+            let clientError = anyNSError()
+            client.complete(with: clientError)
         }
     }
 
@@ -127,5 +148,35 @@ final class CoreServiceUnitTests: XCTestCase {
         trackForMemoryLeaks(sut)
         
         return (sut, client)
+    }
+    
+    private func expect(
+        _ sut: CoreService, with request: ShortenRequest,
+        toCompleteWith expectedResult: CoreService.ShorteningResult,
+        when action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ){
+        let exp = expectation(description: "wait for shortening completion")
+        
+        sut.shorten(request) { receivedResult in
+            switch(receivedResult, expectedResult) {
+            case let (.success(receivedResponse), .success(expectedResponse)):
+                XCTAssertEqual(receivedResponse, expectedResponse, file: file, line: line)
+            case let (.failure(receivedError as CoreService.Error), .failure(expectedError as CoreService.Error)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            default:
+                XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+    
+    private func failure(_ error: CoreService.Error) -> CoreService.ShorteningResult {
+        .failure(error)
     }
 }
