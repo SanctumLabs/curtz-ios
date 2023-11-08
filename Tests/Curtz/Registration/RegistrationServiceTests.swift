@@ -175,11 +175,7 @@ class RegistrationServiceTests: XCTestCase {
         return (item, json)
         
     }
-    
-    private func makeJSON(_ res: [String: Any]) -> Data {
-        return try! JSONSerialization.data(withJSONObject: res)
-    }
-    
+
     private func jsonFor(id: String = "", email: String = "", date: String = "") -> [String: String] {
         return [
             "id": id,
@@ -187,12 +183,6 @@ class RegistrationServiceTests: XCTestCase {
             "created_at": date,
             "updated_at": date
         ]
-    }
-    
-    private func makeErrorJSON(_ message: String = "") -> Data {
-        let json = ["message": message]
-        return try! JSONSerialization.data(withJSONObject: json)
-        
     }
     
     private func expect(

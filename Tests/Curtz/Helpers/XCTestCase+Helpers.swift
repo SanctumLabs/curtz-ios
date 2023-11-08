@@ -27,6 +27,15 @@ public func httpURLResponse(_ code: Int) -> HTTPURLResponse {
     HTTPURLResponse(url: anyUrl(), statusCode: code, httpVersion: nil, headerFields: nil)!
 }
 
+public func makeErrorJSON(_ message: String = "", forKey key: String = "message") -> Data {
+    let json = [key: message]
+    return try! JSONSerialization.data(withJSONObject: json)
+}
+
+func makeJSON(_ res: [String: Any]) -> Data {
+    return try! JSONSerialization.data(withJSONObject: res)
+}
+
 public func anyToken() -> String {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjIxMzI3NzEsImlhdCI6MTY2MjEzMTg3MSwiaXNzIjoiY3VydHoiLCJzdWIiOiJjYnVqZDhlZzI2dWRyYWUycmVuZyIsImlkIjoiY2J1amQ4ZWcyNnVkcmFlMnJlbmcifQ.RsEdoLEROEqH7t4ddeZfCwN7frFhydqnAj2p8yaHtCQ"
 }
