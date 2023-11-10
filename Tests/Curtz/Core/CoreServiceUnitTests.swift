@@ -138,7 +138,8 @@ class CoreService {
                 ),
                 with: serviceURL
             )
-        ) { result in
+        ) { [weak self] result in
+            guard self != nil else { return }
             switch result {
             case let .success((data, response)):
                 completion(CoreServiceResponseMapper.mapShorteningResponse(data, from: response))
@@ -224,6 +225,19 @@ final class CoreServiceUnitTests: XCTestCase {
             let json = makeJSON(shortenResponse.json)
             client.complete(withStatusCode: 200, data: json)
         }
+    }
+    
+    func test_ShortenURL_doesNOTDeliverResultsAfterSUTInstanceHasBeenDeallocated() {
+        let client = HTTPClientSpy()
+        var receivedResults = [CoreService.ShorteningResult]()
+        
+        var sut: CoreService? = CoreService(serviceURL: testServiceURL(), client: client)
+        sut?.shorten(testShortenRequest(), completion: {
+            receivedResults.append($0)
+        })
+        sut = nil
+        client.complete(withStatusCode: 200, data: makeJSON(jsonFor()))
+        XCTAssertTrue(receivedResults.isEmpty)
     }
     
     // MARK: - Helpers
@@ -332,16 +346,16 @@ final class CoreServiceUnitTests: XCTestCase {
     }
     
     private func jsonFor(
-        id: String,
-        customAlias: String,
-        originalUrl: String,
-        expiresOn: String,
-        keyWords: [String],
-        userId: String,
-        shortCode: String,
-        createdAt: String,
-        updatedAt: String,
-        hits: Int
+        id: String = "",
+        customAlias: String = "",
+        originalUrl: String = "",
+        expiresOn: String = "",
+        keyWords: [String] = [""],
+        userId: String = "",
+        shortCode: String = "",
+        createdAt: String = "",
+        updatedAt: String = "",
+        hits: Int = 0
     ) -> [String: Any] {
         return [
             "original_url": originalUrl,
