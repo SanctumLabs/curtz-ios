@@ -151,8 +151,10 @@ class CoreService {
     }
     
     func fetchAll(completion: @escaping(FetchResult) -> Void){
-        client.perform(request: .prepared(for: .fetching, with: serviceURL)) { _ in
-            
+        client.perform(request: .prepared(for: .fetching, with: serviceURL)) { result  in
+            if case .failure  = result {
+                completion(.failure(.invalidResponse))
+            }
         }
     }
 }
@@ -258,6 +260,23 @@ final class CoreServiceUnitTests: XCTestCase {
         XCTAssertFalse(client.requestsMade.isEmpty, "A request should have been made to the client")
     }
     
+    func test_FetchAll_performaRequest_withCorrectInformation() {
+        let (sut, client) = makeSUT()
+        sut.fetchAll(completion: { _ in } )
+        
+        client.requestsMade.forEach { request in
+            XCTAssertEqual(request.httpMethod!, "GET")
+        }
+    }
+    
+    func test_FetchAll_deliversErrorOnClientError() {
+        let (sut, client) = makeSUT()
+        expect(sut, toCompleteWith: .failure(.invalidResponse)) {
+            let clientError = anyNSError()
+            client.complete(with: clientError)
+        }
+    }
+    
     // MARK: - Helpers
     private func testShortenRequest() -> ShortenRequest {
         ShortenRequest(originalUrl: "https://sampleUrl.com",customAlias: "alias", keywords: [], expiresOn: "")
@@ -305,6 +324,32 @@ final class CoreServiceUnitTests: XCTestCase {
             case let (.success(receivedResponse), .success(expectedResponse)):
                 XCTAssertEqual(receivedResponse, expectedResponse, file: file, line: line)
             case let (.failure(receivedError as CoreService.Error), .failure(expectedError as CoreService.Error)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            default:
+                XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+    
+    private func expect(
+        _ sut: CoreService,
+        toCompleteWith expectedResult: CoreService.FetchResult,
+        when action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ){
+        let exp = expectation(description: "wait for fetch all completion")
+        
+        sut.fetchAll { receivedResult in
+            switch(receivedResult, expectedResult) {
+            case let (.success(receivedResponse), .success(expectedResponse)):
+                XCTAssertEqual(receivedResponse, expectedResponse, file: file, line: line)
+            case let (.failure(receivedError), .failure(expectedError)):
                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
             default:
                 XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
