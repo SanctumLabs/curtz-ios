@@ -249,9 +249,25 @@ final class CoreServiceUnitTests: XCTestCase {
     func test_ShortenURL_deliversShortenResponseOn2XXHTTPResponses() {
         let (sut, client) = makeSUT()
         
-        let shortenRequest = ShortenRequest(originalUrl: "https://mi.com", customAlias: "mi.com", keywords: ["sick","sickest"], expiresOn: "2024-09-28T20:00:01+00:00")
+        let shortenRequest = ShortenRequest(
+            originalUrl: "https://mi.com",
+            customAlias: "mi.com",
+            keywords: ["sick","sickest"],
+            expiresOn: "2024-09-28T20:00:01+00:00"
+        )
         
-        let shortenResponse = makeShortenResponse(id: "cc38i5mg26u17lm37upg", customAlias: shortenRequest.customAlias, originalUrl: shortenRequest.originalUrl, expiresOn: shortenRequest.expiresOn, keywords: shortenRequest.keywords, userId: "cc38i5mg26u17lm37upg", shortCode: "", createdAt: "2023-08-28T15:07:02+00:00", updatedAt: "2023-08-28T15:07:02+00:00", hits: 0)
+        let shortenResponse = makeShortenResponseItem(
+            id: "cc38i5mg26u17lm37upg",
+            customAlias: shortenRequest.customAlias,
+            originalUrl: shortenRequest.originalUrl,
+            expiresOn: shortenRequest.expiresOn,
+            keywords: shortenRequest.keywords,
+            userId: "cc38i5mg26u17lm37upg",
+            shortCode: "",
+            createdAt: "2023-08-28T15:07:02+00:00",
+            updatedAt: "2023-08-28T15:07:02+00:00",
+            hits: 0
+        )
         
         expect(sut, with: shortenRequest, toCompleteWith: .success(shortenResponse.model)) {
             let json = makeJSON(shortenResponse.json)
@@ -310,6 +326,53 @@ final class CoreServiceUnitTests: XCTestCase {
             }
         }
     }
+    
+    func test_FetchAll_deliversErrorOnNon2XXStatusCodes() {
+        let (sut, client) = makeSUT()
+        let statusCodes = [199, 300, 500, 600]
+        
+        statusCodes.enumerated().forEach { index, code in
+            expect(sut, toCompleteWith: .failure(.invalidResponse)) {
+                let data = makeErrorJSON()
+                client.complete(withStatusCode: code, data: data, at: index)
+            }
+        }
+    }
+    
+    func test_FetchAll_deliversResponseOn2xxStatusCodes() {
+        let (sut, client) = makeSUT()
+        let item1 = makeShortenResponseItem(
+            id: "cc38i5mg1u17lm37upg",
+            customAlias: "mi1.com",
+            originalUrl: "http://mi1.com",
+            expiresOn: "2024-01-28T20:00:01+00:00",
+            keywords: [],
+            userId: "cc38i5mg26u17lm37upg",
+            shortCode: "",
+            createdAt: "2023-01-28T15:07:02+00:00",
+            updatedAt: "2023-01-28T15:07:02+00:00",
+            hits: 1
+        )
+        
+        let item2 = makeShortenResponseItem(
+            id: "cc38i5mg2u17lm37upg",
+            customAlias: "mi2.com",
+            originalUrl: "http://mi2.com",
+            expiresOn: "2024-02-28T20:00:01+00:00",
+            keywords: [],
+            userId: "cc38i5mg26u17lm37upg",
+            shortCode: "",
+            createdAt: "2023-02-28T15:07:02+00:00",
+            updatedAt: "2023-02-28T15:07:02+00:00",
+            hits: 2
+        )
+        
+        expect(sut,toCompleteWith: .success([item1.model, item2.model])) {
+            let data = makeItemsJSON([item1.json, item2.json])
+            client.complete(withStatusCode: 200, data: data)
+        }
+    }
+    
     
     // MARK: - Helpers
     private func testShortenRequest() -> ShortenRequest {
@@ -400,7 +463,7 @@ final class CoreServiceUnitTests: XCTestCase {
         .failure(error)
     }
     
-    private func makeShortenResponse(
+    private func makeShortenResponseItem(
         id: String,
         customAlias: String,
         originalUrl: String,

@@ -36,6 +36,10 @@ func makeJSON(_ res: [String: Any]) -> Data {
     return try! JSONSerialization.data(withJSONObject: res)
 }
 
+func makeItemsJSON(_ items: [[String: Any]]) -> Data {
+    return try! JSONSerialization.data(withJSONObject: items)
+}
+
 public func anyToken() -> String {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjIxMzI3NzEsImlhdCI6MTY2MjEzMTg3MSwiaXNzIjoiY3VydHoiLCJzdWIiOiJjYnVqZDhlZzI2dWRyYWUycmVuZyIsImlkIjoiY2J1amQ4ZWcyNnVkcmFlMnJlbmcifQ.RsEdoLEROEqH7t4ddeZfCwN7frFhydqnAj2p8yaHtCQ"
 }
