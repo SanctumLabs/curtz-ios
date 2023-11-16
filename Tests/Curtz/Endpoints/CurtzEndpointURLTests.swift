@@ -35,7 +35,7 @@ class CurtzEndpointTests: XCTestCase {
     func test_create_v1_endpointURL() {
         let createURL = URL(string: "\(anyBaseURLString())/api/v1/curtz/urls")!
         
-        expect(createURL, whenEndpointIs: .create, withBaseURL: anyBaseURL())
+        expect(createURL, whenEndpointIs: .shorten, withBaseURL: anyBaseURL())
     }
     
     func test_fetchAll_v1_endpointURL() {

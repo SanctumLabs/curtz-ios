@@ -18,8 +18,7 @@ public extension URLRequest {
 extension URLRequest {
     public static func prepared(for requestType: RequestType, with url: URL) -> URLRequest {
         var request = URLRequest(url: url)
-        request.httpMethod = .POST
-        request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
+       
         switch requestType {
         case let .login(username, password):
             let requestBody: [String: String] = [
@@ -27,15 +26,18 @@ extension URLRequest {
                 "password": password
             ]
             let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+            request.httpMethod = .POST
             request.httpBody = jsonData
-            
+            request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
         case let .registration(username, password):
             let requestBody: [String: String] = [
                 "email": username,
                 "password": password
             ]
             let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+            request.httpMethod = .POST
             request.httpBody = jsonData
+            request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
             
         case let .shortening(originalUrl, customAlias, keywords, expiresOn):
             let requestBody: [String: Any] = [
@@ -45,7 +47,11 @@ extension URLRequest {
                 "expires_on": expiresOn
             ]
             let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+            request.httpMethod = .POST
             request.httpBody = jsonData
+            request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
+        default:
+            request.httpMethod = .GET
         }
         
         return request
@@ -53,9 +59,18 @@ extension URLRequest {
 }
 
 public enum RequestType {
-    case login(username: String,password: String)
-    case registration(username: String, password: String)
-    case shortening(originalUrl: String, customAlias: String, keywords: [String], expiresOn: String)
+    case login(
+        username: String,
+        password: String)
+    case registration(
+        username: String,
+        password: String)
+    case shortening(
+        originalUrl: String,
+        customAlias: String,
+        keywords: [String],
+        expiresOn: String)
+    case fetching
 }
 
 extension String {
