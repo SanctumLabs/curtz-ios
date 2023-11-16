@@ -23,8 +23,8 @@ final class CoreServiceResponseMapper {
         let updated_at: String
         let hits: Int
         
-        var response: ShortenResponse {
-            return ShortenResponse(
+        var response: ShortenResponseItem {
+            return ShortenResponseItem(
                 id: id,
                 customAlias: custom_alias,
                 originalUrl: original_url,
@@ -75,7 +75,7 @@ struct ShortenRequest {
     }
 }
 
-struct ShortenResponse {
+struct ShortenResponseItem {
     let id: String
     let customAlias: String
     let originalUrl: String
@@ -101,10 +101,10 @@ struct ShortenResponse {
     }
 }
 
-extension ShortenResponse: Equatable {}
+extension ShortenResponseItem: Equatable {}
 
 enum ShortenResult {
-    case success(ShortenResponse)
+    case success(ShortenResponseItem)
     case failure(Error)
 }
 
@@ -148,6 +148,10 @@ class CoreService {
             }
         }
     }
+    
+    func fetchAll(){
+        
+    }
 }
 
 final class CoreServiceUnitTests: XCTestCase {
@@ -159,6 +163,7 @@ final class CoreServiceUnitTests: XCTestCase {
         XCTAssertTrue(client.requestsMade.isEmpty)
     }
     
+    // MARK: - Shorten Tests
     func test_ShortenURL_performsRequest() {
         let (sut, client) = makeSUT()
         sut.shorten(testShortenRequest()){ _ in }
@@ -240,6 +245,8 @@ final class CoreServiceUnitTests: XCTestCase {
         XCTAssertTrue(receivedResults.isEmpty)
     }
     
+    // MARK: - FetchAll Tests
+    
     // MARK: - Helpers
     private func testShortenRequest() -> ShortenRequest {
         ShortenRequest(originalUrl: "https://sampleUrl.com",customAlias: "alias", keywords: [], expiresOn: "")
@@ -314,8 +321,8 @@ final class CoreServiceUnitTests: XCTestCase {
         createdAt: String,
         updatedAt: String,
         hits: Int
-    ) -> (model: ShortenResponse, json: [String: Any]) {
-        let item = ShortenResponse(
+    ) -> (model: ShortenResponseItem, json: [String: Any]) {
+        let item = ShortenResponseItem(
             id: id,
             customAlias: customAlias,
             originalUrl: originalUrl,
