@@ -43,9 +43,15 @@ final class CoreServiceResponseMapper {
         let error: String
     }
     
-    static func mapShorteningResponse(_ data: Data, from response: HTTPURLResponse) -> CoreService.ShorteningResult {
+    private static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }()
+    
+    
+    
+    static func mapShorteningResponse(_ data: Data, from response: HTTPURLResponse) -> CoreService.ShorteningResult {
         
         if response.isBadRequest() {
             let res = try? decoder.decode(ErrorItem.self, from: data)
@@ -57,7 +63,20 @@ final class CoreServiceResponseMapper {
         }
         
         return .success(res.response)
+    }
+    
+    static func mapFetchAllResponse(_ data: Data, from response: HTTPURLResponse) -> CoreService.FetchResult {
+        if response.isBadRequest() {
+            let res = try? decoder.decode(ErrorItem.self, from: data)
+            return .failure(CoreService.Error.clientError(res?.error ?? ""))
+        }
         
+        guard response.isOK(), let res = try?
+                decoder.decode([ShortenItem].self, from: data) else {
+            return .failure(CoreService.Error.invalidResponse)
+        }
+        
+        return .success(res.map { $0.response })
     }
 }
 
@@ -152,7 +171,10 @@ class CoreService {
     
     func fetchAll(completion: @escaping(FetchResult) -> Void){
         client.perform(request: .prepared(for: .fetching, with: serviceURL)) { result  in
-            if case .failure  = result {
+            switch result {
+            case let .success((data, response)):
+                completion(CoreServiceResponseMapper.mapFetchAllResponse(data, from: response))
+            case .failure:
                 completion(.failure(.invalidResponse))
             }
         }
@@ -211,7 +233,7 @@ final class CoreServiceUnitTests: XCTestCase {
         }
     }
     
-    func test_ShortenURL_deliversErrorsOn2XXStatusCodes() {
+    func test_ShortenURL_deliversErrorsOnNon2XXStatusCodes() {
         let (sut, client) = makeSUT()
         let message = "Something went wrong"
         let statusCodes = [199, 300, 500]
@@ -274,6 +296,18 @@ final class CoreServiceUnitTests: XCTestCase {
         expect(sut, toCompleteWith: .failure(.invalidResponse)) {
             let clientError = anyNSError()
             client.complete(with: clientError)
+        }
+    }
+    
+    func test_FetchAll_deliversErrorOn4XXStatusCodes() {
+        let (sut, client) = makeSUT()
+        let message = "You'll need to login again"
+        let statusCodes = [400, 401, 450, 499]
+        statusCodes.enumerated().forEach { index, code in
+            expect(sut, toCompleteWith: .failure(.clientError(message))) {
+                let data = makeErrorJSON(message, forKey: "error")
+                client.complete(withStatusCode: code, data: data, at: index)
+            }
         }
     }
     
