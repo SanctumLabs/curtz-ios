@@ -115,6 +115,7 @@ class CoreService {
     private let serviceURL: URL
     
     typealias ShorteningResult = ShortenResult
+    typealias FetchResult = Result<[ShortenResponseItem], Error>
     
     enum Error: Swift.Error {
         case malformedRequest
@@ -149,8 +150,10 @@ class CoreService {
         }
     }
     
-    func fetchAll(){
-        
+    func fetchAll(completion: @escaping(FetchResult) -> Void){
+        client.perform(request: .prepared(for: .fetching, with: serviceURL)) { _ in
+            
+        }
     }
 }
 
@@ -167,7 +170,7 @@ final class CoreServiceUnitTests: XCTestCase {
     func test_ShortenURL_performsRequest() {
         let (sut, client) = makeSUT()
         sut.shorten(testShortenRequest()){ _ in }
-        XCTAssertFalse(client.requestsMade.isEmpty, "RequestShould be forwarded to the client")
+        XCTAssertFalse(client.requestsMade.isEmpty, "Request Should be forwarded to the client")
     }
     
     func test_ShortenURL_performsRequest_withCorrectBody() {
@@ -246,6 +249,14 @@ final class CoreServiceUnitTests: XCTestCase {
     }
     
     // MARK: - FetchAll Tests
+    
+    func test_FetchAll_performsRequests() {
+        let (sut, client) = makeSUT()
+        sut.fetchAll { _ in
+            
+        }
+        XCTAssertFalse(client.requestsMade.isEmpty, "A request should have been made to the client")
+    }
     
     // MARK: - Helpers
     private func testShortenRequest() -> ShortenRequest {
