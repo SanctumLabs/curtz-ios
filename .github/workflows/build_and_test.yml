@@ -18,7 +18,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       - name: Install Gems 
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v2
         with:
           bundler-cache: true
       - name: Generate the project file
@@ -28,7 +28,7 @@ jobs:
       - name: Gather code coverage
         run: xcrun llvm-cov export -format="lcov" ./DerivedData/Build/Products/Debug/Curtz.framework/Curtz -instr-profile DerivedData/Build/ProfileData/*/Coverage.profdata > coverage_report.lcov
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: fail
