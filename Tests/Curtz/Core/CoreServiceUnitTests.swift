@@ -170,7 +170,8 @@ class CoreService {
     }
     
     func fetchAll(completion: @escaping(FetchResult) -> Void){
-        client.perform(request: .prepared(for: .fetching, with: serviceURL)) { result  in
+        client.perform(request: .prepared(for: .fetching, with: serviceURL)) {[weak self] result  in
+            guard self != nil else { return }
             switch result {
             case let .success((data, response)):
                 completion(CoreServiceResponseMapper.mapFetchAllResponse(data, from: response))
@@ -371,6 +372,19 @@ final class CoreServiceUnitTests: XCTestCase {
             let data = makeItemsJSON([item1.json, item2.json])
             client.complete(withStatusCode: 200, data: data)
         }
+    }
+    
+    func test_FetchAll_doesNOTDeliverResultsAfterSUTInstanceHasBeenDeallocated() {
+        let client = HTTPClientSpy()
+        var receivedResults = [CoreService.FetchResult]()
+        
+        var sut: CoreService? = CoreService(serviceURL: testServiceURL(), client: client)
+        sut?.fetchAll(completion: {
+            receivedResults.append($0)
+        })
+        sut = nil
+        client.complete(withStatusCode: 200, data: makeJSON(jsonFor()))
+        XCTAssertTrue(receivedResults.isEmpty, "No results should be delivered once the instance has been deallocated.")
     }
     
     
