@@ -28,7 +28,7 @@ jobs:
       - name: Gather code coverage
         run: xcrun llvm-cov export -format="lcov" ./DerivedData/Build/Products/Debug/Curtz.framework/Curtz -instr-profile DerivedData/Build/ProfileData/*/Coverage.profdata > coverage_report.lcov
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: fail

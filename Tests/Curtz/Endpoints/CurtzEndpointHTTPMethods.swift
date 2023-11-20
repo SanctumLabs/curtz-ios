@@ -22,7 +22,7 @@ class CurtzEndpointHTTPMethods: XCTestCase {
     }
     
     func test_createEndpoint_shouldReturn_POST() {
-        XCTAssertEqual(CurtzEndpoint.create.httpMethod(), "POST")
+        XCTAssertEqual(CurtzEndpoint.shorten.httpMethod(), "POST")
     }
     
     func test_deleteEndpoint_shouldReturn_DELETE() {
