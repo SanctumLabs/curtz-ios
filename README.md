@@ -19,7 +19,7 @@ Ensure you have the following setup on you local development environment:
 - Using Xcode open the generated Xcodeproj and switch between the schemes available.
 
 ## Testing the application
-TODO
+ To be updated
 
 ## Why we don't ship the `.xcodeproj` file
 To avoid the mess of an experience while merging `*.xcodeproj` file conflicts, This project will utilize [Xcodegen](https://github.com/yonaskolb/XcodeGen) a tool the generates Xcode project using our folder structure and a project specification file `project.yml`
