@@ -62,6 +62,26 @@ targets:
         CFBundleName: Curtz
         UIRequiredDeviceCapabilities: [armv7]
         UILaunchStoryboardName: LaunchScreen
+        UIAppFonts: 
+          - 'Raleway-Black.ttf'
+          - 'Raleway-Black.ttf'
+          - 'Raleway-BlackItalic.ttf'
+          - 'Raleway-Bold.ttf'
+          - 'Raleway-BoldItalic.ttf'
+          - 'Raleway-ExtraBold.ttf'
+          - 'Raleway-ExtraBoldItalic.ttf'
+          - 'Raleway-ExtraLight.ttf'
+          - 'Raleway-ExtraLightItalic.ttf'
+          - 'Raleway-Italic.ttf'
+          - 'Raleway-Light.ttf'
+          - 'Raleway-LightItalic.ttf'
+          - 'Raleway-Medium.ttf'
+          - 'Raleway-MediumItalic.ttf'
+          - 'Raleway-Regular.ttf'
+          - 'Raleway-SemiBold.ttf'
+          - 'Raleway-SemiBoldItalic.ttf'
+          - 'Raleway-Thin.ttf'
+          - 'Raleway-ThinItalic.ttf'
     settings:
       INFOPLIST_FILE: Sources/CurtziOSApp/Info.plist
       base:
