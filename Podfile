@@ -16,6 +16,8 @@ abstract_target 'Common' do
       
       target 'CurtziOSApp' do
         use_frameworks!
+
+        pod 'R.swift'
       end
 end
 

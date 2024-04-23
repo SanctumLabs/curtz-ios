@@ -19,11 +19,16 @@ final class AppCoordinator: Coordinator {
         self.navigationController = navigationController
     }
     
+    init(_ scene: UIWindowScene, navigationController: UINavigationController) {
+        self.window = UIWindow(windowScene: scene)
+        self.navigationController = navigationController
+    }
+    
     func start() {
-        let destination = LaunchViewController()
+        let destination = OnboardingViewController()
+        navigationController.viewControllers = [destination]
+        
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
-        
-        navigationController.viewControllers = [destination]
     }
 }

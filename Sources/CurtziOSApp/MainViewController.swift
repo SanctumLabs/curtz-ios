@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 class MainViewController: UIViewController {
     override func viewDidLoad() {
         view.backgroundColor = .red
@@ -15,5 +16,6 @@ class MainViewController: UIViewController {
     
     func setup() {
        print("I am setting up the application")
+        
     }
 }
