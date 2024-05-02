@@ -18,6 +18,7 @@ abstract_target 'Common' do
         use_frameworks!
 
         pod 'R.swift'
+        pod 'SwiftSoup'
       end
 end
 
