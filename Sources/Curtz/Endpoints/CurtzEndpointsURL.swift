@@ -12,7 +12,7 @@ public enum CurtzEndpoint {
     case register
     case login
     case verifyToken
-    case create
+    case shorten
     case fetchAll
     case fetchById(String)
     case deleteUrl(String)
@@ -34,7 +34,7 @@ public enum CurtzEndpoint {
             return baseURL.appendingPathComponent("/api/\(apiVersion)/curtz/auth/login")
         case .verifyToken:
             return baseURL.appendingPathComponent("/api/\(apiVersion)/curtz/auth/oauth/token")
-        case .create:
+        case .shorten:
             return baseURL.appendingPathComponent("/api/\(apiVersion)/curtz/urls")
         case .fetchAll:
             return baseURL.appendingPathComponent("/api/\(apiVersion)/curtz/urls")

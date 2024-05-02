@@ -199,7 +199,15 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         return (sut, store)
     }
     
-    private func expect(_ sut: StoreManager, toCompleteWith expectedResult: StoreManager.SaveResult, forVal val: String, andKey key: String, when action: () -> Void, file: StaticString = #file, line: UInt = #line){
+    private func expect(
+        _ sut: StoreManager,
+        toCompleteWith expectedResult: StoreManager.SaveResult,
+        forVal val: String,
+        andKey key: String,
+        when action: () -> Void,
+        file: StaticString = #file,
+        line: UInt = #line
+    ){
          let expectation = expectation(description: "wait for add")
         
         sut.save(val, forKey: key) { receivedResult in
@@ -219,7 +227,14 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
     
-    private func expect(_ sut: StoreManager, toCompleteWith expectedResult: StoreManager.RetrieveResult, andKey key: String, when action: () -> Void, file: StaticString = #file, line: UInt = #line){
+    private func expect(
+        _ sut: StoreManager,
+        toCompleteWith expectedResult: StoreManager.RetrieveResult,
+        andKey key: String,
+        when action: () -> Void,
+        file: StaticString = #file,
+        line: UInt = #line
+    ){
          let expectation = expectation(description: "wait for add")
         
         sut.retrieveValue(forKey: key) { receivedResult in
@@ -239,7 +254,15 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
     
-    private func expect(_ sut: StoreManager, toCompleteWith expectedResult: StoreManager.UpdateResult, forValue val: String, andKey key: String, when action: () -> Void, file: StaticString = #file, line: UInt = #line){
+    private func expect(
+        _ sut: StoreManager,
+        toCompleteWith expectedResult: StoreManager.UpdateResult,
+        forValue val: String,
+        andKey key: String,
+        when action: () -> Void,
+        file: StaticString = #file,
+        line: UInt = #line
+    ){
          let expectation = expectation(description: "wait for add")
         
         sut.update(val, forKey: key) { receivedResult in
@@ -259,7 +282,14 @@ final class CurtzStoreManagerUnitTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
     
-    private func expect(_ sut: StoreManager, toCompleteWith expectedResult: StoreManager.DeleteResult, forKey key: String, when action: () -> Void, file: StaticString = #file, line: UInt = #line){
+    private func expect(
+        _ sut: StoreManager,
+        toCompleteWith expectedResult: StoreManager.DeleteResult,
+        forKey key: String,
+        when action: () -> Void,
+        file: StaticString = #file,
+        line: UInt = #line
+    ){
          let expectation = expectation(description: "wait for add")
         
         sut.removeValue(forKey: key) { receivedResult in

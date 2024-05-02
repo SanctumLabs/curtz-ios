@@ -35,7 +35,7 @@ class CurtzEndpointTests: XCTestCase {
     func test_create_v1_endpointURL() {
         let createURL = URL(string: "\(anyBaseURLString())/api/v1/curtz/urls")!
         
-        expect(createURL, whenEndpointIs: .create, withBaseURL: anyBaseURL())
+        expect(createURL, whenEndpointIs: .shorten, withBaseURL: anyBaseURL())
     }
     
     func test_fetchAll_v1_endpointURL() {
@@ -73,10 +73,7 @@ class CurtzEndpointTests: XCTestCase {
         
         expect(fetchByShortCodeURL, whenEndpointIs: .fetchByShortCode("434343"), withBaseURL: anyBaseURL())
     }
-    
-    
-    
-    
+
     // MARK: Helpers
     /// Endpoint test helper
     /// - Parameters:
@@ -85,7 +82,14 @@ class CurtzEndpointTests: XCTestCase {
     ///   - baseURL: baseURL which forms the endpoint
     ///   - file: The file where the failure occurs. The default is the filename of the test case where you call this function.
     ///   - line: The line number where the failure occurs. The default is the line number where you call this function.
-    private func expect(_ expectedURL: URL, whenEndpointIs endpoint: CurtzEndpoint, andApiVersion apiVersion: String = "v1", withBaseURL baseURL: URL, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(
+        _ expectedURL: URL,
+        whenEndpointIs endpoint: CurtzEndpoint,
+        andApiVersion apiVersion: String = "v1",
+        withBaseURL baseURL: URL,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let receivedURL = endpoint.self.url(baseURL: baseURL, apiVersion: apiVersion)
         XCTAssertEqual(expectedURL, receivedURL, file: file, line: line)
     }

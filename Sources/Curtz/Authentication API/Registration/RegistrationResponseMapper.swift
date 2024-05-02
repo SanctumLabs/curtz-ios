@@ -8,7 +8,7 @@
 import Foundation
 
 /// Class that understand the HTTPResponse received when registering a user
-final class RegistrationMapper {
+final class RegistrationResponseMapper {
     
     private struct Item: Decodable {
         let id: String
@@ -29,22 +29,15 @@ final class RegistrationMapper {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
-        if isBadRequest(response) {
+        if response.isBadRequest() {
             let res = try? decoder.decode(ErrorItem.self, from: data)
             return .failure(RegistrationService.Error.clientError(res?.message ?? ""))
         }
         
-        guard isOK(response), let res = try? decoder.decode(Item.self, from: data) else {
+        guard response.isOK(), let res = try? decoder.decode(Item.self, from: data) else {
             return .failure(RegistrationService.Error.invalidData)
         }
         return .success(res.response)
     }
-    
-    private static func isOK(_ response: HTTPURLResponse) -> Bool {
-        (200...299).contains(response.statusCode)
-    }
-    
-    private static func isBadRequest(_ response: HTTPURLResponse) -> Bool {
-        response.statusCode == 400
-    }
+   
 }
