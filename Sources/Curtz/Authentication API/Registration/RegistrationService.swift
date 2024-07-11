@@ -8,8 +8,8 @@
 import Foundation
 
 public class RegistrationService {
-    let client: HTTPClient
-    let registrationURL: URL
+    private let client: HTTPClient
+    private let registrationURL: URL
     
     public enum Error: Swift.Error {
         case connectivity
