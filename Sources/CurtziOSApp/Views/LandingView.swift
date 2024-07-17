@@ -8,18 +8,21 @@
 import SwiftUI
 
 struct LandingView: View {
-    var loginAction: (() -> Void)?
-    var registerAction: (() -> Void)?
+    var coordinator: MainCoordinator?
     
     var body: some View {
         VStack {
             Spacer()
             VStack {
-                Button(action: { loginAction?() }, label: {
+                Button(action: {
+                    coordinator?.navigateToLogin()
+                }, label: {
                     Text("Login")
                 })
                 Divider()
-                Button(action: { registerAction?() }, label: {
+                Button(action: {  
+                    coordinator?.navigateToRegister()
+                }, label: {
                     Text("Register")
                 })  
             }

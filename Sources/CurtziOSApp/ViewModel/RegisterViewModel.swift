@@ -14,7 +14,6 @@ enum RegisterViewState {
     case hasError(Error)
 }
 
-@MainActor
 class RegisterViewModel: ObservableObject {
     @Published var state: RegisterViewState = .idle
     private let service: RegistrationService
