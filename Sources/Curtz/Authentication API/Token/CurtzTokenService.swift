@@ -13,10 +13,15 @@ import Foundation
  */
 
 public final class CurtzTokenService: TokenService {
+   
     private let storeManager: StoreManager
+    private let client: HTTPClient
+    private let refreshTokenURL: URL
     
-    public init(storeManager: StoreManager) {
+    public init(storeManager: StoreManager, client: HTTPClient, refreshTokenURL: URL) {
         self.storeManager = storeManager
+        self.client = client
+        self.refreshTokenURL = refreshTokenURL
     }
     
     public func getToken(completion: @escaping GetTokenCompletion) {
@@ -30,6 +35,13 @@ public final class CurtzTokenService: TokenService {
             }
         }
     }
+    
+    public func refreshToken(completion: @escaping RefreshTokenCompletion) {
+        storeManager.retrieveValue(forKey: .refreshTokenKey) { _ in
+            
+        }
+    }
+    
 }
 
 extension String {

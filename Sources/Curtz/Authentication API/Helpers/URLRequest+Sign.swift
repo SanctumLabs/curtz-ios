@@ -50,6 +50,14 @@ extension URLRequest {
             request.httpMethod = .POST
             request.httpBody = jsonData
             request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
+        case let .refreshToken(grantType, refreshToken):
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: true)
+            let grantType = URLQueryItem(name: "grant_type", value: grantType)
+            let refreshToken = URLQueryItem(name: "refresh_token", value: refreshToken)
+            components?.queryItems = [grantType, refreshToken]
+            if let componentURL = components?.url {
+                return URLRequest(url: componentURL)
+            }
         default:
             request.httpMethod = .GET
         }
@@ -70,6 +78,10 @@ public enum RequestType {
         customAlias: String,
         keywords: [String],
         expiresOn: String)
+    case refreshToken(
+        grantType: String,
+        refreshToken: String
+    )
     case fetching
 }
 

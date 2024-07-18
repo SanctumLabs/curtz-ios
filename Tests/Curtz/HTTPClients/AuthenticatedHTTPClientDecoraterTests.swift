@@ -62,7 +62,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         
         XCTAssertEqual(service.getTokenCount, 1)
         
-        service.complete(with: anyNSError())
+        service.completeGetToken(with: anyNSError())
         
         sut.perform(request: anyURLRequest()) { _ in }
         
@@ -80,7 +80,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         var result2: HTTPClient.Result?
         sut.perform(request: anyURLRequest()) { result2 = $0 }
         
-        tokenService.completeSuccessfully(with: anyToken())
+        tokenService.completeGetTokenSuccessfully(with: anyToken())
         
         let values = (Data("some data".utf8), httpURLResponse(200))
         client.complete(with: values, at: 0)

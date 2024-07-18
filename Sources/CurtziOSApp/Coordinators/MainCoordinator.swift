@@ -22,6 +22,9 @@ final class MainCoordinator: Coordinator {
     }
     
     func start() {
+        // Check if a valid token exists, then navigate to Dashboard
+        
+        // Otherwise navigate to the LandingView
         let landingView = LandingView(coordinator: self)
         let vc = UIHostingController(rootView: landingView)
         navigationController.pushViewController(vc, animated: true)
