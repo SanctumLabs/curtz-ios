@@ -14,12 +14,18 @@ enum RegisterViewState {
     case hasError(Error)
 }
 
+protocol RegisterViewDelegate {
+    func dismissRegisterView()
+}
+
 class RegisterViewModel: ObservableObject {
     @Published var state: RegisterViewState = .idle
     private let service: RegistrationService
+    private let delegate: RegisterViewDelegate
     
-    init(registrationService: RegistrationService) {
+    init(registrationService: RegistrationService, delegate: RegisterViewDelegate) {
         self.service = registrationService
+        self.delegate = delegate
     }
     
     func register(with email: String, password: String){
@@ -31,9 +37,9 @@ class RegisterViewModel: ObservableObject {
             self.state = .registering
             service.register(user: request) { result in
                 switch result {
-                case let .success(res):
-                    print(res.createdAt)
+                case .success:
                     self.state = .idle
+                    self.delegate.dismissRegisterView()
                 case let .failure(error):
                     self.state = .hasError(error)
                 }

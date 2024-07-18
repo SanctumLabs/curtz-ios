@@ -14,12 +14,19 @@ enum LoginViewState {
     case hasError(Error)
 }
 
+protocol LoginViewDelegate {
+    func didDismissLoginView()
+}
+
 class LoginViewModel: ObservableObject {
     @Published var state: LoginViewState = .idle
     
     private let authService: AuthService
-    init(authService: AuthService) {
+    private let delegate: LoginViewDelegate
+    
+    init(authService: AuthService, delegate: LoginViewDelegate) {
         self.authService = authService
+        self.delegate = delegate
     }
     
     func login(with username: String, password: String) {
@@ -31,9 +38,9 @@ class LoginViewModel: ObservableObject {
             self.state = .authenticating
             authService.login(user: loginRequest) { result in
                 switch result {
-                case let .success(loginResponse):
-                    print(loginResponse.accessToken)
-                    self.state = .idle
+                case .success:
+//                    self.state = .idle
+                    self.delegate.didDismissLoginView()
                 case let .failure(error):
                     self.state = .hasError(error)
                 }

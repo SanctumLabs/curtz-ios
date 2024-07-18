@@ -29,16 +29,22 @@ final class MainCoordinator: Coordinator {
     
     func navigateToLogin() {
         let authService = composeAuthService()
-        let loginViewModel = LoginViewModel(authService: authService)
+        let loginViewModel = LoginViewModel(authService: authService, delegate: self)
         let hostingController = UIHostingController(rootView: LoginView(vm: loginViewModel))
-        navigationController.present(hostingController, animated: true)
+        navigationController.pushViewController(hostingController, animated: true)
     }
     
     func navigateToRegister() {
         let registrationService = composeRegistrationService()
-        let registerViewModel = RegisterViewModel(registrationService: registrationService)
+        let registerViewModel = RegisterViewModel(registrationService: registrationService, delegate: self)
         let hostingController = UIHostingController(rootView: RegisterView(vm: registerViewModel))
-        navigationController.present(hostingController, animated: true)
+        navigationController.pushViewController(hostingController, animated: true)
+    }
+    
+    func navigateToDashboard() {
+        let dashboardCoordinator = DashboardCoordinator(navigationController: navigationController)
+        childCoordinators.append(dashboardCoordinator)
+        dashboardCoordinator.start()
     }
 }
 
@@ -51,7 +57,6 @@ extension MainCoordinator {
     }
 }
 
-
 extension MainCoordinator {
     private func composeAuthService() -> AuthService {
         let loginURL: URL = CurtzEndpoint.login.url(baseURL: baseURL)
@@ -61,3 +66,17 @@ extension MainCoordinator {
     }
 }
 
+// MARK: - Delegate Conformance
+extension MainCoordinator: LoginViewDelegate {
+    func didDismissLoginView() {
+        DispatchQueue.main.async {[weak self] in
+            self?.navigateToDashboard()
+        }
+    }
+}
+
+extension MainCoordinator: RegisterViewDelegate {
+    func dismissRegisterView() {
+        navigateToLogin()
+    }
+}
