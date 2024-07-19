@@ -14,20 +14,29 @@ final class MainCoordinator: Coordinator {
     let urlSessionHTTPClient = URLSessionHTTPClient()
     let baseURL = URL(string: "http://localhost:8085")!
     let store = SecureStore()
+    let storeManager: StoreManager
+    let tokenService: TokenService
+    var validSession: Bool?
     
     var navigationController: UINavigationController
     
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
+        self.storeManager = CurtzStoreManager(with: store)
+        self.tokenService = CurtzTokenService(storeManager: storeManager, client: urlSessionHTTPClient, refreshTokenURL: CurtzEndpoint.verifyToken.url(baseURL: baseURL))
     }
     
     func start() {
         // Check if a valid token exists, then navigate to Dashboard
-        
-        // Otherwise navigate to the LandingView
-        let landingView = LandingView(coordinator: self)
-        let vc = UIHostingController(rootView: landingView)
-        navigationController.pushViewController(vc, animated: true)
+        validateSession { [weak self] valid in
+            if valid {
+                self?.navigateToDashboard()
+            } else {
+                let landingView = LandingView(coordinator: self)
+                let vc = UIHostingController(rootView: landingView)
+                self?.navigationController.pushViewController(vc, animated: true)
+            }
+        }
     }
     
     func navigateToLogin() {
@@ -45,9 +54,12 @@ final class MainCoordinator: Coordinator {
     }
     
     func navigateToDashboard() {
-        let dashboardCoordinator = DashboardCoordinator(navigationController: navigationController)
-        childCoordinators.append(dashboardCoordinator)
-        dashboardCoordinator.start()
+        DispatchQueue.main.async {[weak self] in
+            guard let self else { return }
+            let dashboardCoordinator = DashboardCoordinator(navigationController: navigationController)
+            childCoordinators.append(dashboardCoordinator)
+            dashboardCoordinator.start()
+        }
     }
 }
 
@@ -81,5 +93,20 @@ extension MainCoordinator: LoginViewDelegate {
 extension MainCoordinator: RegisterViewDelegate {
     func dismissRegisterView() {
         navigateToLogin()
+    }
+}
+
+// MARK: Helper Methods
+extension MainCoordinator {
+    // TODO: Improve implementation
+    func validateSession(completion: @escaping (Bool) -> Void) {
+        tokenService.refreshToken {result in
+            switch result {
+            case .success:
+                completion(true)
+            case .failure:
+                completion(false)
+            }
+        }
     }
 }

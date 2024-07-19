@@ -68,6 +68,8 @@ final class CurtzTokenServiceUnitTests: XCTestCase {
         if let urlComponents = URLComponents(url: client.requestsMade[0].url!, resolvingAgainstBaseURL: true) {
             XCTAssertFalse(urlComponents.queryItems!.isEmpty)
         }
+        
+        XCTAssertEqual(client.requestsMade[0].httpMethod, "POST")
     }
     
     func test_refreshToken_completesWithAnErrorIfStoreManagerCompletesWithAnError() {

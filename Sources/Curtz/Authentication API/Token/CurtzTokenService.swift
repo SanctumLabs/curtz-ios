@@ -6,11 +6,6 @@
 //
 
 import Foundation
-/**
- TODO: Think and implement
- - Save access_token and refresh_token
- - Use the refresh_token to request for new access_token
- */
 
 public final class CurtzTokenService: TokenService {
    
@@ -52,8 +47,8 @@ public final class CurtzTokenService: TokenService {
                     guard let self else { return }
                     switch receivedResult {
                     case let .success((data, response)):
-                        let result = TokenResponseMapper.map(data, from: response)
-                        switch result {
+                        let innerResult = TokenResponseMapper.map(data, from: response)
+                        switch innerResult {
                         case let .success(tokenResult):
                             self.storeManager.save(tokenResult.accessToken, forKey: .accessTokenKey) { _ in }
                             self.storeManager.save(tokenResult.refreshToken, forKey: .refreshTokenKey) { _ in }

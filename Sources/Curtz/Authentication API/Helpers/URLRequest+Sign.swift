@@ -56,7 +56,9 @@ extension URLRequest {
             let refreshToken = URLQueryItem(name: "refresh_token", value: refreshToken)
             components?.queryItems = [grantType, refreshToken]
             if let componentURL = components?.url {
-                return URLRequest(url: componentURL)
+                var req = URLRequest(url: componentURL)
+                req.httpMethod = .POST
+                return req
             }
         default:
             request.httpMethod = .GET
