@@ -14,7 +14,7 @@ final class GetTokenServiceStub: TokenService {
     
     init(stubbedToken token: String) {
         self.getTokenResult = .success(token)
-        self.refreshTokenResult = .success(())
+        self.refreshTokenResult = .success(token)
     }
     
     init(stubbedError: Error) {
@@ -59,8 +59,8 @@ final class GetTokenServiceSpy: TokenService {
         refreshTokenCompletions[index](.failure(error))
     }
     
-    func completeRefreshTokenSuccessfully(at index: Int = 0) {
-        refreshTokenCompletions[index](.success(()))
+    func completeRefreshTokenSuccessfully(with token: String, at index: Int = 0) {
+        refreshTokenCompletions[index](.success(token))
     }
     
     func completeGetTokenSuccessfully(with token: String, at index: Int = 0) {

@@ -37,11 +37,39 @@ public final class CurtzTokenService: TokenService {
     }
     
     public func refreshToken(completion: @escaping RefreshTokenCompletion) {
-        storeManager.retrieveValue(forKey: .refreshTokenKey) { _ in
-            
+        storeManager.retrieveValue(forKey: .refreshTokenKey) {[weak self] result in
+            guard let self else { return }
+            switch result {
+            case let .success(token):
+                self.client.perform(
+                    request: .prepared(
+                        for: .refreshToken(
+                            grantType: .refreshTokenKey,
+                            refreshToken: token
+                        ), with: refreshTokenURL
+                    )
+                ) {[weak self ] receivedResult in
+                    guard let self else { return }
+                    switch receivedResult {
+                    case let .success((data, response)):
+                        let result = TokenResponseMapper.map(data, from: response)
+                        switch result {
+                        case let .success(tokenResult):
+                            self.storeManager.save(tokenResult.accessToken, forKey: .accessTokenKey) { _ in }
+                            self.storeManager.save(tokenResult.refreshToken, forKey: .refreshTokenKey) { _ in }
+                            completion(.success(tokenResult.accessToken))
+                        case let .failure(error):
+                            completion(.failure(error))
+                        }
+                    case let .failure(error):
+                        completion(.failure(error))
+                    }
+                }
+            case let .failure(error):
+                completion(.failure(error))
+            }
         }
     }
-    
 }
 
 extension String {

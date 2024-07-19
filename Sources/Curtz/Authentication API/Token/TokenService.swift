@@ -9,7 +9,7 @@ import Foundation
 
 public protocol TokenService {
     typealias GetTokenResult = Swift.Result<String, Error>
-    typealias RefreshTokenResult = Swift.Result<Void, Error>
+    typealias RefreshTokenResult = Swift.Result<String, Error>
     
     typealias GetTokenCompletion = (GetTokenResult) -> Void
     typealias RefreshTokenCompletion = (RefreshTokenResult) -> Void

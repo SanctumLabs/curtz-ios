@@ -19,9 +19,11 @@ class StoreManagerSpy: StoreManager {
     private(set) var messages: [StoreManagerMessage] = []
     
     private(set) var retrieveCompletions =  [ (StoreManager.RetrieveResult) -> Void]()
+    private(set) var saveCompletions = [(StoreManager.SaveResult) -> Void]()
     
     func save(_ val: String, forKey key: String, completion: @escaping (SaveResult) -> Void) {
         messages.append(.save(val, key))
+        saveCompletions.append(completion)
     }
     
     func retrieveValue(forKey key: String, completion: @escaping (RetrieveResult) -> Void) {
@@ -43,6 +45,10 @@ class StoreManagerSpy: StoreManager {
     
     func completeRetrieveSuccessfully(withVal value: String, at index: Int = 0) {
         retrieveCompletions[index](.success(value))
+    }
+    
+    func completeSave(withError error: StoreManagerError, at index: Int = 0) {
+        saveCompletions[index](.failure(error))
     }
 
 }
