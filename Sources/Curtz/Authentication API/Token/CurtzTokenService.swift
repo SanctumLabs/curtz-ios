@@ -41,7 +41,7 @@ public final class CurtzTokenService: TokenService {
                         for: .refreshToken(
                             grantType: .refreshTokenKey,
                             refreshToken: token
-                        ), with: refreshTokenURL
+                        ), with: self.refreshTokenURL
                     )
                 ) {[weak self ] receivedResult in
                     guard let self else { return }
