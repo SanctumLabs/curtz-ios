@@ -27,16 +27,26 @@ final class MainCoordinator: Coordinator {
     }
     
     func start() {
+        // Create a temporary loading screen
+        showSplashScreen()
         // Check if a valid token exists, then navigate to Dashboard
         validateSession { [weak self] valid in
             if valid {
                 self?.navigateToDashboard()
             } else {
-                let landingView = LandingView(coordinator: self)
-                let vc = UIHostingController(rootView: landingView)
-                self?.navigationController.pushViewController(vc, animated: true)
+                DispatchQueue.main.async {
+                    let landingView = LandingView(coordinator: self)
+                    let vc = UIHostingController(rootView: landingView)
+                    self?.navigationController.setViewControllers([vc], animated: true)
+                }
             }
         }
+    }
+    
+    func showSplashScreen() {
+        let splashScreen = SplashScreen()
+        let hostingController = UIHostingController(rootView: splashScreen)
+        navigationController.pushViewController(hostingController, animated: true)
     }
     
     func navigateToLogin() {
