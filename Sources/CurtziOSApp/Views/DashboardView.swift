@@ -8,13 +8,29 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @ObservedObject private var vm: DashboardViewModel
+    
+    init(vm: DashboardViewModel) {
+        self.vm = vm
+    }
+    
     var body: some View {
         VStack {
-            Text("Welcome to the Dashboard")
-        }.navigationBarBackButtonHidden()
+            switch vm.state {
+            case .idle:
+                Text("Welcome to the Dashboard")
+            case .loaded(let items):
+                if !items.isEmpty {
+                    Text("\(items.count)")
+                } else {
+                    Text("Add shortened urls")
+                }
+                
+            case .hasError(let error):
+                Text("\(error.localizedDescription)")
+            }
+        }.onAppear(perform: {
+            vm.getAllShortenedUrls()
+        })
     }
 }
-
-//#Preview {
-//    DashboardView()
-//}

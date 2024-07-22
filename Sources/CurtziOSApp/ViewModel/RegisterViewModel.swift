@@ -18,7 +18,7 @@ protocol RegisterViewDelegate {
     func dismissRegisterView()
 }
 
-class RegisterViewModel: ObservableObject {
+final class RegisterViewModel: ObservableObject {
     @Published var state: RegisterViewState = .idle
     private let service: RegistrationService
     private let delegate: RegisterViewDelegate

@@ -8,16 +8,16 @@
 import Foundation
 
 public struct ShortenResponseItem {
-    let id: String
-    let customAlias: String
-    let originalUrl: String
-    let expiresOn: String
-    let keywords: [String]
-    let userId: String
-    let shortCode: String
-    let createdAt: String
-    let updatedAt: String
-    let hits: Int
+    public let id: String
+    public let customAlias: String
+    public let originalUrl: String
+    public let expiresOn: String
+    public let keywords: [String]
+    public let userId: String
+    public let shortCode: String
+    public let createdAt: String
+    public let updatedAt: String
+    public let hits: Int
     
     public init(
         id: String,

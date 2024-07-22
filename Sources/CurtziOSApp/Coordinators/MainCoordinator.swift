@@ -66,7 +66,8 @@ final class MainCoordinator: Coordinator {
     func navigateToDashboard() {
         DispatchQueue.main.async {[weak self] in
             guard let self else { return }
-            let dashboardCoordinator = DashboardCoordinator(navigationController: navigationController)
+//            let dashboardCoordinator = DashboardCoordinator(navigationController: navigationController)
+            let dashboardCoordinator = DashboardCoordinator(navigationController: navigationController, client: urlSessionHTTPClient, tokenService: tokenService, baseURL: baseURL)
             childCoordinators.append(dashboardCoordinator)
             dashboardCoordinator.start()
         }

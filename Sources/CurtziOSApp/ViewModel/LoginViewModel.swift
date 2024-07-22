@@ -18,7 +18,7 @@ protocol LoginViewDelegate {
     func didDismissLoginView()
 }
 
-class LoginViewModel: ObservableObject {
+final class LoginViewModel: ObservableObject {
     @Published var state: LoginViewState = .idle
     
     private let authService: AuthService
@@ -39,7 +39,6 @@ class LoginViewModel: ObservableObject {
             authService.login(user: loginRequest) { result in
                 switch result {
                 case .success:
-//                    self.state = .idle
                     self.delegate.didDismissLoginView()
                 case let .failure(error):
                     self.state = .hasError(error)
