@@ -12,6 +12,7 @@ import Curtz
 final class DashboardCoordinator: Coordinator {
     private let authenticatedClient: HTTPClient
     private let baseURL: URL
+    private var dashboardViewModel: DashboardViewModel?
     var childCoordinators = [Coordinator]()
     
     var navigationController: UINavigationController
@@ -31,8 +32,11 @@ final class DashboardCoordinator: Coordinator {
         let settingsViewHC = UIHostingController(rootView: settingsView)
         let settingsVC = UINavigationController(rootViewController: settingsViewHC)
         settingsVC.tabBarItem = UITabBarItem(title: "Settings", image: UIImage(systemName: "gearshape"), selectedImage: UIImage(systemName: "gearshape.fill"))
+        settingsVC.navigationBar.topItem?.title = "Settings"
         
         tabBarController.viewControllers = [dashboardTab(), settingsVC]
+        // Hides the extra navigationBar
+        navigationController.navigationBar.isHidden = true
         navigationController.setViewControllers([tabBarController], animated: true)
     }
     
@@ -41,14 +45,15 @@ final class DashboardCoordinator: Coordinator {
 extension DashboardCoordinator {
     private func dashboardTab() -> UINavigationController {
         let coreService = CoreService(serviceURL: CurtzEndpoint.fetchAll.url(baseURL: baseURL) , client: authenticatedClient)
-        let dashboardViewModel = DashboardViewModel(coreService: coreService, delegate: self)
+        let dashboardViewModel = DashboardViewModel(coreService: coreService)
         let dashboardView = DashboardView(vm: dashboardViewModel)
         
         let dashboardViewHC = UIHostingController(rootView: dashboardView)
         let dashboardVC = UINavigationController(rootViewController: dashboardViewHC)
+        dashboardViewHC.title = "Dashboard"
+        dashboardViewHC.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: dashboardViewModel, action: #selector(dashboardViewModel.didTapAdd))
+        dashboardViewHC.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: dashboardViewModel, action: #selector(dashboardViewModel.didTapRefresh))
         dashboardVC.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"),selectedImage: UIImage(systemName: "house.fill"))
         return dashboardVC
     }
 }
-
-extension DashboardCoordinator: DashboardViewDelegate {}

@@ -17,8 +17,8 @@ struct LoginView: View {
     }
     var body: some View {
         VStack {
-            if case let .hasError(error)  = vm.state {
-                Text("\(error.localizedDescription)")
+            if case .hasError  = vm.state {
+                Text("Something went wrong")
             }
                 
             TextField(text: $email) {
@@ -35,7 +35,7 @@ struct LoginView: View {
                 Text("Login")
             }
             .buttonStyle(.borderedProminent)
-            .disabled(email.isEmpty || password.isEmpty)
+            .disabled(email.isEmpty || password.isEmpty || vm.state == .authenticating)
 
         }
         .padding()

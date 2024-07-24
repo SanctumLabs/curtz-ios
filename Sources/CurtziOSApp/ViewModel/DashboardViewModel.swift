@@ -8,41 +8,50 @@
 import Foundation
 import Curtz
 
-protocol DashboardViewDelegate {
-    
-}
-
 enum DashboardViewState {
-    case idle
+    case loading
     case loaded([ShortenedURL])
     case hasError(Error)
 }
 
-final class DashboardViewModel: ObservableObject {
-    
-    @Published var state: DashboardViewState = .idle
-    
-    private let coreService: CoreService
-    private let delegate: DashboardViewDelegate
-    
-    init(coreService: CoreService, delegate: DashboardViewDelegate) {
-        self.coreService = coreService
-        self.delegate = delegate
+
+extension DashboardViewModel {
+    @objc func didTapRefresh() {
+        getAllShortenedUrls()
     }
     
-    func getAllShortenedUrls() {
-        
-            coreService.fetchAll { result in
-                switch result  {
-                case let .success(responseItems):
-                    DispatchQueue.main.async {[weak self] in
-                        self?.state = .loaded(responseItems.map {$0.asShortenedURL()})
-                    }
-                case let .failure(error):
-                    DispatchQueue.main.async {[weak self] in
-                        self?.state = .hasError(error)
-                    }
+    @objc func didTapAdd() {
+        print("I am adding")
+    }
+}
+
+final class DashboardViewModel: ObservableObject {
+    
+    @Published var state: DashboardViewState = .loading
+    
+    private let coreService: CoreService
+    
+    init(coreService: CoreService) {
+        self.coreService = coreService
+    }
+    
+    func load() {
+        getAllShortenedUrls()
+    }
+    
+    private func getAllShortenedUrls() {
+        state = .loading
+        coreService.fetchAll { result in
+            switch result  {
+            case let .success(responseItems):
+                DispatchQueue.main.async {[weak self] in
+                    self?.state = .loaded(responseItems.map {$0.asShortenedURL()})
+                }
+            case let .failure(error):
+                DispatchQueue.main.async {[weak self] in
+                    self?.state = .hasError(error)
                 }
             }
+        }
     }
 }

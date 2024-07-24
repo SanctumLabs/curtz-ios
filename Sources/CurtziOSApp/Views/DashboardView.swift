@@ -17,20 +17,21 @@ struct DashboardView: View {
     var body: some View {
         VStack {
             switch vm.state {
-            case .idle:
-                Text("Welcome to the Dashboard")
             case .loaded(let items):
                 if !items.isEmpty {
                     Text("\(items.count)")
                 } else {
                     Text("Add shortened urls")
                 }
-                
+            case .loading:
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                    .scaleEffect(2.0, anchor: .center)
             case .hasError(let error):
                 Text("\(error.localizedDescription)")
             }
         }.onAppear(perform: {
-            vm.getAllShortenedUrls()
+            vm.load()
         })
     }
 }

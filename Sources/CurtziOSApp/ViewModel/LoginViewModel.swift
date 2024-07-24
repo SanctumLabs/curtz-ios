@@ -8,10 +8,10 @@
 import Foundation
 import Curtz
 
-enum LoginViewState {
+enum LoginViewState: Equatable {
     case idle
     case authenticating
-    case hasError(Error)
+    case hasError
 }
 
 protocol LoginViewDelegate {
@@ -40,8 +40,8 @@ final class LoginViewModel: ObservableObject {
                 switch result {
                 case .success:
                     self.delegate.didDismissLoginView()
-                case let .failure(error):
-                    self.state = .hasError(error)
+                case .failure:
+                    self.state = .hasError
                 }
             }
         }
