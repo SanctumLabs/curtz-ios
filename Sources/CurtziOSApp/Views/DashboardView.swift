@@ -21,7 +21,8 @@ struct DashboardView: View {
                 if !items.isEmpty {
                     Text("\(items.count)")
                 } else {
-                    Text("Add shortened urls")
+                    EmptyStateView(createAction: vm.didTapAdd)
+                        .padding([.top], 18)
                 }
             case .loading:
                 ProgressView()

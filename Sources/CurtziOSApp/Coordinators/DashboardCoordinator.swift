@@ -51,6 +51,7 @@ extension DashboardCoordinator {
         let dashboardViewHC = UIHostingController(rootView: dashboardView)
         let dashboardVC = UINavigationController(rootViewController: dashboardViewHC)
         dashboardViewHC.title = "Dashboard"
+        dashboardViewHC.navigationController?.navigationBar.prefersLargeTitles = true
         dashboardViewHC.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: dashboardViewModel, action: #selector(dashboardViewModel.didTapAdd))
         dashboardViewHC.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: dashboardViewModel, action: #selector(dashboardViewModel.didTapRefresh))
         dashboardVC.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"),selectedImage: UIImage(systemName: "house.fill"))
