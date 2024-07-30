@@ -27,6 +27,7 @@ struct LoginView: View {
                     Image(systemName: "character")
                         .foregroundColor(.gray).font(.headline)
                     TextField("Enter your email", text: $email)
+                        .textInputAutocapitalization(.never)
                 }
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
@@ -37,21 +38,28 @@ struct LoginView: View {
                     Image(systemName: "eye.slash")
                         .foregroundColor(.gray).font(.headline)
                     TextField("Enter your password", text: $password)
+                        .textInputAutocapitalization(.never)
                 }
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
             }
+            .padding([.bottom], 14)
             Button(action: {
                 vm.login(with: email, password: password)
             }, label: {
-                Text("Login")
-                    .font(.headline)
+                if vm.state == .authenticating {
+                    ProgressView()
+                } else {
+                    Text("Login")
+                        .font(.headline)
+                }
             })
-            .frame(width: 250, height: 50)
+            .frame(width: 360, height: 50)
             .background(.blue)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .disabled(email.isEmpty || password.isEmpty || vm.state == .authenticating)
+            Spacer()
         }
         .padding()
     }

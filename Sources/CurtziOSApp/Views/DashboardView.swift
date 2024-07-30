@@ -28,8 +28,8 @@ struct DashboardView: View {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .blue))
                     .scaleEffect(2.0, anchor: .center)
-            case .hasError(let error):
-                Text("\(error.localizedDescription)")
+            case .hasError:
+                ErrorView()
             }
         }.onAppear(perform: {
             vm.load()
