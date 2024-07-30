@@ -14,6 +14,11 @@ enum DashboardViewState {
     case hasError(Error)
 }
 
+protocol DashboardViewDelegate {
+    func didTapAddNewLink()
+    func didFinishAddNewLink()
+}
+
 
 extension DashboardViewModel {
     @objc func didTapRefresh() {
@@ -21,7 +26,7 @@ extension DashboardViewModel {
     }
     
     @objc func didTapAdd() {
-        print("I am adding")
+        delegate?.didTapAddNewLink()
     }
 }
 
@@ -30,6 +35,7 @@ final class DashboardViewModel: ObservableObject {
     @Published var state: DashboardViewState = .loading
     
     private let coreService: CoreService
+    var delegate: DashboardViewDelegate? = nil
     
     init(coreService: CoreService) {
         self.coreService = coreService

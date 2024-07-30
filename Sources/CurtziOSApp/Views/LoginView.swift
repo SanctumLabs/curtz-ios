@@ -20,23 +20,38 @@ struct LoginView: View {
             if case .hasError  = vm.state {
                 Text("Something went wrong")
             }
-                
-            TextField(text: $email) {
+            
+            VStack(alignment: .leading) {
                 Text("Email")
+                HStack {
+                    Image(systemName: "character")
+                        .foregroundColor(.gray).font(.headline)
+                    TextField("Enter your email", text: $email)
+                }
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
             }
-            .textInputAutocapitalization(.never)
-            Divider()
-            SecureField(text: $password) {
+            VStack(alignment: .leading) {
                 Text("Password")
+                HStack {
+                    Image(systemName: "eye.slash")
+                        .foregroundColor(.gray).font(.headline)
+                    TextField("Enter your password", text: $password)
+                }
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
             }
-            Button {
+            Button(action: {
                 vm.login(with: email, password: password)
-            } label: {
+            }, label: {
                 Text("Login")
-            }
-            .buttonStyle(.borderedProminent)
+                    .font(.headline)
+            })
+            .frame(width: 250, height: 50)
+            .background(.blue)
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .disabled(email.isEmpty || password.isEmpty || vm.state == .authenticating)
-
         }
         .padding()
     }

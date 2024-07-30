@@ -46,6 +46,7 @@ extension DashboardCoordinator {
     private func dashboardTab() -> UINavigationController {
         let coreService = CoreService(serviceURL: CurtzEndpoint.fetchAll.url(baseURL: baseURL) , client: authenticatedClient)
         let dashboardViewModel = DashboardViewModel(coreService: coreService)
+        dashboardViewModel.delegate = self
         let dashboardView = DashboardView(vm: dashboardViewModel)
         
         let dashboardViewHC = UIHostingController(rootView: dashboardView)
@@ -56,5 +57,17 @@ extension DashboardCoordinator {
         dashboardViewHC.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: dashboardViewModel, action: #selector(dashboardViewModel.didTapRefresh))
         dashboardVC.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"),selectedImage: UIImage(systemName: "house.fill"))
         return dashboardVC
+    }
+}
+
+extension DashboardCoordinator: DashboardViewDelegate {
+    func didFinishAddNewLink() {
+        navigationController.popViewController(animated: true)
+    }
+    
+    func didTapAddNewLink() {
+        let addNewLinkCoordinator = AddNewLinkCoordinator(navigationController: navigationController)
+        childCoordinators.append(addNewLinkCoordinator)
+        addNewLinkCoordinator.start()
     }
 }
