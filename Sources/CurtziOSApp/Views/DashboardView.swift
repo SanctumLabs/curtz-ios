@@ -19,7 +19,7 @@ struct DashboardView: View {
             switch vm.state {
             case .loaded(let items):
                 if !items.isEmpty {
-                    Text("\(items.count)")
+                    DashboardListView(items: items)
                 } else {
                     EmptyStateView(createAction: vm.didTapAdd)
                         .padding([.top], 18)
