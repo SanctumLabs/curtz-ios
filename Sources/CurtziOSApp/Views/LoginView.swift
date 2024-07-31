@@ -19,6 +19,8 @@ struct LoginView: View {
         VStack {
             if case .hasError  = vm.state {
                 Text("Something went wrong")
+                    .font(.footnote)
+                    .foregroundStyle(.red)
             }
             
             VStack(alignment: .leading) {
@@ -28,6 +30,7 @@ struct LoginView: View {
                         .foregroundColor(.gray).font(.headline)
                     TextField("Enter your email", text: $email)
                         .textInputAutocapitalization(.never)
+                        .disabled(vm.state == .authenticating)
                 }
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
@@ -37,8 +40,9 @@ struct LoginView: View {
                 HStack {
                     Image(systemName: "eye.slash")
                         .foregroundColor(.gray).font(.headline)
-                    TextField("Enter your password", text: $password)
+                    SecureField("Enter your password", text: $password)
                         .textInputAutocapitalization(.never)
+                        .disabled(vm.state == .authenticating)
                 }
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
@@ -55,7 +59,7 @@ struct LoginView: View {
                 }
             })
             .frame(width: 360, height: 50)
-            .background(.blue)
+            .background(email.isEmpty || password.isEmpty || vm.state == .authenticating ? .gray : .blue)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .disabled(email.isEmpty || password.isEmpty || vm.state == .authenticating)

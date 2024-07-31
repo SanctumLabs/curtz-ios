@@ -31,18 +31,19 @@ final class LoginViewModel: ObservableObject {
     
     func login(with username: String, password: String) {
         let loginRequest = LoginRequest(email: username, password: password)
+        self.state = .authenticating
         
-        DispatchQueue.main.async {[weak self] in
-            guard let self else { return }
-            
-            self.state = .authenticating
-            authService.login(user: loginRequest) { result in
-                switch result {
-                case .success:
-                    self.delegate.didDismissLoginView()
-                case .failure:
-                    self.state = .hasError
+        authService.login(user: loginRequest) { result in
+            switch result {
+            case .success:
+                DispatchQueue.main.async {[weak self] in
+                    self?.delegate.didDismissLoginView()
                 }
+            case .failure:
+                DispatchQueue.main.async {[weak self] in
+                    self?.state = .hasError
+                }
+               
             }
         }
     }
