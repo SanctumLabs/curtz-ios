@@ -27,8 +27,9 @@ final class DashboardCoordinator: Coordinator {
     func start() {
         // Create a UITabBarController
         let tabBarController = UITabBarController()
+        let vm = SettingViewModel()
         
-        let settingsView = SettingsView()
+        let settingsView = SettingsView(vm: vm)
         let settingsViewHC = UIHostingController(rootView: settingsView)
         let settingsVC = UINavigationController(rootViewController: settingsViewHC)
         settingsVC.tabBarItem = UITabBarItem(title: "Settings", image: UIImage(systemName: "gearshape"), selectedImage: UIImage(systemName: "gearshape.fill"))

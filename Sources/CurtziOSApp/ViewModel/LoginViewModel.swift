@@ -10,7 +10,7 @@ import Curtz
 
 enum LoginViewState: Equatable {
     case idle
-    case authenticating
+    case processing
     case hasError
 }
 
@@ -31,7 +31,7 @@ final class LoginViewModel: ObservableObject {
     
     func login(with username: String, password: String) {
         let loginRequest = LoginRequest(email: username, password: password)
-        self.state = .authenticating
+        self.state = .processing
         
         authService.login(user: loginRequest) { result in
             switch result {

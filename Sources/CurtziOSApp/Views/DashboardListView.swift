@@ -14,10 +14,8 @@ struct DashboardListView: View {
             ForEach(items, id: \.id) {item in
                 HStack(alignment: .center) {
                     VStack {
-                        Image(systemName: "\(item.hits.formatted()).circle")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 50)
+                        Text(item.hits.formatted())
+                            .font(.headline.bold())
                         Text("Hits")
                             .font(.caption)
                     }

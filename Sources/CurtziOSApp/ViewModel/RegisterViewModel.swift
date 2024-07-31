@@ -10,8 +10,8 @@ import Foundation
 
 enum RegisterViewState {
     case idle
-    case registering
-    case hasError(Error)
+    case processing
+    case hasError
 }
 
 protocol RegisterViewDelegate {
@@ -34,14 +34,14 @@ final class RegisterViewModel: ObservableObject {
         DispatchQueue.main.async {[weak self] in
             guard let self else { return }
             
-            self.state = .registering
+            self.state = .processing
             service.register(user: request) { result in
                 switch result {
                 case .success:
                     self.state = .idle
                     self.delegate.dismissRegisterView()
-                case let .failure(error):
-                    self.state = .hasError(error)
+                case .failure:
+                    self.state = .hasError
                 }
             }
         }
