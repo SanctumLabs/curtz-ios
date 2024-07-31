@@ -50,6 +50,7 @@ extension AddNewLinkView {
                         .foregroundColor(.gray).font(.headline)
                     TextField("Original url", text: $vm.formState.originalUrl)
                         .textInputAutocapitalization(.never)
+                        .disabled(vm.viewState == .processing)
                 }
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
@@ -62,6 +63,7 @@ extension AddNewLinkView {
                         .foregroundColor(.gray).font(.headline)
                     TextField("Custom alias", text: $vm.formState.customAlias)
                         .textInputAutocapitalization(.never)
+                        .disabled(vm.viewState == .processing)
                 }
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
@@ -74,12 +76,15 @@ extension AddNewLinkView {
                         .foregroundColor(.gray).font(.headline)
                     TextField("Keywords", text: $vm.formState.keyWords)
                         .textInputAutocapitalization(.never)
+                        .disabled(vm.viewState == .processing)
                 }
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
             }
             DatePicker("Expiry date", selection: $vm.formState.expiryDate)
                 .padding([.bottom], 24)
+                .disabled(vm.viewState == .processing)
+            
             Button(action: {
                 vm.save(vm.formState)
             }, label: {
