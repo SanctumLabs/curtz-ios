@@ -12,35 +12,45 @@ struct DashboardListView: View {
     var body: some View {
         List {
             ForEach(items, id: \.id) {item in
-                VStack(alignment: .leading) {
-                    Text(item.url)
-                        .font(.callout)
-                    Text(item.shortCode)
-                        .font(.title)
-                        .padding([.top, .bottom])
-                    HStack(alignment: .center) {
-                        VStack(alignment: .leading) {
-                            Text(item.expiresOn)
-                                .font(.footnote)
-                            Text(item.createdAt)
-                                .font(.footnote)
-                            HStack {
-                                ForEach(item.keywords, id: \.self) {keyword in
-                                    Text(keyword)
-                                        .font(.footnote)
-                                }
-                            }
-                        }
-                        Spacer()
-                        VStack {
-                            Image(systemName: "\(item.hits.formatted()).circle")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 50)
-                                .foregroundColor(.green)
-                        }
+                HStack(alignment: .center) {
+                    VStack {
+                        Image(systemName: "\(item.hits.formatted()).circle")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 50)
+                        Text("Hits")
+                            .font(.caption)
                     }
-                }.padding()
+                    .frame(width: 70)
+                    VStack(alignment: .leading) {
+                        VStack {
+                            Text("Short code")
+                                .font(.footnote)
+                                .foregroundStyle(.gray)
+                            Text(item.shortCode)
+                                .font(.title3)
+                        }
+                        
+                        VStack(alignment: .leading) {
+                            Text("Original URL")
+                                .font(.footnote)
+                                .foregroundStyle(.gray)
+                            Text(item.url)
+                                .font(.callout)
+                        }
+                        .padding([.top], 0.3)
+                        
+                        VStack(alignment: .leading) {
+                            Text("Expiry date")
+                                .font(.footnote)
+                                .foregroundStyle(.gray)
+                            Text(item.expiresOn)
+                                .font(.subheadline)
+                        }
+                        .padding([.top], 0.5)
+                    }
+                }
+                
             }
         }.listStyle(.plain)
     }
