@@ -76,7 +76,12 @@ class RegistrationServiceTests: XCTestCase {
         let (sut, client) = makeSUT()
         
         let thisUser = RegistrationRequest(email: "email@strong-server.com", password: "serious-password")
-        let registrationResponse = makeRegistrationResponse(id: "cc38i5mg26u17lm37upg", email: thisUser.email, createdAt: (Date(timeIntervalSince1970: 1598627222),"2020-08-28T15:07:02+00:00"), updatedAt: (Date(timeIntervalSince1970: 1598627222), "2020-08-28T15:07:02+00:00"))
+        let registrationResponse = makeRegistrationResponse(
+            id: "cc38i5mg26u17lm37upg",
+            email: thisUser.email,
+            createdAt: (Date(timeIntervalSince1970: 1598627222),"2020-08-28T15:07:02+00:00"),
+            updatedAt: (Date(timeIntervalSince1970: 1598627222), "2020-08-28T15:07:02+00:00")
+        )
         
         expect(sut, registering: thisUser, toCompleteWith: .success(registrationResponse.model)) {
             let json = makeJSON(registrationResponse.json)
@@ -101,7 +106,10 @@ class RegistrationServiceTests: XCTestCase {
     
     // MARK: - Helpers
     
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: RegistrationService, client: HTTPClientSpy){
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (sut: RegistrationService, client: HTTPClientSpy){
         let client = HTTPClientSpy()
         let sut = RegistrationService(registrationURL: testRegistrationURL(), client: client)
         
@@ -129,6 +137,7 @@ class RegistrationServiceTests: XCTestCase {
     }
     
     private func testRequest(for user: RegistrationRequest) -> URLRequest {
+        
         var urlRequest = URLRequest(url: testRegistrationURL())
         
         urlRequest.httpMethod = "POST"
@@ -143,10 +152,20 @@ class RegistrationServiceTests: XCTestCase {
         return urlRequest
     }
     
-    private func makeRegistrationResponse(id: String, email: String, createdAt: (date: Date, iso8601String: String), updatedAt: (date: Date, iso8601String: String))
+    private func makeRegistrationResponse(
+        id: String,
+        email: String,
+        createdAt: (date: Date, iso8601String: String),
+        updatedAt: (date: Date, iso8601String: String)
+    )
     -> (model: RegistrationResponse, json: [String: Any])
     {
-        let item = RegistrationResponse(id: id, email: email, createdAt: createdAt.iso8601String, updatedAt: updatedAt.iso8601String)
+        let item = RegistrationResponse(
+            id: id,
+            email: email,
+            createdAt: createdAt.iso8601String,
+            updatedAt: updatedAt.iso8601String
+        )
         
         let json = jsonFor(
             id: id,
@@ -156,11 +175,7 @@ class RegistrationServiceTests: XCTestCase {
         return (item, json)
         
     }
-    
-    private func makeJSON(_ res: [String: Any]) -> Data {
-        return try! JSONSerialization.data(withJSONObject: res)
-    }
-    
+
     private func jsonFor(id: String = "", email: String = "", date: String = "") -> [String: String] {
         return [
             "id": id,
@@ -170,13 +185,14 @@ class RegistrationServiceTests: XCTestCase {
         ]
     }
     
-    private func makeErrorJSON(_ message: String = "") -> Data {
-        let json = ["message": message]
-        return try! JSONSerialization.data(withJSONObject: json)
-        
-    }
-    
-    private func expect(_ sut: RegistrationService, registering user: RegistrationRequest, toCompleteWith expectedResult: RegistrationService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(
+        _ sut: RegistrationService,
+        registering user: RegistrationRequest,
+        toCompleteWith expectedResult: RegistrationService.Result,
+        when action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let exp = expectation(description: "wait for registration completion")
         
         sut.register(user: user) { receivedResult in

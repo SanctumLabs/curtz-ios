@@ -8,7 +8,11 @@
 import Foundation
 
 public protocol TokenService {
-    typealias Result = Swift.Result<String, Error>
-    typealias GetTokenCompletion = (Result) -> Void
-    func getToken(completion: @escaping GetTokenCompletion )
+    typealias GetTokenResult = Swift.Result<String, Error>
+    typealias RefreshTokenResult = Swift.Result<String, Error>
+    
+    typealias GetTokenCompletion = (GetTokenResult) -> Void
+    typealias RefreshTokenCompletion = (RefreshTokenResult) -> Void
+    func getToken(completion: @escaping GetTokenCompletion)
+    func refreshToken(completion: @escaping RefreshTokenCompletion)
 }

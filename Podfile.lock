@@ -1,3 +1,20 @@
-PODFILE CHECKSUM: 3f58d4bf39f14fab7cfa7b846d483fd23d968fca
+PODS:
+  - R.swift (7.3.2)
+  - SwiftSoup (2.7.2)
+
+DEPENDENCIES:
+  - R.swift
+  - SwiftSoup
+
+SPEC REPOS:
+  trunk:
+    - R.swift
+    - SwiftSoup
+
+SPEC CHECKSUMS:
+  R.swift: 0af0d882f49f03711415cb4e5215daa977d8a480
+  SwiftSoup: 4164c6bd8af69acd119c23fb36906975a60d71bb
+
+PODFILE CHECKSUM: 1cb000e96e7845b3593de4f7726977b1d7afab6f
 
 COCOAPODS: 1.15.2

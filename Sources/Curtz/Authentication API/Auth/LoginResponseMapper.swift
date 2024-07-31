@@ -26,7 +26,7 @@ public struct LoginMapper {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
-        guard isOK(response) else {
+        guard response.isOK() else {
             return .failure(AuthService.Error.wrongCredentials)
         }
         
@@ -35,10 +35,6 @@ public struct LoginMapper {
         }
         return .success(res.response)
         
-    }
-    
-    private static func isOK(_ response: HTTPURLResponse) -> Bool {
-        (200...299).contains(response.statusCode)
     }
 }
 

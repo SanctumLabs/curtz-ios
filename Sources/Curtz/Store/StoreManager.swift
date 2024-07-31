@@ -22,7 +22,6 @@ public protocol StoreManager {
 
 
 public enum StoreManagerError: Error, Equatable {
-  
     case notFound
     case failedToSave
     case failedToUpdate

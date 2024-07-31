@@ -115,5 +115,4 @@ public final class SecureStore: Store {
         case update
         case delete
     }
-    
 }

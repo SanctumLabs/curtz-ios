@@ -2,59 +2,37 @@
 //  DashboardView.swift
 //  CurtziOSApp
 //
-//  Created by George Nyakundi on 13/04/2023.
+//  Created by George Nyakundi on 18/07/2024.
 //
 
 import SwiftUI
 
-enum DashboardTab: String {
-    case home = "Home"
-    case settings = "Settings"
-}
-
 struct DashboardView: View {
-    @EnvironmentObject var vm: CurtziOSAppViewModel
-    @State private var successFullyLogout = false
+    @ObservedObject private var vm: DashboardViewModel
     
-    @State var activeTab: String = DashboardTab.home.rawValue
-    @State var ctaSelected: Bool = false
-    @Binding var loggedIn: Bool
+    init(vm: DashboardViewModel) {
+        self.vm = vm
+    }
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            TabView(selection: $activeTab,
-                    content:  {
-                HomeView()
-                    .tag(DashboardTab.home.rawValue)
-                SettingsView(loggedIn: $loggedIn)
-                    .tag(DashboardTab.settings.rawValue)
-            })
-            CustomTabBar(currentTab: $activeTab, ctaSelected: $ctaSelected)
-        }
-        .fullScreenCover(isPresented: $ctaSelected, content: {
-            ShortenerView(ctaSelected: $ctaSelected)
+        VStack {
+            switch vm.state {
+            case .loaded(let items):
+                if !items.isEmpty {
+                    DashboardListView(items: items)
+                } else {
+                    EmptyStateView(createAction: vm.didTapAdd)
+                        .padding([.top], 18)
+                }
+            case .loading:
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                    .scaleEffect(2.0, anchor: .center)
+            case .hasError:
+                ErrorView()
+            }
+        }.onAppear(perform: {
+            vm.load()
         })
-        
     }
-}
-
-struct DashboardView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            DashboardView(loggedIn: .constant(false))
-        }
-    }
-}
-
-struct CurtzURL: Equatable {
-    let id: String
-    let originalUrl: String
-    let customAlias: String
-    let expiresOn: Date
-    let keywords: [String]
-    let userId: String
-    let shortCode: String
-    let createdAt: Date
-    let updatedAt: Date
-    let hits: Int
 }

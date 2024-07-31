@@ -62,7 +62,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         
         XCTAssertEqual(service.getTokenCount, 1)
         
-        service.complete(with: anyNSError())
+        service.completeGetToken(with: anyNSError())
         
         sut.perform(request: anyURLRequest()) { _ in }
         
@@ -80,7 +80,7 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         var result2: HTTPClient.Result?
         sut.perform(request: anyURLRequest()) { result2 = $0 }
         
-        tokenService.completeSuccessfully(with: anyToken())
+        tokenService.completeGetTokenSuccessfully(with: anyToken())
         
         let values = (Data("some data".utf8), httpURLResponse(200))
         client.complete(with: values, at: 0)
@@ -91,49 +91,5 @@ class AuthenticatedHTTPClientDecoraterTests: XCTestCase {
         
         client.complete(with: anyNSError(), at: 1)
         XCTAssertThrowsError(try result2?.get())
-        
-        
-    }
-    
-    
-    
-    // MARK: - Helpers
-    private final class GetTokenServiceStub: TokenService {
-      
-        private let result: TokenService.Result
-        
-        init(stubbedToken token: String) {
-            self.result = .success(token)
-        }
-        
-        init(stubbedError: Error) {
-            self.result = .failure(stubbedError)
-        }
-        func getToken(completion: @escaping (TokenService.Result) -> Void) {
-            completion(result)
-        }
-    }
-    
-    private final class GetTokenServiceSpy: TokenService {
-        
-        var getTokenCompletions = [(TokenService.Result) -> Void]()
-        
-        var getTokenCount: Int {
-            getTokenCompletions.count
-        }
-        
-        func getToken(completion: @escaping (TokenService.Result) -> Void) {
-            getTokenCompletions.append(completion)
-        }
-        
-        func complete(with error: Error, at index: Int = 0) {
-            getTokenCompletions[index](.failure(error))
-        }
-        
-        func completeSuccessfully(with token: String, at index: Int = 0) {
-            getTokenCompletions[index](.success(token))
-        }
-    }
-    
-    
+    }   
 }

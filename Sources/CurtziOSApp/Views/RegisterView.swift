@@ -2,132 +2,77 @@
 //  RegisterView.swift
 //  CurtzAllTests
 //
-//  Created by George Nyakundi on 09/04/2023.
+//  Created by George Nyakundi on 11/07/2024.
 //
 
 import SwiftUI
-import Curtz
 
 struct RegisterView: View {
-    @EnvironmentObject var vm: CurtziOSAppViewModel
-    
-    @State var email: String = ""
+    @State var username: String = ""
     @State var password: String = ""
-    @State var hasError: Bool = false
-    @State var errorMessage: String = ""
-    @State var hasCompletedSuccessfully: Bool = false
     
-    @Binding var dismiss: Bool
+    @ObservedObject private var vm: RegisterViewModel
     
-    @FocusState private var emailTextFieldFocussed: Bool
-    @FocusState private var passwordTextFieldFocussed: Bool
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            VStack(alignment: .leading, content: {
-                HStack {
-                    Button {
-                        withAnimation {
-                            dismiss = false
-                        }
-                        
-                    } label: {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.black)
-                    }
-                    Spacer()
-                    Text("Register")
-                    Spacer()
-                }
-            })
-            
-            if hasError {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-            }
-            
-            if hasCompletedSuccessfully {
-                Text("Account created successfully 🎉")
-                    .foregroundColor(.green)
-            }
-            VStack(alignment: .leading) {
-                Text("Email address")
-                    .foregroundStyle(emailTextFieldFocussed ? .blue : .black)
-                TextField("Email address", text: $email)
-                    .padding()
-                    .focused($emailTextFieldFocussed)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(emailTextFieldFocussed ? .blue: .black, lineWidth: 1)
-                    }
-            }
-            
-            VStack(alignment: .leading) {
-                Text("Password")
-                    .foregroundStyle(passwordTextFieldFocussed ? .blue : .black)
-                SecureField("Password", text: $password)
-                    .padding()
-                    .focused($passwordTextFieldFocussed)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(passwordTextFieldFocussed ? .blue: .black, lineWidth: 1)
-                    }
-            }
-            Button(action: {
-                hasError = false
-                hasCompletedSuccessfully = false
-                vm.register(user: email, password: password) { result in
-                    switch result {
-                    case .success:
-                        hasCompletedSuccessfully = true
-                        dismiss = false
-                        clearFields()
-                    case let .failure(error as RegistrationService.Error):
-                        hasError = true
-                        switch error {
-                        case let .clientError(errorMsg):
-                            errorMessage = errorMsg
-                            
-                        default:
-                            errorMessage = "Please try again"
-                        }
-                    default:
-                        hasError = true
-                        errorMessage = "Something went wrong 😭"
-                    }
-                }
-            }, label: {
-                Text("Continue")
-                    .frame(maxWidth: 340)
-            })
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-            .frame(maxWidth: .infinity)
-            .disabled(email.isEmpty && password.isEmpty)
-            
-            Spacer()
-            Text("By creating an account, you agree to Curtz's Conditions of Use and Private Notice.")
-                .font(.caption)
-                .fontWeight(.thin)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .padding()
-        .navigationBarBackButtonHidden()
+    init(vm: RegisterViewModel) {
+        self.vm = vm
     }
     
-    private func clearFields() {
-        email = ""
-        password = ""
+    var body: some View {
+        VStack {
+            if case .hasError = vm.state {
+                Text("Something went wrong")
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+            
+            VStack(alignment: .leading) {
+                Text("Email")
+                    .foregroundStyle(.gray)
+                HStack {
+                    Image(systemName: "character")
+                        .foregroundColor(.gray).font(.headline)
+                    TextField("Enter your email", text: $username)
+                        .textInputAutocapitalization(.never)
+                        .disabled(vm.state == .processing)
+                }
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
+            }
+            VStack(alignment: .leading) {
+                Text("Password")
+                    .foregroundStyle(.gray)
+                HStack {
+                    Image(systemName: "eye.slash")
+                        .foregroundColor(.gray).font(.headline)
+                    SecureField("Enter your password", text: $password)
+                        .textInputAutocapitalization(.never)
+                        .disabled(vm.state == .processing)
+                }
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
+            }
+            Button {
+                vm.register(with: username, password: password)
+            } label: {
+                
+                if vm.state == .processing {
+                    ProgressView()
+                } else {
+                    Text("Register")
+                        .font(.headline)
+                }
+            }
+            .frame(width: 360, height: 50)
+            .background(username.isEmpty || password.isEmpty || vm.state == .processing ? .gray : .blue)
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .disabled(username.isEmpty || password.isEmpty || vm.state == .processing)
+            Spacer()
+        }
+        .padding()
     }
 }
 
-struct RegisterView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            RegisterView(dismiss: .constant(false))
-        }
-    }
-}
+//#Preview {
+//    RegisterView()
+//}

@@ -60,14 +60,24 @@ final class AuthServiceTests: XCTestCase {
         let (sut, client, storeManager) = makeSUT()
         
         let user = testUser()
-        let loginResponse = makeLoginResponse(id: testID(), email: user.email, createdAt: (Date(timeIntervalSince1970: 1598627222),"2020-08-28T15:07:02+00:00"), updatedAt: (Date(timeIntervalSince1970: 1598627222), "2020-08-28T15:07:02+00:00"), accessToken: accessToken(), refreshToken: refreshToken())
+        let loginResponse = makeLoginResponse(
+            id: testID(),
+            email: user.email,
+            createdAt: (Date(timeIntervalSince1970: 1598627222),"2020-08-28T15:07:02+00:00"),
+            updatedAt: (Date(timeIntervalSince1970: 1598627222), "2020-08-28T15:07:02+00:00"),
+            accessToken: accessToken(),
+            refreshToken: refreshToken()
+        )
         
         expect(sut, user: user, toCompleteWith: .success(loginResponse.model), when: {
             let json = makeJSON(loginResponse.json)
             client.complete(withStatusCode: 200, data: json)
         })
         
-        XCTAssertEqual(storeManager.messages, [.save(accessToken(), "access_token"), .save(refreshToken(), "refresh_token")])
+        XCTAssertEqual(
+            storeManager.messages,
+            [.save(accessToken(), "access_token"), .save(refreshToken(), "refresh_token")]
+        )
     }
     
     func test_login_doesNOTDeliverResultsAfterSUTInstanceHasBeenDeallocated() {
@@ -75,7 +85,11 @@ final class AuthServiceTests: XCTestCase {
         let storeManager = StoreManagerSpy()
         var capturedResult = [AuthService.Result]()
         
-        var sut: AuthService? = AuthService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
+        var sut: AuthService? = AuthService(
+            loginURL: testLoginURL(),
+            client: client,
+            storeManager: storeManager
+        )
         sut?.login(user: testUser(), completion: { capturedResult.append($0)})
         sut = nil
         client.complete(withStatusCode: 200, data: makeJSON(jsonFor()))
@@ -87,11 +101,21 @@ final class AuthServiceTests: XCTestCase {
         sut.logout()
         
         XCTAssertTrue(client.requestsMade.isEmpty)
-        XCTAssertEqual(storeManager.messages, [.removeValue("access_token"), .removeValue("refresh_token")])
+        XCTAssertEqual(
+            storeManager.messages,
+            [.removeValue("access_token"), .removeValue("refresh_token")]
+        )
     }
     
     // MARK: - Helpers
-    private func makeSUT( file: StaticString = #filePath, line: UInt = #line) -> (sut: AuthService, client: HTTPClientSpy, storeManager: StoreManagerSpy) {
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (
+        sut: AuthService,
+        client: HTTPClientSpy,
+        storeManager: StoreManagerSpy
+    ) {
         let client = HTTPClientSpy()
         let storeManager = StoreManagerSpy()
         let sut = AuthService(loginURL: testLoginURL(), client: client, storeManager: storeManager)
@@ -104,7 +128,14 @@ final class AuthServiceTests: XCTestCase {
         return (sut, client, storeManager)
     }
     
-    private func expect(_ sut: AuthService, user: LoginRequest, toCompleteWith expectedResult: AuthService.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(
+        _ sut: AuthService,
+        user: LoginRequest,
+        toCompleteWith expectedResult: AuthService.Result,
+        when action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let exp = expectation(description: "wait for registration completion")
         sut.login(user: user) { receivedResult in
             switch(receivedResult, expectedResult) {
@@ -145,9 +176,29 @@ final class AuthServiceTests: XCTestCase {
         let password: String
     }
     
-    private func makeLoginResponse(id: String, email: String, createdAt: (date: Date, iso8601String: String), updatedAt: (date: Date, iso8601String: String), accessToken: String, refreshToken: String) -> (model: LoginResponse, json: [String: Any]) {
-        let model = LoginResponse(id: id, email: email, createdAt: createdAt.iso8601String, updatedAt: updatedAt.iso8601String, accessToken: accessToken, refreshToken: refreshToken)
-        let json = jsonFor(id: id, email: email, createdAt: createdAt.iso8601String, updatedAt: updatedAt.iso8601String, accessToken: accessToken, refreshToken: refreshToken)
+    private func makeLoginResponse(
+        id: String,
+        email: String,
+        createdAt: (date: Date, iso8601String: String),
+        updatedAt: (date: Date, iso8601String: String),
+        accessToken: String, refreshToken: String
+    ) -> (model: LoginResponse, json: [String: Any]) {
+        let model = LoginResponse(
+            id: id,
+            email: email,
+            createdAt: createdAt.iso8601String,
+            updatedAt: updatedAt.iso8601String,
+            accessToken: accessToken,
+            refreshToken: refreshToken
+        )
+        let json = jsonFor(
+            id: id,
+            email: email,
+            createdAt: createdAt.iso8601String,
+            updatedAt: updatedAt.iso8601String,
+            accessToken: accessToken,
+            refreshToken: refreshToken
+        )
         
         return (model, json)
     }
@@ -156,7 +207,14 @@ final class AuthServiceTests: XCTestCase {
         return try! JSONSerialization.data(withJSONObject: res)
     }
     
-    private func jsonFor(id: String = "", email: String = "", createdAt: String = "", updatedAt: String = "", accessToken: String = "", refreshToken: String = "") -> [String: String] {
+    private func jsonFor(
+        id: String = "",
+        email: String = "",
+        createdAt: String = "",
+        updatedAt: String = "",
+        accessToken: String = "",
+        refreshToken: String = ""
+    ) -> [String: String] {
         return [
             "id": id,
             "email": email,
