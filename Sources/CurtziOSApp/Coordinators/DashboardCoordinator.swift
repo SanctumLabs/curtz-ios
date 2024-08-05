@@ -45,7 +45,7 @@ final class DashboardCoordinator: Coordinator {
 
 extension DashboardCoordinator {
     private func dashboardTab() -> UINavigationController {
-        let coreService = CoreService(serviceURL: CurtzEndpoint.fetchAll.url(baseURL: baseURL) , client: authenticatedClient)
+        let coreService = CoreService(serviceURL: CurtzEndpoint.fetchAll.url(baseURL: baseURL) , client: authenticatedClient, baseURL: baseURL)
         let dashboardViewModel = DashboardViewModel(coreService: coreService)
         dashboardViewModel.delegate = self
         let dashboardView = DashboardView(vm: dashboardViewModel)
@@ -67,7 +67,7 @@ extension DashboardCoordinator: DashboardViewDelegate {
     }
     
     func didTapAddNewLink() {
-        let coreService = CoreService(serviceURL: CurtzEndpoint.shorten.url(baseURL: baseURL) , client: authenticatedClient)
+        let coreService = CoreService(serviceURL: CurtzEndpoint.shorten.url(baseURL: baseURL) , client: authenticatedClient, baseURL: baseURL)
         let addNewLinkCoordinator = AddNewLinkCoordinator(navigationController: navigationController, service: coreService)
         childCoordinators.append(addNewLinkCoordinator)
         addNewLinkCoordinator.start()

@@ -19,7 +19,11 @@ struct DashboardView: View {
             switch vm.state {
             case .loaded(let items):
                 if !items.isEmpty {
-                    DashboardListView(items: items)
+                    DashboardListView(
+                        items: items,
+                        onDelete: { item in vm.delete(item) },
+                        onEdit: { item in vm.edit(item) }
+                    )
                 } else {
                     EmptyStateView(createAction: vm.didTapAdd)
                         .padding([.top], 18)

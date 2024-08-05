@@ -20,3 +20,15 @@ public struct ShortenRequest {
         self.expiresOn = expiresOn
     }
 }
+
+public struct URLEditRequest {
+    public let customAlias: String
+    public let keywords: [String]
+    public let expiresOn: String
+    
+    public init(customAlias: String, keywords: [String], expiresOn: String) {
+        self.customAlias = customAlias
+        self.keywords = keywords
+        self.expiresOn = expiresOn
+    }
+}

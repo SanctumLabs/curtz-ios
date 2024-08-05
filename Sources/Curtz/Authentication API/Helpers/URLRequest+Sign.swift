@@ -50,6 +50,20 @@ extension URLRequest {
             request.httpMethod = .POST
             request.httpBody = jsonData
             request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
+        case let .edit(id, customAlias, keywords, expiresOn):
+            let modifiedURL = CurtzEndpoint.deleteUrl(id).url(baseURL: url)
+            var req = URLRequest(url: modifiedURL)
+            
+            let requestBody: [String: Any] = [
+                "custom_alias": customAlias,
+                "keywords": keywords,
+                "expires_on": expiresOn
+            ]
+            let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
+            req.httpMethod = .PATCH
+            req.httpBody = jsonData
+            req.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
+            return req
         case let .refreshToken(grantType, refreshToken):
             var components = URLComponents(url: url, resolvingAgainstBaseURL: true)
             let grantType = URLQueryItem(name: "grant_type", value: grantType)
@@ -60,6 +74,11 @@ extension URLRequest {
                 req.httpMethod = .POST
                 return req
             }
+        case let .deleteURL(id):
+            let modifiedURL = CurtzEndpoint.deleteUrl(id).url(baseURL: url)
+            var req = URLRequest(url: modifiedURL)
+            req.httpMethod = .DELETE
+            return req
         default:
             request.httpMethod = .GET
         }
@@ -71,19 +90,29 @@ extension URLRequest {
 public enum RequestType {
     case login(
         username: String,
-        password: String)
+        password: String
+    )
     case registration(
         username: String,
-        password: String)
+        password: String
+    )
     case shortening(
         originalUrl: String,
         customAlias: String,
         keywords: [String],
-        expiresOn: String)
+        expiresOn: String
+    )
     case refreshToken(
         grantType: String,
         refreshToken: String
     )
+    case edit(
+        id: String,
+        customAlias: String,
+        keywords: [String],
+        expiresOn: String
+    )
+    case deleteURL(id: String)
     case fetching
 }
 
@@ -92,6 +121,10 @@ extension String {
     static var POST = "POST"
     /// HTTP GET method
     static var GET = "GET"
+    /// HTTP DELETE method
+    static var DELETE = "DELETE"
+    /// HTTP PATCH method
+    static var PATCH = "PATCH"
     /// Content-Type
     static var CONTENT_TYPE = "Content-Type"
     /// application/json

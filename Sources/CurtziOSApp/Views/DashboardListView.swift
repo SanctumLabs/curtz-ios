@@ -9,6 +9,10 @@ import SwiftUI
 
 struct DashboardListView: View {
     @State var items: [ShortenedURL]
+    
+    var onDelete: ((ShortenedURL) -> Void)?
+    var onEdit: ((ShortenedURL) -> Void)?
+    
     var body: some View {
         List {
             ForEach(items, id: \.id) {item in
@@ -48,7 +52,20 @@ struct DashboardListView: View {
                         .padding([.top], 0.5)
                     }
                 }
-                
+                .swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                        onDelete?(item)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
+                .swipeActions(edge: .leading) {
+                    Button {
+                        onEdit?(item)
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                }
             }
         }.listStyle(.plain)
     }

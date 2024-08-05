@@ -45,6 +45,23 @@ final class DashboardViewModel: ObservableObject {
         getAllShortenedUrls()
     }
     
+    func delete(_ shortedURL: ShortenedURL) {
+        coreService.deleteURL(with: shortedURL.id) { result in
+            switch result {
+            case .success:
+                break
+            case let .failure(error):
+                DispatchQueue.main.async {[weak self] in
+                    self?.state = .hasError(error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    func edit(_ shortedURL: ShortenedURL) {
+        
+    }
+    
     private func getAllShortenedUrls() {
         state = .loading
         coreService.fetchAll { result in

@@ -75,5 +75,16 @@ final class CoreServiceResponseMapper {
         
         return .success(res.map { $0.response })
     }
+    
+    static func mapDeleteEntryResponse(_ data: Data, from response: HTTPURLResponse) -> CoreService.DeleteResult {
+        if response.isBadRequest() {
+            let res = try? decoder.decode(ErrorItem.self, from: data)
+            return .failure(CoreService.Error.clientError(res?.error ?? ""))
+        }
+        guard response.isOK() else {
+            return .failure(CoreService.Error.invalidResponse)
+        }
+        return .success(())
+    }
 }
 
