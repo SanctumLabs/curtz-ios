@@ -62,6 +62,7 @@ extension DashboardCoordinator {
 }
 
 extension DashboardCoordinator: DashboardViewDelegate {
+
     func didFinishAddNewLink() {
         navigationController.popViewController(animated: true)
     }
@@ -72,4 +73,9 @@ extension DashboardCoordinator: DashboardViewDelegate {
         childCoordinators.append(addNewLinkCoordinator)
         addNewLinkCoordinator.start()
     }
+    func didTapLink(id: String, shortenedURL: ShortenedURL) {
+        
+    }
+    
+    
 }

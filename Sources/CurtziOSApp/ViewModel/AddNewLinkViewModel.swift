@@ -46,7 +46,7 @@ final class AddNewLinkViewModel: ObservableObject{
         formState = .init()
     }
     
-    func save(_ formState: AddNewLinkFormState){
+    func save(){
         viewState = .processing
         let shortenRequest = ShortenRequest(originalUrl: formState.originalUrl, customAlias: formState.customAlias, keywords: formState.keyWords.components(separatedBy: .whitespaces), expiresOn: formState.expiryDate.ISO8601Format())
         
@@ -63,9 +63,8 @@ final class AddNewLinkViewModel: ObservableObject{
                     self?.showSuccessSheet.toggle()
                 }
                 
-            case let .failure(error):
+            case .failure:
                 DispatchQueue.main.async {[weak self] in
-                    print(error.localizedDescription)
                     self?.viewState = .hasError
                 }
             }

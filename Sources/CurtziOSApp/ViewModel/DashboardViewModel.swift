@@ -7,6 +7,7 @@
 
 import Foundation
 import Curtz
+import UIKit
 
 enum DashboardViewState {
     case loading
@@ -17,6 +18,7 @@ enum DashboardViewState {
 protocol DashboardViewDelegate {
     func didTapAddNewLink()
     func didFinishAddNewLink()
+    func didTapLink(id: String, shortenedURL: ShortenedURL)
 }
 
 
@@ -36,6 +38,7 @@ final class DashboardViewModel: ObservableObject {
     
     private let coreService: CoreService
     var delegate: DashboardViewDelegate? = nil
+    var didTapEdit: ((UINavigationController) -> Void)?
     
     init(coreService: CoreService) {
         self.coreService = coreService
