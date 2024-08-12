@@ -1,5 +1,5 @@
 //
-//  EditLinkViewModel.swift
+//  LinkDetailsViewModel.swift
 //  CurtziOSApp
 //
 //  Created by George Nyakundi on 07/08/2024.
@@ -9,15 +9,15 @@ import Foundation
 import Combine
 import Curtz
 
-enum EditLinkViewState {
+enum LinkDetailsViewState {
     case processing
     case idle
     case hasError
 }
 
-extension EditLinkViewState: Equatable {}
+extension LinkDetailsViewState: Equatable {}
 
-struct EditLinkFormState {
+struct LinkDetailsFormState {
     var id: String
     var originalUrl: String
     var customAlias: String
@@ -49,10 +49,10 @@ extension String {
     }
 }
 
-final class EditLinkViewModel: ObservableObject {
-    var delegate: EditLinkDelegate?
-    @Published var viewState: EditLinkViewState = .idle
-    @Published var formState: EditLinkFormState
+final class LinkDetailsViewModel: ObservableObject {
+    var delegate: LinkDetailsDelegate?
+    @Published var viewState: LinkDetailsViewState = .idle
+    @Published var formState: LinkDetailsFormState
     @Published var showSuccessSheet: Bool = false
     
     private var service: CoreService
@@ -60,11 +60,11 @@ final class EditLinkViewModel: ObservableObject {
     
     init(service: CoreService, shortenedURL: ShortenedURL) {
         self.service = service
-        self.formState = EditLinkFormState(shortenedURL)
+        self.formState = LinkDetailsFormState(shortenedURL)
     }
     
     func tapClose() {
-        delegate?.didFinishEditingLink()
+        delegate?.didFinishTapped()
     }
     
     func save(){

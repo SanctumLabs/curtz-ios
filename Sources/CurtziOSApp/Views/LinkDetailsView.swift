@@ -1,5 +1,5 @@
 //
-//  EditLinkView.swift
+//  LinkDetailsView.swift
 //  CurtziOSApp
 //
 //  Created by George Nyakundi on 07/08/2024.
@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-protocol EditLinkDelegate {
-    func didFinishEditingLink()
+protocol LinkDetailsDelegate {
+    func didFinishTapped()
 }
 
-struct EditLinkView: View {
-    @ObservedObject var vm: EditLinkViewModel
+struct LinkDetailsView: View {
+    @ObservedObject var vm: LinkDetailsViewModel
     
-    init(vm: EditLinkViewModel) {
+    init(vm: LinkDetailsViewModel) {
         self.vm = vm
     }
     

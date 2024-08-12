@@ -10,7 +10,7 @@ import UIKit
 import Curtz
 import SwiftUI
 
-final class EditNewLinkCoordinator: NSObject, Coordinator {
+final class LinkDetailsCoordinator: NSObject, Coordinator {
     var childCoordinators = [Coordinator]()
     var navigationController: UINavigationController
     private let coreService: CoreService
@@ -23,16 +23,16 @@ final class EditNewLinkCoordinator: NSObject, Coordinator {
     }
     
     func start() {
-        let vm = EditLinkViewModel(service: coreService, shortenedURL: shortenedURL)
+        let vm = LinkDetailsViewModel(service: coreService, shortenedURL: shortenedURL)
         vm.delegate = self
-        let view = EditLinkView(vm: vm)
+        let view = LinkDetailsView(vm: vm)
         let viewHC = UIHostingController(rootView: view)
         navigationController.pushViewController(viewHC, animated: true)
     }
 }
 
-extension EditNewLinkCoordinator: EditLinkDelegate {
-    func didFinishEditingLink() {
+extension LinkDetailsCoordinator: LinkDetailsDelegate {
+    func didFinishTapped() {
         navigationController.popViewController(animated: true)
     }
 }

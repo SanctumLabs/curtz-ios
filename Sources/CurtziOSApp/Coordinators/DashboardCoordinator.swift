@@ -75,7 +75,7 @@ extension DashboardCoordinator: DashboardViewDelegate {
     }
     func didTapLink(id: String, shortenedURL: ShortenedURL) {
         let coreService = CoreService(serviceURL: CurtzEndpoint.updateUrl(id).url(baseURL: baseURL), client: authenticatedClient, baseURL: baseURL)
-        let editNewLinkCoordinator = EditNewLinkCoordinator(navigationController: navigationController, service: coreService, shortenedURL: shortenedURL)
+        let editNewLinkCoordinator = LinkDetailsCoordinator(navigationController: navigationController, service: coreService, shortenedURL: shortenedURL)
         childCoordinators.append(editNewLinkCoordinator)
         editNewLinkCoordinator.start()
     }
