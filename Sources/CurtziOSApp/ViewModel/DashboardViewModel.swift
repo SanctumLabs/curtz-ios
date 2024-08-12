@@ -62,7 +62,7 @@ final class DashboardViewModel: ObservableObject {
     }
     
     func edit(_ shortedURL: ShortenedURL) {
-        
+        delegate?.didTapLink(id: shortedURL.id, shortenedURL: shortedURL)
     }
     
     private func getAllShortenedUrls() {

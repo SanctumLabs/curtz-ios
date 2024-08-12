@@ -52,6 +52,9 @@ struct DashboardListView: View {
                         .padding([.top], 0.5)
                     }
                 }
+                .onTapGesture {
+                    onEdit?(item)
+                }
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
                         onDelete?(item)

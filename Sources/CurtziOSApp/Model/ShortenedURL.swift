@@ -21,6 +21,14 @@ struct ShortenedURL {
 
 extension ShortenResponseItem {
     func asShortenedURL() -> ShortenedURL {
-        .init(id: self.id, alias: self.customAlias, url: self.originalUrl, expiresOn: self.expiresOn, keywords: self.keywords, shortCode: self.shortCode, createdAt: self.createdAt, hits: self.hits)
+        .init(id: self.id,
+              alias: self.customAlias,
+              url: self.originalUrl,
+              expiresOn: self.expiresOn,
+              keywords: self.keywords,
+              shortCode: self.shortCode,
+              createdAt: self.createdAt,
+              hits: self.hits
+        )
     }
 }

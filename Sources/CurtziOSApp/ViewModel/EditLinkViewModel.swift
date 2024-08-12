@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import Curtz
 
 enum EditLinkViewState {
@@ -14,22 +15,37 @@ enum EditLinkViewState {
     case hasError
 }
 
+extension EditLinkViewState: Equatable {}
+
 struct EditLinkFormState {
     var id: String
     var originalUrl: String
     var customAlias: String
     var expiryDate: Date
-    var keyWords: String
-    init(id: String, originalUrl: String, customAlias: String, expiryDate: Date, keyWords: String) {
+    init(id: String, originalUrl: String, customAlias: String, expiryDate: Date) {
         self.id = id
         self.originalUrl = originalUrl
         self.customAlias = customAlias
         self.expiryDate = expiryDate
-        self.keyWords = keyWords
+    }
+    
+    init(_ shortenedURL: ShortenedURL) {
+        self.id = shortenedURL.id
+        self.originalUrl = shortenedURL.url
+        self.customAlias = shortenedURL.alias
+        self.expiryDate = shortenedURL.expiresOn.toISODate()
+        
     }
     
     func isEmpty() -> Bool {
-        originalUrl.isEmpty && customAlias.isEmpty && keyWords.isEmpty
+        originalUrl.isEmpty && customAlias.isEmpty
+    }
+}
+
+extension String {
+    func toISODate() -> Date {
+        let formatter = ISO8601DateFormatter()
+        return formatter.date(from: self) ?? .now
     }
 }
 
@@ -40,19 +56,24 @@ final class EditLinkViewModel: ObservableObject {
     @Published var showSuccessSheet: Bool = false
     
     private var service: CoreService
+    private var cancellables = Set<AnyCancellable>()
     
-    init(service: CoreService, formState:EditLinkFormState ) {
-        self.formState = formState
+    init(service: CoreService, shortenedURL: ShortenedURL) {
         self.service = service
+        self.formState = EditLinkFormState(shortenedURL)
     }
     
     func tapClose() {
-        delegate?.didTapClose()
+        delegate?.didFinishEditingLink()
     }
     
     func save(){
         viewState = .processing
-        let editLinkRequest = URLEditRequest(customAlias: formState.customAlias, keywords: formState.keyWords.components(separatedBy: .whitespaces), expiresOn: formState.expiryDate.ISO8601Format())
+        let editLinkRequest = URLEditRequest(
+            customAlias: formState.customAlias,
+            expiresOn: formState.expiryDate.ISO8601Format()
+        )
+        
         service.editURL(with: formState.id, urlEditRequest: editLinkRequest) { result in
             switch result {
             case .success:
@@ -63,7 +84,8 @@ final class EditLinkViewModel: ObservableObject {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {[weak self] in
                     self?.showSuccessSheet = false
                 }
-            case .failure:
+            case let .failure(error):
+                dump(error)
                 DispatchQueue.main.async {[weak self] in
                     self?.viewState = .hasError
                 }
@@ -71,3 +93,9 @@ final class EditLinkViewModel: ObservableObject {
         }
     }
 }
+
+
+//
+/*
+ Show success notifications
+ */

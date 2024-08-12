@@ -8,7 +8,7 @@
 import SwiftUI
 
 protocol EditLinkDelegate {
-    func didTapClose()
+    func didFinishEditingLink()
 }
 
 struct EditLinkView: View {
@@ -21,6 +21,7 @@ struct EditLinkView: View {
     var body: some View {
         navigationBar()
         editLinkForm()
+        Spacer()
     }
     
     // MARK: - NavigationBar
@@ -46,60 +47,53 @@ struct EditLinkView: View {
     @ViewBuilder
     private func editLinkForm() -> some View {
         VStack(alignment: .leading) {
-            Text("Original url")
-            HStack {
-                Image(systemName: "globe")
-                    .foregroundColor(.gray).font(.headline)
-                TextField("Original url", text: $vm.formState.originalUrl)
-                    .textInputAutocapitalization(.never)
-                    .disabled(true)
+            VStack(alignment: .leading) {
+                Text("Original url")
+                HStack {
+                    Image(systemName: "globe")
+                        .foregroundColor(.gray).font(.headline)
+                    TextField("Original url", text: $vm.formState.originalUrl)
+                        .textInputAutocapitalization(.never)
+                        .disabled(true)
+                }
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
             }
-            .padding()
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
+            VStack(alignment: .leading) {
+                Text("Custom alias")
+                HStack {
+                    Image(systemName: "character")
+                        .foregroundColor(.gray).font(.headline)
+                    TextField("Custom alias", text: $vm.formState.customAlias)
+                        .textInputAutocapitalization(.never)
+                        .disabled(vm.viewState == .processing)
+                }
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
+            }
+            DatePicker("Expiry date", selection: $vm.formState.expiryDate)
+                .padding([.bottom], 24)
+                .disabled(vm.viewState == .processing)
+            Button(action: {
+                vm.save()
+            }, label: {
+                if vm.viewState == .processing {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .tint(.white)
+                } else {
+                    Text("Save")
+                        .font(.headline)
+                }
+            })
+            .frame(width: 360, height: 50)
+            .background(vm.viewState == .processing || $vm.formState.expiryDate.wrappedValue < .now ? .gray : .blue)
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .disabled($vm.formState.expiryDate.wrappedValue < .now)
         }
-        VStack(alignment: .leading) {
-            Text("Custom alias")
-            HStack {
-                Image(systemName: "character")
-                    .foregroundColor(.gray).font(.headline)
-                TextField("Custom alias", text: $vm.formState.customAlias)
-                    .textInputAutocapitalization(.never)
-                    .disabled(vm.viewState == .processing)
-            }
-            .padding()
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
-        }
-        VStack(alignment: .leading) {
-            Text("Keywords")
-            HStack {
-                Image(systemName: "character")
-                    .foregroundColor(.gray).font(.headline)
-                TextField("Keywords", text: $vm.formState.keyWords)
-                    .textInputAutocapitalization(.never)
-                    .disabled(vm.viewState == .processing)
-            }
-            .padding()
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 0.5))
-        }
-        DatePicker("Expiry date", selection: $vm.formState.expiryDate)
-            .padding([.bottom], 24)
-            .disabled(vm.viewState == .processing)
-        Button(action: {
-            vm.save()
-        }, label: {
-            if vm.viewState == .processing {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
-                    .tint(.white)
-            } else {
-                Text("Save")
-                    .font(.headline)
-            }
-        })
-        .frame(width: 360, height: 50)
-        .background(vm.viewState == .processing ? .gray : .blue)
-        .foregroundStyle(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding()
+        
     }
     
     // MARK: - SuccessView

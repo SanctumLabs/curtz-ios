@@ -14,6 +14,7 @@ public final class CoreService {
     
     public typealias ShorteningResult = ShortenResult
     public typealias FetchResult = Result<[ShortenResponseItem], Error>
+    public typealias EditResult = Result<ShortenResponseItem, Error>
     public typealias DeleteResult = Result<Void, Error>
     
     public enum Error: Swift.Error {
@@ -75,13 +76,12 @@ public final class CoreService {
         }
     }
     
-    public func editURL(with id: String, urlEditRequest: URLEditRequest, completion: @escaping(ShorteningResult) -> Void) {
+    public func editURL(with id: String, urlEditRequest: URLEditRequest, completion: @escaping(EditResult) -> Void) {
         client.perform(
             request: .prepared(
                 for: .edit(
                     id: id,
                     customAlias: urlEditRequest.customAlias,
-                    keywords: urlEditRequest.keywords,
                     expiresOn: urlEditRequest.expiresOn
                 ),
                 with: baseURL
@@ -89,7 +89,7 @@ public final class CoreService {
         ) { result in
             switch result {
             case let .success((data, response)):
-                completion(CoreServiceResponseMapper.mapShorteningResponse(data, from: response))
+                completion(CoreServiceResponseMapper.mapEditShorteningResponse(data, from: response))
             case let .failure(error):
                 completion(.failure(Error.serverError(error.localizedDescription)))
             }

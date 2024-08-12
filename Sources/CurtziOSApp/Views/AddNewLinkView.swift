@@ -86,7 +86,7 @@ extension AddNewLinkView {
                 .disabled(vm.viewState == .processing)
             
             Button(action: {
-                vm.save(vm.formState)
+                vm.save()
             }, label: {
                 if vm.viewState == .processing {
                     ProgressView()

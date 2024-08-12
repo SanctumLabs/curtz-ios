@@ -50,13 +50,12 @@ extension URLRequest {
             request.httpMethod = .POST
             request.httpBody = jsonData
             request.setValue(.APPLICATION_JSON, forHTTPHeaderField: .CONTENT_TYPE)
-        case let .edit(id, customAlias, keywords, expiresOn):
+        case let .edit(id, customAlias, expiresOn):
             let modifiedURL = CurtzEndpoint.deleteUrl(id).url(baseURL: url)
             var req = URLRequest(url: modifiedURL)
             
             let requestBody: [String: Any] = [
                 "custom_alias": customAlias,
-                "keywords": keywords,
                 "expires_on": expiresOn
             ]
             let jsonData = try? JSONSerialization.data(withJSONObject: requestBody)
@@ -109,7 +108,6 @@ public enum RequestType {
     case edit(
         id: String,
         customAlias: String,
-        keywords: [String],
         expiresOn: String
     )
     case deleteURL(id: String)

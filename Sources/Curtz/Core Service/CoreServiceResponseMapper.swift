@@ -39,7 +39,8 @@ final class CoreServiceResponseMapper {
     }
     
     private struct ErrorItem: Decodable {
-        let error: String
+        let error: String?
+        let message: String?
     }
     
     private static var decoder: JSONDecoder = {
@@ -52,9 +53,21 @@ final class CoreServiceResponseMapper {
         
         if response.isBadRequest() {
             let res = try? decoder.decode(ErrorItem.self, from: data)
-            return .failure(CoreService.Error.clientError(res?.error ?? ""))
+            return .failure(CoreService.Error.clientError(res?.error ?? res?.message ?? ""))
         }
         
+        guard response.isOK(), let res = try? decoder.decode(ShortenItem.self, from: data) else {
+            return .failure(CoreService.Error.invalidResponse)
+        }
+        
+        return .success(res.response)
+    }
+    
+    static func mapEditShorteningResponse(_ data: Data, from response: HTTPURLResponse) -> CoreService.EditResult {
+        if response.isBadRequest() {
+            let res = try? decoder.decode(ErrorItem.self, from: data)
+            return .failure(CoreService.Error.clientError(res?.error ?? res?.message ?? ""))
+        }
         guard response.isOK(), let res = try? decoder.decode(ShortenItem.self, from: data) else {
             return .failure(CoreService.Error.invalidResponse)
         }
