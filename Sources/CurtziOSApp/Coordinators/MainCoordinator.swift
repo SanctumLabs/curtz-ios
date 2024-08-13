@@ -16,6 +16,7 @@ final class MainCoordinator: Coordinator {
     let store = SecureStore()
     let storeManager: StoreManager
     let tokenService: TokenService
+    private var authService: AuthService?
     var validSession: Bool?
     
     var navigationController: UINavigationController
@@ -50,10 +51,12 @@ final class MainCoordinator: Coordinator {
     }
     
     func navigateToLogin() {
-        let authService = composeAuthService()
-        let loginViewModel = LoginViewModel(authService: authService, delegate: self)
-        let hostingController = UIHostingController(rootView: LoginView(vm: loginViewModel))
-        navigationController.pushViewController(hostingController, animated: true)
+        authService = composeAuthService()
+        if let authService {
+            let loginViewModel = LoginViewModel(authService: authService, delegate: self)
+            let hostingController = UIHostingController(rootView: LoginView(vm: loginViewModel))
+            navigationController.pushViewController(hostingController, animated: true)
+        }
     }
     
     func navigateToRegister() {
@@ -67,6 +70,10 @@ final class MainCoordinator: Coordinator {
         DispatchQueue.main.async {[weak self] in
             guard let self else { return }
             let dashboardCoordinator = DashboardCoordinator(navigationController: navigationController, client: urlSessionHTTPClient, tokenService: tokenService, baseURL: baseURL)
+            dashboardCoordinator.logoutAction = {
+                self.authService?.logout()
+                self.navigationController.popViewController(animated: true)
+            }
             childCoordinators.append(dashboardCoordinator)
             dashboardCoordinator.start()
         }

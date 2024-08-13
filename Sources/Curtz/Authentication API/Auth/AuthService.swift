@@ -32,7 +32,6 @@ public class AuthService {
             switch result {
             case let .success((data, response)):
                 let result = LoginMapper.map(data, from: response)
-                
                 if case let .success(res) = result {
                     self.storeManager.save(res.accessToken, forKey: .accessTokenKey) { _ in }
                     self.storeManager.save(res.refreshToken, forKey: .refreshTokenKey) { _ in }

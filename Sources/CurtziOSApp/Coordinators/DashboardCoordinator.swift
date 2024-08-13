@@ -13,6 +13,7 @@ final class DashboardCoordinator: Coordinator {
     private let authenticatedClient: HTTPClient
     private let baseURL: URL
     private var dashboardViewModel: DashboardViewModel?
+    var logoutAction: (()-> Void)?
     var childCoordinators = [Coordinator]()
     
     var navigationController: UINavigationController
@@ -28,12 +29,14 @@ final class DashboardCoordinator: Coordinator {
         // Create a UITabBarController
         let tabBarController = UITabBarController()
         let vm = SettingViewModel()
+        vm.delegate = self
         
         let settingsView = SettingsView(vm: vm)
         let settingsViewHC = UIHostingController(rootView: settingsView)
         let settingsVC = UINavigationController(rootViewController: settingsViewHC)
         settingsVC.tabBarItem = UITabBarItem(title: "Settings", image: UIImage(systemName: "gearshape"), selectedImage: UIImage(systemName: "gearshape.fill"))
         settingsVC.navigationBar.topItem?.title = "Settings"
+        settingsVC.navigationBar.prefersLargeTitles = true
         
         tabBarController.viewControllers = [dashboardTab(), settingsVC]
         // Hides the extra navigationBar
@@ -78,6 +81,12 @@ extension DashboardCoordinator: DashboardViewDelegate {
         let editNewLinkCoordinator = LinkDetailsCoordinator(navigationController: navigationController, service: coreService, shortenedURL: shortenedURL)
         childCoordinators.append(editNewLinkCoordinator)
         editNewLinkCoordinator.start()
+    }
+}
+
+extension DashboardCoordinator: SettingsViewDelegate {
+    func didTapLogout() {
+        logoutAction?()
     }
 }
 /* TODO: -
