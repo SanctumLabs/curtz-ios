@@ -22,31 +22,26 @@ struct LinkDetailsFormState {
     var id: String
     var originalUrl: String
     var customAlias: String
+    var createdAt: Date
     var expiryDate: Date
-    init(id: String, originalUrl: String, customAlias: String, expiryDate: Date) {
-        self.id = id
-        self.originalUrl = originalUrl
-        self.customAlias = customAlias
-        self.expiryDate = expiryDate
-    }
-    
+    var keywords: [String]
+    var shortCode: String
+    var hits: Int
+
     init(_ shortenedURL: ShortenedURL) {
         self.id = shortenedURL.id
         self.originalUrl = shortenedURL.url
         self.customAlias = shortenedURL.alias
+        self.createdAt = shortenedURL.createdAt.toISODate()
         self.expiryDate = shortenedURL.expiresOn.toISODate()
+        self.keywords = shortenedURL.keywords
+        self.shortCode = shortenedURL.shortCode
+        self.hits = shortenedURL.hits
         
     }
     
     func isEmpty() -> Bool {
         originalUrl.isEmpty && customAlias.isEmpty
-    }
-}
-
-extension String {
-    func toISODate() -> Date {
-        let formatter = ISO8601DateFormatter()
-        return formatter.date(from: self) ?? .now
     }
 }
 
@@ -102,9 +97,3 @@ final class LinkDetailsViewModel: ObservableObject {
         }
     }
 }
-
-
-//
-/*
- Show success notifications
- */

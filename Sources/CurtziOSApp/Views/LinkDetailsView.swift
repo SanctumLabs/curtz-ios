@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-protocol LinkDetailsDelegate {
-    func didFinishTapped()
-}
-
 struct LinkDetailsView: View {
     @ObservedObject var vm: LinkDetailsViewModel
     
@@ -25,7 +21,6 @@ struct LinkDetailsView: View {
         } else {
             detailsView()
         }
-        
         Spacer()
     }
     
@@ -42,7 +37,7 @@ struct LinkDetailsView: View {
                     .frame(width: 25, height: 25)
             }
             Spacer()
-            Text("Edit link")
+            Text(vm.viewState == .editing ? "Edit link" : "Link details")
             Spacer()
             if vm.viewState == .editing {
                 Button {
@@ -51,7 +46,7 @@ struct LinkDetailsView: View {
                     Image(systemName: "xmark")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 25, height: 25)
+                        .frame(width: 15, height: 15)
                 }
                 .disabled(vm.viewState == .processing)
             } else {
@@ -71,9 +66,66 @@ struct LinkDetailsView: View {
     // MARK: - DetailsView
     @ViewBuilder
     private func detailsView() -> some View {
-        VStack {
-            Text("Details Go here")
+        VStack(alignment: .leading) {
+            VStack(alignment: .leading) {
+                Text("Original URL")
+                    .font(.footnote)
+                    .opacity(0.5)
+                Text(vm.formState.originalUrl)
+            }
+            .padding([.vertical], 8)
+            
+            VStack(alignment: .leading) {
+                Text("Custom alias")
+                    .font(.footnote)
+                    .opacity(0.5)
+                Text(vm.formState.customAlias)
+            }
+            .padding([.vertical], 8)
+            
+            VStack(alignment: .leading) {
+                Text("Creation Date")
+                    .font(.footnote)
+                    .opacity(0.5)
+                Text(vm.formState.createdAt.formatted())
+            }
+            .padding([.vertical], 8)
+            
+            VStack(alignment: .leading) {
+                Text("Expiry date")
+                    .font(.footnote)
+                    .opacity(0.5)
+                Text(vm.formState.expiryDate.formatted())
+            }
+            .padding([.vertical], 8)
+            
+            VStack(alignment: .leading) {
+                Text("Short Code")
+                    .font(.footnote)
+                    .opacity(0.5)
+                Text(vm.formState.shortCode)
+            }
+            .padding([.vertical], 8)
+            
+            VStack(alignment: .leading) {
+                Text("Keywords")
+                    .font(.footnote)
+                    .opacity(0.5)
+                Text(vm.formState.keywords.joined(separator: " "))
+            }
+            .padding([.vertical], 8)
+            
+            VStack(alignment: .leading) {
+                Text("Hits")
+                    .font(.footnote)
+                    .opacity(0.5)
+                Text(vm.formState.hits.formatted())
+            }
+            .padding([.vertical], 8)
+            
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
     }
     
     // MARK: - EditLinkForm
@@ -153,7 +205,3 @@ struct LinkDetailsView: View {
         }
     }
 }
-
-//#Preview {
-//    EditLinkView()
-//}

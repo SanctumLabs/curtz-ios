@@ -46,7 +46,7 @@ struct DashboardListView: View {
                             Text("Expiry date")
                                 .font(.footnote)
                                 .foregroundStyle(.gray)
-                            Text(item.expiresOn)
+                            Text(item.expiresOn.toFormattedDateString())
                                 .font(.subheadline)
                         }
                         .padding([.top], 0.5)
