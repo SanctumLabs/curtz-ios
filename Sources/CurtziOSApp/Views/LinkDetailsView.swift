@@ -20,7 +20,12 @@ struct LinkDetailsView: View {
     
     var body: some View {
         navigationBar()
-        editLinkForm()
+        if vm.viewState == .editing {
+            editLinkForm()
+        } else {
+            detailsView()
+        }
+        
         Spacer()
     }
     
@@ -39,8 +44,36 @@ struct LinkDetailsView: View {
             Spacer()
             Text("Edit link")
             Spacer()
+            if vm.viewState == .editing {
+                Button {
+                    vm.cancelEdit()
+                } label: {
+                    Image(systemName: "xmark")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 25, height: 25)
+                }
+                .disabled(vm.viewState == .processing)
+            } else {
+                Button {
+                    vm.tapEdit()
+                } label: {
+                    Image(systemName: "square.and.pencil")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 25, height: 25)
+                }.disabled(vm.viewState == .processing)
+            }
+            
         })
         .padding([.horizontal], 18)
+    }
+    // MARK: - DetailsView
+    @ViewBuilder
+    private func detailsView() -> some View {
+        VStack {
+            Text("Details Go here")
+        }
     }
     
     // MARK: - EditLinkForm
@@ -65,6 +98,7 @@ struct LinkDetailsView: View {
                     Image(systemName: "character")
                         .foregroundColor(.gray).font(.headline)
                     TextField("Custom alias", text: $vm.formState.customAlias)
+                        .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .disabled(vm.viewState == .processing)
                 }
@@ -93,6 +127,9 @@ struct LinkDetailsView: View {
             .disabled($vm.formState.expiryDate.wrappedValue < .now)
         }
         .padding()
+        .sheet(isPresented: $vm.showSuccessSheet, content: {
+            successView()
+        })
         
     }
     

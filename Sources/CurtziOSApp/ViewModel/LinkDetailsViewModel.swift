@@ -12,6 +12,7 @@ import Curtz
 enum LinkDetailsViewState {
     case processing
     case idle
+    case editing
     case hasError
 }
 
@@ -65,6 +66,14 @@ final class LinkDetailsViewModel: ObservableObject {
     
     func tapClose() {
         delegate?.didFinishTapped()
+    }
+    
+    func tapEdit() {
+        viewState = .editing
+    }
+    
+    func cancelEdit() {
+        viewState = .idle
     }
     
     func save(){
