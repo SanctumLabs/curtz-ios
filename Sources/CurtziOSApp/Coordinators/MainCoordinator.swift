@@ -36,12 +36,16 @@ final class MainCoordinator: Coordinator {
                 self?.navigateToDashboard()
             } else {
                 DispatchQueue.main.async {
-                    let landingView = LandingView(coordinator: self)
-                    let vc = UIHostingController(rootView: landingView)
-                    self?.navigationController.setViewControllers([vc], animated: true)
+                    self?.showLandingView()
                 }
             }
         }
+    }
+    
+    func showLandingView() {
+        let landingView = LandingView(coordinator: self)
+        let vc = UIHostingController(rootView: landingView)
+        navigationController.setViewControllers([vc], animated: true)
     }
     
     func showSplashScreen() {
@@ -73,6 +77,7 @@ final class MainCoordinator: Coordinator {
             dashboardCoordinator.logoutAction = {
                 self.authService?.logout()
                 self.navigationController.popViewController(animated: true)
+                self.showLandingView()
             }
             childCoordinators.append(dashboardCoordinator)
             dashboardCoordinator.start()
@@ -117,7 +122,7 @@ extension MainCoordinator: RegisterViewDelegate {
 extension MainCoordinator {
     // TODO: Improve implementation
     func validateSession(completion: @escaping (Bool) -> Void) {
-        tokenService.refreshToken {result in
+        tokenService.refreshToken { result in
             switch result {
             case .success:
                 completion(true)

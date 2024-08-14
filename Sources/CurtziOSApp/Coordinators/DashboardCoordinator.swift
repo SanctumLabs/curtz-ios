@@ -12,7 +12,6 @@ import Curtz
 final class DashboardCoordinator: Coordinator {
     private let authenticatedClient: HTTPClient
     private let baseURL: URL
-    private var dashboardViewModel: DashboardViewModel?
     var logoutAction: (()-> Void)?
     var childCoordinators = [Coordinator]()
     
@@ -89,8 +88,3 @@ extension DashboardCoordinator: SettingsViewDelegate {
         logoutAction?()
     }
 }
-/* TODO: -
- - Navigate to details screen
- - Add edit toolbar button / cancel button
- - wire removal of child coordinator on back navigation
- */
