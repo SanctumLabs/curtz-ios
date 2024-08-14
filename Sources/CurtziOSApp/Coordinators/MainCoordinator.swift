@@ -36,13 +36,13 @@ final class MainCoordinator: Coordinator {
                 self?.navigateToDashboard()
             } else {
                 DispatchQueue.main.async {
-                    self?.showLandingView()
+                    self?.showLandingViewAfterSplash()
                 }
             }
         }
     }
     
-    func showLandingView() {
+    func showLandingViewAfterSplash() {
         let landingView = LandingView(coordinator: self)
         let vc = UIHostingController(rootView: landingView)
         navigationController.setViewControllers([vc], animated: true)
@@ -76,8 +76,7 @@ final class MainCoordinator: Coordinator {
             let dashboardCoordinator = DashboardCoordinator(navigationController: navigationController, client: urlSessionHTTPClient, tokenService: tokenService, baseURL: baseURL)
             dashboardCoordinator.logoutAction = {
                 self.authService?.logout()
-                self.navigationController.popViewController(animated: true)
-                self.showLandingView()
+                self.navigateToLogin()
             }
             childCoordinators.append(dashboardCoordinator)
             dashboardCoordinator.start()
